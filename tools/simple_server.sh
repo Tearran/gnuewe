@@ -71,11 +71,11 @@ _simple_server_main() {
  	#python3 -m http.server 8080 --cgi &
 	# Pick first non-localhost IP
 	BIND_IP=$(hostname -I | awk '{print $1}')
-	python3 -m http.server 8080 --cgi --bind "$BIND_IP" &
+	python3 -m http.server "${port}" --cgi --bind "$BIND_IP" &
 
 	local PYTHON_PID=$!
 	echo "Python web server started with PID ${PYTHON_PID}"
-	echo "URL: http://localhost:${port}/"
+	echo "URL: http://localhost:${port}/  or http://${BIND_IP}:${port}/ "
 	echo "Press any key to stop the server..."
 	trap 'echo; echo "Stopping the server..."; kill "${PYTHON_PID}" >/dev/null 2>&1 || true; wait "${PYTHON_PID}" 2>/dev/null || true; trap - INT TERM EXIT' INT TERM EXIT
 
