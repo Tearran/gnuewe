@@ -71,7 +71,7 @@ _simple_server_main() {
  	#python3 -m http.server 8080 --cgi &
 	# Pick first non-localhost IP
 	BIND_IP=$(hostname -I | awk '{print $1}')
-	python3 -m http.server "${port}" --cgi --bind "$BIND_IP" &
+	python3 -m http.server "${port}" --cgi &
 
 	local PYTHON_PID=$!
 	echo "Python web server started with PID ${PYTHON_PID}"

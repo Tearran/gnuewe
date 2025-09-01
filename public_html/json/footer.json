@@ -5,12 +5,16 @@
       "title": "Resources",
       "items": [
         {
-          "label": "Armbian - Official Software",
-          "href": "#software"
-        },
-        {
           "label": "Server information",
           "href": "#info"
+        },
+        {
+          "label": "Edit Footer",
+          "href": "/cgi-bin/footer.cgi"
+        },
+        {
+          "label": "Edit NavBar",
+          "href": "/cgi-bin/nav.cgi"
         }
       ]
     },
