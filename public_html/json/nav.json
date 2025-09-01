@@ -1,0 +1,14 @@
+[
+  {
+    "label": "Home",
+    "href": "#home"
+  },
+  {
+    "label": "Downloads",
+    "href": "#downloads"
+  },
+  {
+    "label": "About",
+    "href": "#about"
+  }
+]

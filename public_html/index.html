@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>SBC Pi Tools</title>
+        <meta name="description" content="A hobby FOSS SPA for bash, html, and a simple python3 web server">
+        <meta name="author" content="Tearran (FOSS project)">
+        <meta name="robots" content="index, follow">
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+        <meta name="theme-color" content="#0366d6">
+        <link rel="stylesheet" href="/css/footer.css">
+        <link rel="stylesheet" href="/css/palette.css">
+        <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+        <header class="site-header">
+                <div class="brand">
+                        <img src="/images/settings.svg" alt="Home" width="64" height="64">
+                        <div class="site-title">
+
+                                <img src="/images/logo.svg" alt="SBC Pi Tools">
+                        </div>
+                </div>
+        </header>
+
+        <nav id="site-nav" class="site-nav" role="navigation" aria-label="Main">
+                <div id="nav-container" class="nav-loading">Loading navigation…</div>
+                <script src="/js/nav.js"></script>
+        </nav>
+
+        <main class="site-main">
+
+
+                <section id="home" class="page-section" aria-hidden="false" data-active="true">
+
+                        <div class="card">
+
+                                <h1>Welcome to SBC Pi Tools</h1>
+                                <p>
+                                        SBC Pi Tools are a Collection of Free and Open-Source Software (FOSS) and GNU
+                                        (“GNU’s Not Unix”)
+                                        tools for Single-Board Computers
+                                        (SBCs). Use this site to find software, utilities, and guides to customize and
+                                        configure a GNU/Linux OS on SBC
+                                        hardware.
+                                </p>
+                        </div>
+
+
+                        <div class="card">
+                                <h2>Quick definitions</h2>
+                                <ul>
+                                        <li><strong><a href="https://en.wikipedia.org/wiki/Free_and_open-source_software"
+                                                                target="_blank" rel="noopener">
+                                                                FOSS</a></strong> — Free and Open-Source Software:
+                                                software you are free
+                                                to run, read, modify, and redistribute (examples of licenses: GPL, MIT,
+                                                BSD, Apache).</li>
+                                        <li><strong><a href="https://www.gnu.org/" target="_blank" rel="noopener">
+                                                                GNU</a></strong> — GNUs Not Unix: a project and set
+                                                of free userland
+                                                tools (GCC, coreutils, glibc, bash, etc.) commonly used with the Linux
+                                                kernel to form GNU/Linux systems.</li>
+                                        <li><strong><a href="https://en.wikipedia.org/wiki/Single-board_computer"
+                                                                target="_blank" rel="noopener">
+                                                                SBC</a></strong> — Single-Board Computer: a complete
+                                                computer built on a
+                                                single circuit board (CPU, RAM, storage/I/O), e.g., Raspberry Pi,
+                                                BeagleBone.</li>
+
+
+                                        <li><strong><a href="https://www.armbian.com" target="_blank" rel="noopener">
+                                                                Armbian</a></strong> — a community project
+                                                that provides a build system and prebuilt, optimized GNU/Linux images
+                                                for single-board computers.</li>
+
+                                </ul>
+                        </div>
+                </section>
+
+                <section id="about" class="page-section" aria-hidden="true" hidden>
+
+                        <div class="card">
+                                <h3>Contributors</h3>
+                                <div id="contributors-container" aria-live="polite">Loading contributors…</div>
+                        </div>
+                        <script src="/js/contributors.js"></script>
+                </section>
+
+                <section id="software" class="page-section" aria-hidden="true" hidden>
+                        <div id="cardGrid" class="grid"></div>
+                        <script src="/js/software.js"></script>
+                </section>
+
+
+                <section id="downloads" class="page-section" aria-hidden="true" hidden>
+
+                        <div id="downloads-container" aria-live="polite">Loading downloads…</div>
+                        <script src="/js/downloads.js"></script>
+
+                </section>
+
+
+                <section id="info" class="page-section" aria-hidden="true" hidden>
+                        <div id="bash-cgi-cards"></div>
+                        <script src="/js/info.js"></script>
+                </section>
+
+
+
+
+
+
+        </main>
+
+        <footer id="site-footer" class="site-footer" role="contentinfo">
+
+                <div id="footer-links" class="footer-loading">Loading links…</div>
+
+                <div id="footer-about" class="footer-loading">Loading about…</div>
+                <div id="footer-legal" class="footer-loading">Loading legal…</div>
+                <script src="/js/footer.js"></script>
+        </footer>
+
+
+
+        <script src="/js/page.js"></script>
+        <script src="/js/loader.js"></script>
+
+</body>
+
+</html>
