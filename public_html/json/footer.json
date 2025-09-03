@@ -9,12 +9,16 @@
           "href": "#info"
         },
         {
-          "label": "Edit Footer",
+          "label": "Browser info",
           "href": "/cgi-bin/footer.cgi"
         },
         {
           "label": "Edit NavBar",
           "href": "/cgi-bin/nav.cgi"
+        },
+        {
+          "label": "Edit Footer",
+          "href": "/cgi-bin/footer.cgi"
         }
       ]
     },
@@ -25,6 +29,10 @@
         {
           "label": "Armbian - Discord",
           "href": "https://discord.gg/armbian"
+        },
+        {
+          "label": "Home",
+          "href": "#home"
         }
       ]
     },
@@ -46,7 +54,7 @@
   ],
   "legal": {
     "type": "legal",
-    "html": "<p>All trademarks are the property of their respective owners. All rights reserved. This site is not affiliated with or endorsed by any of the companies mentioned.</p><p>Content is provided \"as is\" and is for informational purposes only. Use at your own risk.</p>"
+    "html": "All trademarks are the property of their respective owners. All rights reserved.</p><p>Content is provided \"as is\" and is for informational purposes only. Use at your own risk."
   },
   "about": {
     "type": "about",

@@ -1,11 +1,9 @@
-async function loadArmbianTools() {
-        const url = "https://raw.githubusercontent.com/armbian/configng/refs/heads/main/tools/json/config.software.json";
-        const grid = document.getElementById("software-list");
+// /js/system.js
+async function loadSystemTools() {
+        const url = "https://raw.githubusercontent.com/armbian/configng/refs/heads/main/tools/json/config.system.json";
+        const grid = document.getElementById("system-list");
 
-        // Utility to safely escape single quotes for onclick
-        const escapeQuotes = str => str.replace(/'/g, "\\'");
-
-        // Recursive function to render menu/submenu
+        // Recursive function to render menu/submenu with collapsible sections
         function renderMenu(items, container) {
                 items.forEach(item => {
                         if (item.sub && item.sub.length > 0) {
@@ -14,7 +12,7 @@ async function loadArmbianTools() {
                                 section.className = "card";
 
                                 const header = document.createElement("h3");
-                                header.textContent = item.id;
+                                header.textContent = item.short || item.id;
                                 header.style.cursor = "pointer";
                                 section.appendChild(header);
 
@@ -39,15 +37,15 @@ async function loadArmbianTools() {
                                 card.className = "card";
 
                                 card.innerHTML = `
-  <h4>${item.short || item.id}</h4>
-  <p>${item.description}</p>
-  ${item.about ? `<p><em>${item.about}</em></p>` : ""}
-  <p><small>Status: ${item.status || ""} | Author: ${item.author || ""}</small></p>
-  ${item.command && item.command.length ? `<pre>${item.command.join(" && ")}</pre>` : ""}
-`;
+    <h4>${item.short || item.id}</h4>
+    <p>${item.description}</p>
+    ${item.about ? `<p><em>${item.about}</em></p>` : ""}
+    ${item.prompt ? `<p><em>${item.prompt}</em></p>` : ""}
+    <p><small>Status: ${item.status || ""} | Author: ${item.author || ""}</small></p>
+    ${item.command && item.command.length ? `<pre>${item.command.join(" && ")}</pre>` : ""}
+    `;
 
                                 container.appendChild(card);
-
                         }
                 });
         }
@@ -61,9 +59,10 @@ async function loadArmbianTools() {
                 renderMenu(json.menu, grid);
 
         } catch (err) {
-                console.error("Failed to load JSON:", err);
+                console.error("Failed to load system JSON:", err);
                 grid.innerHTML = `<div class="card"><h2>Error</h2><pre>${err}</pre></div>`;
         }
 }
 
-loadArmbianTools();
+// Load on page ready
+document.addEventListener("DOMContentLoaded", loadSystemTools);

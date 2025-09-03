@@ -65,9 +65,30 @@ def render_links(data, form_params=None):
             label = escape(item.get("label", ""))
             href = escape(item.get("href", ""))
             out.append("<div class='item'>")
-            out.append(f"{label} — {href} "
-                       f"<a class='btn' href='?edit_link={i}&edit_item={j}'>Edit</a> "
-                       f"<a class='btn' href='?delete_link={i}&delete_item={j}' onclick=\"return confirm('Delete?');\">Delete</a>")
+            out.append(f"{label} — {href} ")
+
+            # Edit button form
+            out.append(
+                f"<form method='post' class='inline'>"
+                f"<input type='hidden' name='action' value='edit_link'>"
+                f"<input type='hidden' name='group' value='{i}'>"
+                f"<input type='hidden' name='item' value='{j}'>"
+                f"<input type='text' name='label' placeholder='Label' value='{label}'> "
+                f"<input type='text' name='href' placeholder='Href' value='{href}'> "
+                f"<button class='btn' type='submit'>Save</button>"
+                f"</form>"
+            )
+
+            # Delete button form
+            out.append(
+                f"<form method='post' class='inline' onsubmit=\"return confirm('Delete?');\">"
+                f"<input type='hidden' name='action' value='delete_link'>"
+                f"<input type='hidden' name='group' value='{i}'>"
+                f"<input type='hidden' name='item' value='{j}'>"
+                f"<button class='btn' type='submit'>Delete</button>"
+                f"</form>"
+            )
+
             out.append("</div>")
 
         # Add form for new link in this group
@@ -82,6 +103,7 @@ def render_links(data, form_params=None):
 
     out.append("</div>")
     return "\n".join(out)
+
 
 
 def render_html_section(name, section):

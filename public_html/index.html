@@ -5,11 +5,11 @@
 
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>SBC Pi Tools</title>
+        <title>GNU ewe</title>
         <meta name="description" content="A hobby FOSS SPA for bash, html, and a simple python3 web server">
         <meta name="author" content="Tearran (FOSS project)">
         <meta name="robots" content="index, follow">
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+        <link rel="icon" type="image/svg+xml" href="/favicon.ico">
         <meta name="theme-color" content="#0366d6">
         <link rel="stylesheet" href="/css/footer.css">
         <link rel="stylesheet" href="/css/palette.css">
@@ -22,8 +22,12 @@
                         <img src="/images/settings.svg" alt="Home" width="64" height="64">
                         <div class="site-title">
 
-                                <img src="/images/logo.svg" alt="SBC Pi Tools">
+                                <img src="/images/logo.svg" alt="GNU ewe">
                         </div>
+                </div>
+                <div id="fullscreen-container">
+                        <button id="fullscreen-btn">⛶ Fullscreen</button>
+                        <script src="/js/fullscreen.js"></script>
                 </div>
         </header>
 
@@ -39,18 +43,58 @@
 
                         <div class="card">
 
-                                <h1>Welcome to SBC Pi Tools</h1>
+                                <h1>Welcome</h1>
                                 <p>
-                                        SBC Pi Tools are a Collection of Free and Open-Source Software (FOSS) and GNU
-                                        (“GNU’s Not Unix”)
-                                        tools for Single-Board Computers
-                                        (SBCs). Use this site to find software, utilities, and guides to customize and
-                                        configure a GNU/Linux OS on SBC
-                                        hardware.
+                                        The GNU EWE (Educating With Experience), pronounced “The g’New You,” is a
+                                        Linux-focused open-source project designed to help users learn by doing. Through
+                                        a combination of web tools, scripts, and hands-on guides, GNU EWE encourages
+                                        exploration, experimentation, and mastery of Linux systems.
+                                </p>
+                                <p>
+                                        Whether you’re configuring a server, developing scripts, or managing a web
+                                        interface, this project empowers you to transform your skills and embrace the
+                                        philosophy of “The g’New You.”
                                 </p>
                         </div>
 
+                </section>
 
+                <section id="dashboard" class="page-section" aria-hidden="true" hidden>
+                        <div class="card">
+                                <h2>Browser & System Info</h2>
+                                <div id="client-info">Loading system info…</div>
+                        </div>
+                        <script src="/js/dashboard.js"></script>
+                </section>
+
+
+                <section id="about" class="page-section" aria-hidden="true" hidden>
+
+                        <div class="card">
+                                <h3>Contributors</h3>
+                                <div id="contributors-container" aria-live="polite">Loading contributors…</div>
+                        </div>
+                        <script src="/js/contributors.js"></script>
+                </section>
+
+
+                <section id="documentation" class="page-section" aria-hidden="true" hidden>
+
+                        <div id="documentation-container" aria-live="polite" class="card">
+                                <h2>armbian-config</h2>
+                                <p>Official lsit <a href="https://www.armbian.com/armbian-config/" target="_blank"
+                                                rel="noopener">armbian-config</a> software
+                                        management tool included with Armbian images. Browse the cards below to find
+                                        software components
+                                        available in armbian-config, along with CLI <command> and descriptions and more
+                                                information.</p>
+                                <div id="software-list" class="grid"></div>
+                                <script src="/js/software.js"></script>
+                                <div id="system-list" class="grid">Loading system list…</div>
+                                <script src="/js/system.js"></script>
+                                <div id="network-list" class="grid"></div>
+                                <script src="/js/network.js"></script>
+                        </div>
                         <div class="card">
                                 <h2>Quick definitions</h2>
                                 <ul>
@@ -80,20 +124,11 @@
 
                                 </ul>
                         </div>
-                </section>
-
-                <section id="about" class="page-section" aria-hidden="true" hidden>
-
-                        <div class="card">
-                                <h3>Contributors</h3>
-                                <div id="contributors-container" aria-live="polite">Loading contributors…</div>
-                        </div>
-                        <script src="/js/contributors.js"></script>
+                        <script src="/js/documentation.js"></script>
                 </section>
 
                 <section id="software" class="page-section" aria-hidden="true" hidden>
-                        <div id="cardGrid" class="grid"></div>
-                        <script src="/js/software.js"></script>
+
                 </section>
 
 

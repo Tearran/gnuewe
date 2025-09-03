@@ -8,7 +8,15 @@
     "href": "#downloads"
   },
   {
-    "label": "About",
+    "label": "Dashboard",
+    "href": "#dashboard"
+  },
+  {
+    "label": "Documentation",
+    "href": "#documentation"
+  },
+  {
+    "label": "Contact Us",
     "href": "#about"
   }
 ]
