@@ -99,7 +99,7 @@ def choose_secondary_key(arr):
 
 def html_head(title="Nav Editor"):
     return (
-        "Content-Type: text/html; charset=utf-8\n\n"
+        #"Content-Type: text/html; charset=utf-8\n\n"
         "<!doctype html><html lang='en'><head><meta charset='utf-8'>"
         f"<meta name='viewport' content='width=device-width,initial-scale=1'>"
         f"<title>{escape(title)}</title>"
@@ -121,46 +121,56 @@ def html_tail():
 def render_ui(path, tried, arr, sec_key, msg=None, err=None, edit_idx=None):
     out = []
     out.append(html_head("nav.json editor"))
+
+    # Path info
     if path:
         out.append(f"<div class='card'>Using nav.json at: <code>{escape(path)}</code></div>")
     else:
         out.append("<div class='card' style='color:crimson'>nav.json not found. Adding will create the first candidate.</div>")
 
+    # Candidates
     out.append("<div class='card'><strong>Paths checked:</strong><ul>")
     for p in tried:
         out.append(f"<li><code>{escape(p)}</code> — {'found' if os.path.exists(p) else 'not found'}</li>")
     out.append("</ul></div>")
 
+    # Messages
     if msg:
         out.append(f"<div class='card' style='color:green'>{escape(msg)}</div>")
     if err:
         out.append(f"<div class='card' style='color:crimson'>{escape(err)}</div>")
 
+    # Inline editor list (like footer.cgi)
     out.append(f"<div class='card'><h2>Entries (label + {escape(sec_key)})</h2>")
     if not arr:
         out.append("<div class='item'>No entries</div>")
     else:
-        out.append("<ul>")
         for i, it in enumerate(arr):
-            label = it.get("label", "")
+            lbl = it.get("label", "")
             sec = it.get(sec_key, "") if isinstance(it, dict) else ""
-            # presentation: label then secondary value
-            display = escape(label) if label else escape(sec)
-            if label and sec:
-                display = f"{escape(label)} — {escape(sec)}"
-            out.append("<li>")
-            out.append(display + " ")
-            out.append(f"<a class='btn' href='?edit={i}'>Edit</a> ")
+            out.append("<div class='item'>")
+            # Edit form inline
             out.append(
-                "<form method='post' class='inline' onsubmit=\"return confirm('Delete?');\">"
+                f"<form method='post' class='inline'>"
+                f"<input type='hidden' name='action' value='edit'>"
+                f"<input type='hidden' name='index' value='{i}'>"
+                f"Label: <input type='text' name='label' value='{escape(lbl)}'> "
+                f"{escape(sec_key)}: <input type='text' name='value' value='{escape(sec)}'> "
+                f"<button class='btn' type='submit'>Save</button>"
+                f"</form> "
+            )
+            # Delete button inline
+            out.append(
+                f"<form method='post' class='inline' onsubmit=\"return confirm('Delete?');\">"
                 f"<input type='hidden' name='action' value='delete'>"
                 f"<input type='hidden' name='index' value='{i}'>"
-                "<button class='btn' type='submit'>Delete</button></form>"
+                f"<button class='btn' type='submit'>Delete</button>"
+                f"</form>"
             )
-            out.append("</li>")
-        out.append("</ul>")
+            out.append("</div>")
     out.append("</div>")
 
+    # Raw file for reference
     if path and os.path.exists(path):
         try:
             with open(path, "r", encoding="utf-8") as fh:
@@ -169,34 +179,21 @@ def render_ui(path, tried, arr, sec_key, msg=None, err=None, edit_idx=None):
             raw = f"Error reading file: {e}"
         out.append(f"<div class='card'><strong>Raw file ({escape(path)}):</strong><pre class='item'>{escape(raw)}</pre></div>")
 
-    # Edit form or Add form
-    if edit_idx is not None and 0 <= edit_idx < len(arr):
-        item = arr[edit_idx]
-        lbl = item.get("label", "")
-        sec = item.get(sec_key, "")
-        out.append(f"<div class='card'><h2>Edit item {edit_idx}</h2>")
-        out.append("<form method='post'>")
-        out.append(f"<input type='hidden' name='action' value='edit'>")
-        out.append(f"<input type='hidden' name='index' value='{edit_idx}'>")
-        out.append(f"<label>Label<br><input type='text' name='label' value='{escape(lbl)}'></label>")
-        out.append(f"<label>{escape(sec_key)}<br><input type='text' name='value' value='{escape(sec)}'></label>")
-        out.append("<div><button class='btn' type='submit'>Save</button> ")
-        out.append(f"<a class='btn' href='{escape(os.environ.get('SCRIPT_NAME','/cgi-bin/nav-edit.cgi'))}'>Cancel</a></div>")
-        out.append("</form></div>")
-    else:
-        out.append("<div class='card'><h2>Add entry</h2>")
-        out.append("<form method='post'>")
-        out.append("<input type='hidden' name='action' value='add'>")
-        out.append("<label>Label<br><input type='text' name='label'></label>")
-        out.append(f"<label>{escape(sec_key)}<br><input type='text' name='value'></label>")
-        out.append("<div><button class='btn' type='submit'>Add</button></div>")
-        out.append("</form></div>")
+    # Add entry
+    out.append("<div class='card'><h2>Add entry</h2>")
+    out.append("<form method='post'>")
+    out.append("<input type='hidden' name='action' value='add'>")
+    out.append("<label>Label<br><input type='text' name='label'></label>")
+    out.append(f"<label>{escape(sec_key)}<br><input type='text' name='value'></label>")
+    out.append("<div><button class='btn' type='submit'>Add</button></div>")
+    out.append("</form></div>")
 
     # Replace entire file
     out.append("<div class='card'><h2>Replace entire file</h2>")
     out.append("<form method='post'>")
     out.append("<input type='hidden' name='action' value='replace'>")
-    out.append("<label>Paste full JSON array<br><textarea name='whole' rows='10' style='width:100%;font-family:monospace'></textarea></label>")
+    out.append("<label>Paste full JSON array<br>"
+               "<textarea name='whole' rows='10' style='width:100%;font-family:monospace'></textarea></label>")
     out.append("<div><button class='btn' type='submit' onclick=\"return confirm('Replace entire file?')\">Replace file</button></div>")
     out.append("</form></div>")
 

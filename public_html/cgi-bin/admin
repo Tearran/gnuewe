@@ -1,4 +1,46 @@
-#!/bin/bash
-echo "Content-type: application/json"
-echo ""
-echo '{"status":"success","message":"Admin script executed successfully."}'
+#!/usr/bin/env python3
+import os
+import subprocess
+from html import escape
+print("Content-Type: text/html\n")
+print("<!doctype html><html><head><meta charset='utf-8'><title>Admin</title></head><body>")
+print("<h1>Admin Dashboard</h1>")
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Paths to existing scripts
+NAV_SCRIPT = os.path.join(SCRIPT_DIR, "nav.cgi")
+FOOTER_SCRIPT = os.path.join(SCRIPT_DIR, "footer.cgi")
+
+def run_cgi(script_path):
+    env = os.environ.copy()
+    env["SCRIPT_NAME"] = "/" + os.path.basename(script_path)
+    try:
+        result = subprocess.run(
+            [script_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=env,
+            check=True,
+        )
+        output = result.stdout.decode("utf-8", errors="replace")
+        # remove CGI header if present (handles both LF and CRLF)
+        if output.startswith("Content-Type:"):
+            if "\r\n\r\n" in output:
+                output = output.split("\r\n\r\n", 1)[1]
+            elif "\n\n" in output:
+                output = output.split("\n\n", 1)[1]
+        return output
+    except subprocess.CalledProcessError as e:
+        return (f"<div style='color:red'>Error running {escape(script_path)}:"
+                f"<pre>{escape(e.stderr.decode(errors='replace'))}</pre></div>")
+
+# Include nav.cgi
+print("<h2>Navigation Editor</h2>")
+print(run_cgi(NAV_SCRIPT))
+
+# Include footer.cgi
+print("<h2>Footer Editor</h2>")
+print(run_cgi(FOOTER_SCRIPT))
+
+print("</body></html>")
