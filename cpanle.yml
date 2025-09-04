@@ -1,0 +1,18 @@
+name: Website Sync
+
+on:
+  schedule:
+    - cron: "*/5 * * * *" # Runs every 5 minutes for testing
+
+jobs:
+  deploy:
+    runs-on: cpanel
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          path: repo
+
+      - name: Sync public_html to hosting directory
+        run: |
+          rsync -av --delete /home/gnuewgxi/repositories/gnuewe/public_html/ /home/gnuewgxi/public_html/
