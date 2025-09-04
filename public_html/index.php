@@ -28,6 +28,14 @@
 pre {
     margin: 0;
 }
+
+.md-reference-list img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  vertical-align: middle;
+  margin-right: 0.5em;
+}
 </style>
 
 <!-- Place this script at the end of the body or after your code blocks -->
@@ -92,6 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <body>
         <?php include 'include/header.html'; ?>
+<!-- Hamburger/Menu Icon (outside nav) -->
 
         <?php include 'include/nav.html'; ?>
 
@@ -103,9 +112,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 <section id="cards">
 
                         <div class="card" data-markdown="cards/README.md"></div>
-                        <div class="card" data-html="include/contributors.html"></div>
+                          <div class="card">
+                        <?php include 'include/contributors.html'; ?>
+</div>
                         <div class="card" data-markdown="cards/definitions.md"></div>
+                        <div class="card" data-markdown="cards/referance.md"></div>
                         <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
                         <script>
                                 // Utility: load file as text (Markdown or HTML)
                                 async function loadText(url) {
@@ -135,6 +148,45 @@ document.addEventListener('DOMContentLoaded', function () {
 
         <script src="/js/page.js"></script>
         <script src="/js/loader.js"></script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+  const menuBtn = document.getElementById('menu-toggle');
+  const nav = document.getElementById('site-nav');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  function closeMenu() {
+    nav.classList.remove('open');
+    menuBtn.classList.remove('open');
+    menuBtn.setAttribute('aria-expanded', 'false');
+    menuBtn.setAttribute('aria-label', 'Open navigation');
+  }
+
+  if (menuBtn && nav) {
+    menuBtn.addEventListener('click', function (e) {
+      const isOpen = nav.classList.toggle('open');
+      menuBtn.classList.toggle('open', isOpen);
+      menuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      menuBtn.setAttribute('aria-label', isOpen ? 'Close navigation' : 'Open navigation');
+      e.stopPropagation();
+    });
+
+    // Click-away handler
+    document.addEventListener('click', function (e) {
+      if (!nav.classList.contains('open')) return;
+      if (!nav.contains(e.target) && !menuBtn.contains(e.target)) {
+        closeMenu();
+      }
+    });
+
+    // On navigation link click, close menu
+    navLinks.forEach(function(link) {
+      link.addEventListener('click', function () {
+        closeMenu();
+      });
+    });
+  }
+});
+        </script>
 
 </body>
 
