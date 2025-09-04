@@ -4,11 +4,7 @@
     "href": "#home"
   },
   {
-    "label": "Downloads",
-    "href": "#downloads"
-  },
-  {
-    "label": "Configng",
+    "label": "Armbian-config",
     "href": "#configng"
   },
   {
