@@ -25,6 +25,7 @@
                 <?php include 'include/home.html'; ?>
                 <?php include 'include/about.html'; ?>
                 <?php include 'include/configng.html'; ?>
+                <?php include 'include/downloads.html'; ?>
         </main>
 
         <?php include 'include/footer.html'; ?>
