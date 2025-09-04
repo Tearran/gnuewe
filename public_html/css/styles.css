@@ -15,6 +15,21 @@ body {
         min-height: 100vh;
 }
 
+pre code {
+        display: block;
+        border: 2px solid #467fcf;
+        /* Blue border for visibility */
+        border-radius: 6px;
+        background: #f9fafd;
+        padding: 1em;
+        margin: 0;
+        font-family: "Fira Mono", "Consolas", "Monaco", monospace;
+        font-size: 1em;
+        overflow-x: auto;
+        /* Optional: subtle box-shadow for depth */
+        box-shadow: 0 2px 8px rgba(70, 127, 207, 0.06);
+}
+
 /* Header */
 .site-header {
         background: var(--header-inverted);
