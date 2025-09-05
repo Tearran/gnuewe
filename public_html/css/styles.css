@@ -15,26 +15,6 @@ body {
         min-height: 100vh;
 }
 
-pre code {
-        display: block;
-        border: 2px solid #467fcf;
-        /* Blue border for visibility */
-        border-radius: 6px;
-        background: #f9fafd;
-        padding: 1em;
-        margin: 0;
-        font-family: "Fira Mono", "Consolas", "Monaco", monospace;
-        font-size: 1em;
-        overflow-x: auto;
-        /* Optional: subtle box-shadow for depth */
-        box-shadow: 0 2px 8px rgba(70, 127, 207, 0.06);
-}
-
-header {
-        width: 100%;
-        position: fixed;
-}
-
 /* Header */
 .site-header {
 
@@ -42,15 +22,6 @@ header {
         color: var(--text-inverted);
         box-shadow: 0 2px 6px var(--shadow);
         padding: 1rem;
-}
-
-.site-header .brand {
-        display: flex;
-        /* arrange children horizontally */
-        align-items: center;
-        /* vertically center the items */
-        gap: 1rem;
-        /* spacing between logo and title */
 }
 
 .site-header .brand img {
@@ -64,14 +35,31 @@ header {
 }
 
 
-/* Nav */
-.site-nav {
-        max-width: 85%;
-        margin: -1rem auto 1rem auto;
-        padding: 0.75rem 2rem;
-        background: var(--nav);
-        border: 1px solid var(--border);
-        box-shadow: 0 4px 12px var(--shadow);
+.site-header .header-grid {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        /* Brand on left, button on right */
+        align-items: center;
+        width: 100%;
+}
+
+.brand {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+}
+
+/* Remove float/fixed from #menu-toggle */
+#menu-toggle {
+        position: static;
+        margin-left: auto;
+        /* aligns button to right edge of grid */
+}
+
+
+/* Main */
+.site-main {
+        flex: 1;
 }
 
 .card {
@@ -82,96 +70,15 @@ header {
         box-shadow: 0 2px 6px var(--shadow);
 }
 
-/* Always show menu button at upper right */
-#menu-toggle {
-        position: fixed;
-        top: 1rem;
-        right: 1rem;
-        background: var(--card, #fff);
-        border: none;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px var(--shadow, #0002);
-        cursor: pointer;
-        padding: 0.75rem;
-        z-index: 1001;
-}
-
-#menu-toggle .bar {
-        display: block;
-        width: 32px;
-        height: 4px;
-        margin: 6px 0;
-        background: var(--text, #222);
-        border-radius: 2px;
-        transition: 0.3s;
-}
-
-/* Hamburger to X animation */
-#menu-toggle.open .bar:nth-child(1) {
-        transform: translateY(10px) rotate(45deg);
-}
-
-#menu-toggle.open .bar:nth-child(2) {
-        opacity: 0;
-}
-
-#menu-toggle.open .bar:nth-child(3) {
-        transform: translateY(-10px) rotate(-45deg);
-}
-
-/* Menu styling (vertical list example) */
-.site-nav {
-        position: fixed;
-        top: 0;
-        right: 0;
-        background: var(--nav, #fff);
-        width: 230px;
-        height: 100%;
-        box-shadow: -2px 0 16px var(--shadow, #0002);
-        transform: translateX(100%);
-        transition: transform 0.2s;
-        z-index: 1000;
-        padding: 3.5rem 1rem 1rem 1.5rem;
-}
-
-.site-nav.open {
-        transform: translateX(0);
-}
-
-.nav-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1.2rem;
-        list-style: none;
-        padding: 0;
-        margin: 0;
-}
-
-/* Links style */
-.nav-link {
-        text-decoration: none;
-        color: var(--text, #222);
-        font-weight: 500;
-        padding: 0.5rem 1rem;
-        transition: background 0.2s, color 0.2s;
-}
-
-.nav-link:hover {
-        background: var(--accent, #467fcf);
-        color: var(--accent-contrast, #fff);
-}
-
-
-
-/* Main */
-.site-main {
-        flex: 1;
+.cards h1,
+.cards h2,
+.cards h3,
+.cards h4 {
+        border-radius: 0;
+        background: var(--card);
         padding: 1rem;
-        margin-top: 128px;
-
+        box-shadow: 0 2px 6px var(--shadow);
 }
-
-
 
 /* Links */
 a {
@@ -237,12 +144,4 @@ main .contributor .meta {
         /* less gap between cards */
         justify-content: flex-start;
         align-items: center;
-}
-
-
-#system-frame {
-        width: 100%;
-        border: none;
-        overflow: hidden;
-        margin: 0 auto;
 }
