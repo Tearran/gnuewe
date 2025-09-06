@@ -11,7 +11,7 @@
         },
         {
                 "label": "Armbian Software",
-                "file": "https://raw.githubusercontent.com/armbian/documentation/blob/main/docs/User-Guide_Armbian-Config/Software.md",
+                "file": "https://raw.githubusercontent.com/armbian/documentation/refs/heads/main/docs/User-Guide_Armbian-Software/Software.md",
                 "tags": [
                         "config",
                         "guide",
