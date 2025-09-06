@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,7 +9,6 @@
   <meta name="robots" content="index, follow">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <meta name="theme-color" content="#0366d6">
-
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     :root {
@@ -23,11 +21,10 @@
       --bg-active: #21262d;
       --radius-main: 5px;
       --font-main: Arial, sans-serif;
-      /* Stroke width + transition */
+
       --icon-stroke-width: 1.6;
       --icon-transition: 120ms;
 
-      /* Color mappings (derive from existing site variables) */
       --icon-color-base: var(--text-main);
       --icon-color-accent: var(--text-link);
       --icon-color-muted: var(--text-muted);
@@ -36,598 +33,413 @@
       --icon-color-success: #31c48d;
     }
 
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      min-height: 100vh;
-      box-sizing: border-box;
+    html, body {
+      margin:0; padding:0; width:100%; min-height:100vh; box-sizing:border-box;
     }
-
-    *,
-    *:before,
-    *:after {
-      box-sizing: inherit;
-    }
+    *, *:before, *:after { box-sizing:inherit; }
 
     body {
       font-family: var(--font-main);
       background: var(--bg-main);
       color: var(--text-main);
-      overflow-x: hidden;
+      overflow-x:hidden;
     }
 
     nav#topnav {
       background: var(--bg-nav);
-      border-bottom: 1px solid var(--border-nav);
-      width: 100%;
-      position: relative;
-      z-index: 10;
+      border-bottom:1px solid var(--border-nav);
+      width:100%;
+      position:relative;
+      z-index:10;
     }
-
     .nav-inner {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.5em 1.1em;
-      flex-wrap: wrap;
+      display:flex; align-items:center; gap:0.75rem;
+      padding:0.5em 1.1em; flex-wrap:wrap;
     }
-
-    .nav-title {
-      font-weight: bold;
-      font-size: 1.12em;
-      white-space: nowrap;
-    }
+    .nav-title { font-weight:bold; font-size:1.12em; white-space:nowrap; }
 
     #filter-container {
-      display: flex;
-      align-items: center;
-      flex: 1 1 260px;
-      max-width: 340px;
-      min-width: 180px;
-      position: relative;
+      display:flex; align-items:center;
+      flex:1 1 260px; max-width:340px; min-width:180px; position:relative;
     }
-
     #tag-filter {
-      background: var(--bg-main);
-      border: 1px solid var(--border-nav);
-      color: var(--text-main);
-      font-size: 1em;
-      border-radius: var(--radius-main);
-      padding: 0.5em 1em;
-      width: 100%;
+      background:var(--bg-main); border:1px solid var(--border-nav);
+      color:var(--text-main); font-size:1em;
+      border-radius:var(--radius-main); padding:0.5em 1em; width:100%;
     }
 
     ul#nav-list {
-      display: flex;
-      flex: 1 1 auto;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      gap: 0.5em;
-      flex-wrap: wrap;
+      display:flex; flex:1 1 auto;
+      list-style:none; margin:0; padding:0; gap:0.5em; flex-wrap:wrap;
     }
-
     ul#nav-list a {
-      display: block;
-      color: var(--text-link);
-      text-decoration: none;
-      padding: 0.55em 1.0em;
-      font-size: 0.96em;
-      border-radius: 4px;
-      transition: background 0.15s, color 0.15s;
-      white-space: nowrap;
+      display:block; color:var(--text-link); text-decoration:none;
+      padding:0.55em 1.0em; font-size:0.96em; border-radius:4px;
+      transition:background 0.15s, color 0.15s; white-space:nowrap;
     }
-
     ul#nav-list a.active,
-    ul#nav-list a:hover {
-      background: var(--bg-active);
-      color: var(--text-main);
-    }
+    ul#nav-list a:hover { background:var(--bg-active); color:var(--text-main); }
 
     .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.35em;
-      margin-left: auto;
+      display:flex; align-items:center; gap:0.35em; margin-left:auto;
     }
+    #menu-toggle, #open-theme-dashboard, #open-search {
+      background:none; border:1px solid var(--border-nav); color:var(--text-link);
+      cursor:pointer; font-size:1.05em; padding:0.35em 0.7em;
+      border-radius:var(--radius-main); line-height:1;
+    }
+    #menu-toggle { font-size:1.5em; border:none; }
 
-    #menu-toggle,
-    #open-theme-dashboard {
-      background: none;
-      border: 1px solid var(--border-nav);
-      color: var(--text-link);
-      cursor: pointer;
-      font-size: 1.05em;
-      padding: 0.35em 0.7em;
-      border-radius: var(--radius-main);
-      line-height: 1;
-    }
-
-    #menu-toggle {
-      font-size: 1.5em;
-      border: none;
-    }
-
-    #content {
-      padding: 32px;
-      background: var(--bg-main);
-    }
+    #content { padding:32px; background:var(--bg-main); }
 
     @media (max-width:600px) {
-      #filter-container {
-        display: none;
-      }
-
-      #menu-toggle {
-        display: block;
-      }
-
+      #filter-container { display:none; }
+      #menu-toggle { display:block; }
       ul#nav-list {
-        display: none;
-        flex-direction: column;
-        width: 100%;
-        background: var(--bg-nav);
-        border-top: 1px solid var(--border-nav);
-        padding: 0.4em 0.4em 0.6em;
+        display:none; flex-direction:column; width:100%;
+        background:var(--bg-nav); border-top:1px solid var(--border-nav);
+        padding:0.4em 0.4em 0.6em;
       }
-
-      ul#nav-list.show {
-        display: flex;
-      }
-
+      ul#nav-list.show { display:flex; }
       #mobile-filter {
-        display: block;
-        position: absolute;
-        left: 0;
-        top: 100%;
-        width: 100vw;
-        background: var(--bg-nav);
-        border-bottom: 1px solid var(--border-nav);
-        padding: 0.5em 1.1em;
+        display:block; position:absolute; left:0; top:100%; width:100vw;
+        background:var(--bg-nav); border-bottom:1px solid var(--border-nav);
+        padding:0.5em 1.1em;
       }
-
-      #mobile-filter.hide {
-        display: none;
-      }
-
-      #content {
-        padding: 18px 6vw;
-        font-size: 1.08em;
-      }
+      #mobile-filter.hide { display:none; }
+      #content { padding:18px 6vw; font-size:1.08em; }
     }
 
     @media (min-width:601px) {
-      #menu-toggle {
-        display: none;
-      }
-
-      #mobile-filter {
-        display: none !important;
-      }
-
-      ul#nav-list {
-        display: flex !important;
-        position: static;
-      }
+      #menu-toggle { display:none; }
+      #mobile-filter { display:none !important; }
+      ul#nav-list { display:flex !important; position:static; }
     }
 
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-      color: var(--text-main);
-      margin-top: 1.2em;
-      margin-bottom: 0.5em;
+    h1,h2,h3,h4,h5,h6 { color:var(--text-main); margin-top:1.2em; margin-bottom:0.5em; }
+    code, pre {
+      color:var(--text-muted); background:var(--bg-nav);
+      border-radius:6px; padding:2px 4px; font-size:1em; word-break:break-all;
     }
-
-    code,
-    pre {
-      color: var(--text-muted);
-      background: var(--bg-nav);
-      border-radius: 6px;
-      padding: 2px 4px;
-      font-size: 1em;
-      word-break: break-all;
-    }
-
-    pre {
-      padding: 12px;
-      overflow-x: auto;
-    }
-
-    img {
-      max-width: 100%;
-      height: auto;
-    }
-
-    a {
-      color: var(--text-link);
-    }
+    pre { padding:12px; overflow-x:auto; }
+    img { max-width:100%; height:auto; }
+    a { color:var(--text-link); }
 
     /* Theme Dashboard Panel */
     #theme-dashboard {
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: 320px;
-      max-width: 90vw;
-      height: 100vh;
-      background: var(--bg-nav);
-      border-left: 1px solid var(--border-nav);
-      transform: translateX(100%);
-      transition: transform 0.25s ease;
-      display: flex;
-      flex-direction: column;
-      z-index: 100;
+      position:fixed; top:0; right:0; width:320px; max-width:90vw;
+      height:100vh; background:var(--bg-nav); border-left:1px solid var(--border-nav);
+      transform:translateX(100%); transition:transform 0.25s ease;
+      display:flex; flex-direction:column; z-index:100;
     }
-
-    #theme-dashboard.open {
-      transform: translateX(0);
-    }
-
+    #theme-dashboard.open { transform:translateX(0); }
     #theme-dashboard header {
-      padding: 0.75em 1em;
-      border-bottom: 1px solid var(--border-nav);
-      font-weight: bold;
-      font-size: 1.05em;
-      position: relative;
+      padding:0.75em 1em; border-bottom:1px solid var(--border-nav);
+      font-weight:bold; font-size:1.05em; position:relative;
     }
-
     #theme-dashboard button.close-dashboard {
-      background: none;
-      border: none;
-      color: var(--text-link);
-      font-size: 1.2em;
-      cursor: pointer;
-      position: absolute;
-      top: 0.35em;
-      right: 0.4em;
+      background:none; border:none; color:var(--text-link);
+      font-size:1.2em; cursor:pointer; position:absolute; top:0.35em; right:0.4em;
     }
-
     #theme-dashboard .themes-list {
-      overflow-y: auto;
-      padding: 0.75em 0.6em 1em;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5em;
+      overflow-y:auto; padding:0.75em 0.6em 1em; flex:1; display:flex; flex-direction:column; gap:0.5em;
     }
-
     .theme-item {
-      border: 1px solid var(--border-nav);
-      border-radius: 6px;
-      padding: 0.55em 0.6em;
-      display: flex;
-      flex-direction: column;
-      gap: 0.35em;
-      background: var(--bg-main);
+      border:1px solid var(--border-nav); border-radius:6px;
+      padding:0.55em 0.6em; display:flex; flex-direction:column; gap:0.35em;
+      background:var(--bg-main);
     }
-
-    .theme-item-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5em;
-    }
-
+    .theme-item-header { display:flex; align-items:center; justify-content:space-between; gap:0.5em; }
     .theme-item button.apply-theme {
-      background: none;
-      border: 1px solid var(--border-nav);
-      color: var(--text-link);
-      cursor: pointer;
-      font-size: 0.85em;
-      padding: 0.3em 0.6em;
-      border-radius: 4px;
+      background:none; border:1px solid var(--border-nav); color:var(--text-link);
+      cursor:pointer; font-size:0.85em; padding:0.3em 0.6em; border-radius:4px;
     }
+    .theme-item.active { outline:2px solid var(--text-link); }
 
-    .theme-item.active {
-      outline: 2px solid var(--text-link);
-    }
-
-    /* =========================================
-   ICON SYSTEM (theme-aware)
-   ========================================= */
-
-    /* Inherit site palette */
-    :root {
-      /* Stroke width + transition */
-      --icon-stroke-width: 1.6;
-      --icon-transition: 120ms;
-
-      /* Color mappings (derive from existing site variables) */
-      --icon-color-base: var(--text-main);
-      --icon-color-accent: var(--text-link);
-      --icon-color-muted: var(--text-muted);
-      --icon-color-danger: #ff4d4f;
-      --icon-color-warn: #e0a210;
-      --icon-color-success: #31c48d;
-    }
-
-    /* Icon base class */
+    /* Icon base */
     .icon {
-      /* Sizing defaults to 1em so it can live inline with text unless a size class is added */
-      width: 1em;
-      height: 1em;
-      display: inline-block;
-      vertical-align: middle;
-      flex-shrink: 0;
-
-      /* Theme-colors (stroke mode default) */
-      color: var(--icon-color-base);
-      stroke: currentColor;
-      stroke-width: var(--icon-stroke-width);
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      fill: none;
-
-      vector-effect: non-scaling-stroke;
-      transition: color var(--icon-transition),
-        stroke var(--icon-transition),
-        fill var(--icon-transition),
-        transform var(--icon-transition),
+      width:1em; height:1em; display:inline-block; vertical-align:middle; flex-shrink:0;
+      color:var(--icon-color-base);
+      stroke:currentColor; stroke-width:var(--icon-stroke-width);
+      stroke-linecap:round; stroke-linejoin:round; fill:none;
+      vector-effect:non-scaling-stroke;
+      transition:color var(--icon-transition), stroke var(--icon-transition),
+        fill var(--icon-transition), transform var(--icon-transition),
         opacity var(--icon-transition);
     }
+    .icon-sm { width:16px; height:16px; }
+    .icon-md { width:32px; height:32px; }
+    .icon-lg { width:64px; height:64px; }
+    .icon-x2 { width:128px; height:128px; }
+    .icon-x4 { width:256px; height:256px; }
+    .icon-thin { stroke-width:1.2; }
+    .icon-bold { stroke-width:2; }
+    .icon-fill { fill:currentColor; stroke:none; }
+    .icon-outline { fill:none !important; stroke:currentColor !important; stroke-width:var(--icon-stroke-width) !important; }
+    .icon-accent { color:var(--icon-color-accent); }
+    .icon-muted { color:var(--icon-color-muted); }
+    .icon-danger { color:var(--icon-color-danger); }
+    .icon-warn { color:var(--icon-color-warn); }
+    .icon-success { color:var(--icon-color-success); }
+    .icon-hover-scale:hover { transform:scale(1.12); }
+    .icon-pressable { transition:transform 120ms; }
+    .icon-pressable:active { transform:translateY(1px) scale(.96); }
+    .icon-rotate { animation:icon-rotate 1s linear infinite; }
+    @keyframes icon-rotate { to { transform:rotate(360deg); } }
+    .icon-pulse { animation:icon-pulse 1.2s ease-in-out infinite; }
+    @keyframes icon-pulse { 0%,100%{opacity:1;} 50%{opacity:.35;} }
+    .icon-disabled, [disabled] .icon { opacity:.4; pointer-events:none; }
 
-    /* Size classes (explicit pixel mapping).
-   You requested:
-   sm=16, md=32, lg=64, x2=128, x4=256.
-   (Base un-classed might be inline 1em ≈ 16px depending on font-size) */
-    .icon-sm {
-      width: 16px;
-      height: 16px;
+    /* Search Panel (new) */
+    #search-panel {
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.55);
+      backdrop-filter:blur(4px);
+      display:none;
+      align-items:flex-start;
+      justify-content:center;
+      padding:4vh 2vw;
+      z-index:150;
     }
-
-    .icon-md {
-      width: 32px;
-      height: 32px;
+    #search-panel.open { display:flex; }
+    #search-box {
+      background:var(--bg-nav);
+      border:1px solid var(--border-nav);
+      width:880px; max-width:100%;
+      max-height:88vh;
+      display:flex;
+      flex-direction:column;
+      border-radius:10px;
+      overflow:hidden;
+      box-shadow:0 6px 26px rgba(0,0,0,0.45);
+      animation:fadeIn .16s ease;
     }
-
-    .icon-lg {
-      width: 64px;
-      height: 64px;
+    @keyframes fadeIn { from { opacity:0; transform:translateY(4px);} to { opacity:1; transform:translateY(0);} }
+    #search-header {
+      display:flex; align-items:center; gap:.75em;
+      padding:.75em 1em .65em;
+      border-bottom:1px solid var(--border-nav);
     }
-
-    .icon-x2 {
-      width: 128px;
-      height: 128px;
+    #global-search-input {
+      flex:1;
+      background:var(--bg-main);
+      border:1px solid var(--border-nav);
+      border-radius:6px;
+      padding:.55em .8em;
+      color:var(--text-main);
+      font-size:.95em;
     }
-
-    .icon-x4 {
-      width: 256px;
-      height: 256px;
+    #close-search {
+      background:none; border:none; color:var(--text-link);
+      font-size:1.3em; cursor:pointer; line-height:1;
     }
-
-    /* (Optional) micro / extra if you later need them:
-.icon-xs { width:12px; height:12px; }
-.icon-xl { width:96px; height:96px; }
-*/
-
-    /* Stroke weight variants */
-    .icon-thin {
-      stroke-width: 1.2;
+    #search-results {
+      overflow-y:auto; padding:.75em .9em 1.2em;
+      display:flex; flex-direction:column; gap:1.25em;
     }
-
-    .icon-bold {
-      stroke-width: 2;
+    .results-group h4 {
+      margin:.2em 0 .4em;
+      font-size:.78em;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--text-muted);
+      font-weight:600;
     }
-
-    /* Switch to solid fill mode */
-    .icon-fill {
-      fill: currentColor;
-      stroke: none;
+    .result-item {
+      display:flex; align-items:center; gap:.65em;
+      padding:.45em .55em;
+      border:1px solid var(--border-nav);
+      border-radius:6px;
+      background:var(--bg-main);
+      cursor:pointer;
+      font-size:.9em;
+      line-height:1.2;
+      position:relative;
+      transition:background .15s, border-color .15s;
     }
-
-    /* Force outline even if a parent adds a fill class */
-    .icon-outline {
-      fill: none !important;
-      stroke: currentColor !important;
-      stroke-width: var(--icon-stroke-width) !important;
+    .result-item:hover,
+    .result-item.active {
+      background:var(--bg-active);
+      border-color:var(--text-link);
     }
-
-    /* Color utility variants (override currentColor) */
-    .icon-accent {
-      color: var(--icon-color-accent);
+    .result-item .match-label { color:var(--text-main); font-weight:500; }
+    .result-item .match-tags {
+      color:var(--text-muted);
+      font-size:.72em;
+      display:flex; flex-wrap:wrap; gap:.3em;
+      max-width:60%;
     }
-
-    .icon-muted {
-      color: var(--icon-color-muted);
+    .result-item .match-tags span {
+      background:var(--bg-nav);
+      padding:.15em .45em;
+      border-radius:4px;
+      border:1px solid var(--border-nav);
     }
-
-    .icon-danger {
-      color: var(--icon-color-danger);
+    .no-results {
+      font-size:.85em; opacity:0.7; padding:0.5em 0.3em;
     }
-
-    .icon-warn {
-      color: var(--icon-color-warn);
+    .loading-spinner {
+      display:flex; align-items:center; gap:.6em;
+      font-size:.85em;
+      color:var(--text-muted);
+      padding:4px 2px;
     }
-
-    .icon-success {
-      color: var(--icon-color-success);
+    .loading-spinner .dot {
+      width:8px; height:8px; border-radius:50%;
+      background:var(--text-muted);
+      animation:bounce 0.9s infinite ease-in-out;
     }
-
-    /* Hover helpers (add to wrapper or icon) */
-    .icon-hover-scale:hover {
-      transform: scale(1.12);
+    .loading-spinner .dot:nth-child(2){ animation-delay:0.15s; }
+    .loading-spinner .dot:nth-child(3){ animation-delay:0.3s; }
+    @keyframes bounce {
+      0%,80%,100% { transform:scale(0); }
+      40% { transform:scale(1); }
     }
-
-    .icon-pressable {
-      transition: transform 120ms;
-    }
-
-    .icon-pressable:active {
-      transform: translateY(1px) scale(.96);
-    }
-
-    /* Animations */
-    .icon-rotate {
-      animation: icon-rotate 1s linear infinite;
-    }
-
-    @keyframes icon-rotate {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .icon-pulse {
-      animation: icon-pulse 1.2s ease-in-out infinite;
-    }
-
-    @keyframes icon-pulse {
-
-      0%,
-      100% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: .35;
-      }
-    }
-
-    /* Disabled state */
-    .icon-disabled,
-    [disabled] .icon {
-      opacity: .4;
-      pointer-events: none;
-    }
-
-    /* Icon button pattern */
-    .icon-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5em;
-      padding: 0.42em 0.75em;
-      background: transparent;
-      color: inherit;
-      border: 1px solid currentColor;
-      border-radius: 6px;
-      cursor: pointer;
-      font: inherit;
-      line-height: 1;
-      transition: background 140ms, color 140ms, border-color 140ms;
-    }
-
-    .icon-btn:hover {
-      color: var(--icon-color-accent);
-      border-color: var(--icon-color-accent);
-    }
-
-    .icon-btn:focus-visible {
-      outline: 2px solid var(--icon-color-accent);
-      outline-offset: 2px;
-    }
-
-    /* If you want icon inside .btn to space nicely */
-    .btn .icon:first-child {
-      margin-right: .45em;
-    }
-
-    .btn .icon:last-child:not(:only-child) {
-      margin-left: .45em;
-    }
-
 
     .site-footer {
-      background: var(--bg-nav);
-      color: var(--text);
-      padding: 2rem 1rem;
-      font-size: 0.9em;
-      box-shadow: 0 -2px 6px var(--shadow);
+      background:var(--bg-nav);
+      color:var(--text);
+      padding:2rem 1rem;
+      font-size:0.9em;
+      box-shadow:0 -2px 6px rgba(0,0,0,0.4);
     }
-
-
-
     #footer-links {
-      display: flex;
-      gap: 2rem;
-      flex-wrap: wrap;
+      display:flex; gap:2rem; flex-wrap:wrap;
     }
-
-    #footer-links .footer-links {
-      flex: 1 1 200px;
-    }
-
-    #footer-links h4 {
-      margin-bottom: 0.5rem;
-      font-size: 1em;
-    }
-
-    #footer-links ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    #footer-links li {
-      margin-bottom: 0.3rem;
-    }
-
-    #footer-links a {
-      color: var(--ui-accent);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    #footer-links a:hover {
-      color: var(--ui-accent-hover);
-    }
-
+    #footer-links .footer-links { flex:1 1 200px; }
+    #footer-links h4 { margin-bottom:0.5rem; font-size:1em; }
+    #footer-links ul { list-style:none; padding:0; margin:0; }
+    #footer-links li { margin-bottom:0.3rem; }
+    #footer-links a { color:var(--ui-accent); text-decoration:none; transition:color 0.2s; }
+    #footer-links a:hover { color:var(--ui-accent-hover); }
     #footer-legal {
-      width: 100%;
-      font-size: 8px;
-      font-family: 'Courier New', Courier, monospace;
-      text-align: left;
-      margin: 0 auto;
+      width:100%; font-size:8px; font-family:'Courier New', Courier, monospace; text-align:left; margin:0 auto;
     }
+    #footer-about { display:flex; justify-content:space-between; width:100%; }
 
-    #footer-about {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-    }
+#sub-menu-container {
+  background: var(--bg-nav);
+  border-bottom: 1px solid var(--border-nav);
+  padding: 0.4rem 0.75rem 0.75rem;
+}
+#sub-menu-container:not([hidden]) {
+  animation: subMenuFade .18s ease;
+}
+@keyframes subMenuFade {
+  from { opacity:0; transform:translateY(-4px); }
+  to { opacity:1; transform:translateY(0); }
+}
+.sub-menu-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:.75rem;
+  margin-bottom:0.4rem;
+  font-size:0.85em;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  color:var(--text-muted);
+}
+#sub-menu-title {
+  font-weight:600;
+  color:var(--text-main);
+  text-transform:none;
+  letter-spacing:normal;
+  font-size:0.9em;
+}
+#close-sub-menu {
+  background:none;
+  border:1px solid var(--border-nav);
+  color:var(--text-link);
+  cursor:pointer;
+  padding:0.25em 0.55em;
+  border-radius:4px;
+  font-size:0.9em;
+  line-height:1;
+}
+#sub-menu-list {
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.35rem;
+}
+#sub-menu-list li {
+  margin:0;
+  padding:0;
+}
+#sub-menu-list a {
+  display:inline-block;
+  padding:0.45em 0.7em;
+  background:var(--bg-main);
+  border:1px solid var(--border-nav);
+  border-radius:6px;
+  font-size:0.8em;
+  text-decoration:none;
+  color:var(--text-link);
+  line-height:1.1;
+  transition:background .15s, border-color .15s;
+  max-width:200px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+#sub-menu-list a:hover {
+  background:var(--bg-active);
+  border-color:var(--text-link);
+  color:var(--text-main);
+}
+#sub-menu-list a:focus-visible {
+  outline:2px solid var(--text-link);
+  outline-offset:2px;
+}
 
 
     #dynamic-theme {}
   </style>
 </head>
-
 <body>
-
-  <nav id="topnav" aria-label="Documentation navigation">
+  <nav id="topnav" aria-label="Primary navigation">
     <div class="nav-inner">
       <span class="nav-title">
         <a href="/" style="color:inherit; text-decoration:none;">
           <img src="images/ewe_hat.svg" alt="Logo" width="64" />
         </a>
       </span>
-      <div id="filter-container">
-        <input id="tag-filter" type="text" placeholder="Filter by tag or keyword" autocomplete="off" />
-      </div>
       <ul id="nav-list" aria-label="Sections"></ul>
       <div class="nav-actions">
-        <!-- AFTER -->
+        <button id="open-search" type="button" aria-label="Open search panel">
+          <svg class="icon icon-md"><use href="images/icons.svg#i-search"></use></svg>
+        </button>
         <button id="open-theme-dashboard" type="button" aria-label="Open theme dashboard">
-          <svg class="icon icon-md">
-            <use href="images/icons.svg#i-color"></use>
-          </svg>
+          <svg class="icon icon-md"><use href="images/icons.svg#i-color"></use></svg>
         </button>
         <button id="menu-toggle" aria-label="Show navigation menu" aria-controls="nav-list" aria-expanded="false">
-          <svg class="icon icon-md">
-            <use href="images/icons.svg#i-menu"></use>
-          </svg>
+          <svg class="icon icon-md"><use href="images/icons.svg#i-menu"></use></svg>
         </button>
       </div>
     </div>
-    <div id="mobile-filter" class="hide">
-      <input id="tag-filter-mobile" type="text" placeholder="Filter by tag or keyword" autocomplete="off"
-        style="width:100%; border:1px solid var(--border-nav); font-size:1em; border-radius:5px; padding:0.5em 1em; background:var(--bg-main); color:var(--text-main);" />
-    </div>
   </nav>
+<div id="sub-menu-container" hidden>
+  <div class="sub-menu-header">
+    <span id="sub-menu-title"></span>
+    <button id="close-sub-menu" type="button" aria-label="Close sub menu">✕</button>
+  </div>
+  <ul id="sub-menu-list"></ul>
+</div>
+  <!-- Search Panel -->
+  <div id="search-panel" aria-hidden="true">
+    <div id="search-box" role="dialog" aria-modal="true" aria-labelledby="search-label">
+      <div id="search-header">
+        <svg class="icon icon-md"><use href="images/icons.svg#i-search"></use></svg>
+        <input id="global-search-input" type="text" placeholder="Search all pages..." aria-label="Search all documentation" autocomplete="off" />
+        <button id="close-search" aria-label="Close search">✕</button>
+      </div>
+      <div id="search-results" aria-live="polite"></div>
+    </div>
+  </div>
 
   <aside id="theme-dashboard" aria-label="Theme dashboard" aria-hidden="true">
     <header>
@@ -644,108 +456,273 @@
     <div id="footer-about" class="footer-loading">Loading about…</div>
     <div id="footer-legal" class="footer-loading">Loading legal…</div>
   </footer>
+
   <script src="/js/footer.js"></script>
   <script>
-    /* Manifest path */
     const THEME_MANIFEST_URL = 'json/themes.json';
+    const localLinksJson = "json/navlinks.json";
 
-    /* Navigation / markdown logic */
+    /* Primary nav (only nav-tagged) */
     const navLinks = [
       { "label": "Home", "file": "docs/README.md", "tags": ["nav", "config", "guide", "home"] },
-      { "label": "Example", "file": "docs/example.md", "tags": ["nav", "markdown", "intro", "overview"] },
-
+      { "label": "Example", "file": "docs/example.md", "tags": ["nav", "markdown", "intro", "overview"] }
     ];
 
-    const localLinksJson = "json/navlinks.json";
-    let allLinks = null;
-    let lastFilter = "";
+    let allLinks = []; // full list from JSON (external + maybe others)
+    let navCache = []; // derived nav set
+    let lastNavFilter = "";
+    let markdownCache = new Map(); // filename/url -> rendered HTML
 
-    /* Helpers */
-    function getNavTaggedLinks() {
-      const map = new Map();
-      function addIfNav(list) {
-        list.forEach(item => {
-          if (item.tags && item.tags.some(t => t.toLowerCase() === "nav")) map.set(item.file, item);
-        });
-      }
-      addIfNav(navLinks);
-      if (Array.isArray(allLinks)) addIfNav(allLinks);
-      return [...map.values()];
+    /* Utility */
+    function isNav(item) {
+      return item.tags && item.tags.some(t => t.toLowerCase() === "nav");
+    }
+    function uniqueByFile(list) {
+      const m = new Map();
+      list.forEach(it => { if (!m.has(it.file)) m.set(it.file, it); });
+      return [...m.values()];
     }
 
-    function getAllLinksUnique() {
-      const map = new Map();
-      navLinks.forEach(link => map.set(link.file, link));
-      if (Array.isArray(allLinks)) {
-        allLinks.forEach(link => {
-          if (!map.has(link.file)) map.set(link.file, link);
-        });
-      }
-      return [...map.values()];
+    function deriveNavSet() {
+      const combined = [...navLinks, ...allLinks.filter(isNav)];
+      navCache = uniqueByFile(combined);
     }
 
-    function renderMenuLinks(filter = "", initialLoad = false) {
+    function renderNav(filter="") {
       const navList = document.getElementById('nav-list');
-      navList.innerHTML = '';
+      navList.innerHTML = "";
       const f = filter.trim().toLowerCase();
-      let linksToShow;
-      if (initialLoad && !f) {
-        linksToShow = getNavTaggedLinks();
-      } else if (f) {
-        linksToShow = getAllLinksUnique().filter(item =>
-          item.label.toLowerCase().includes(f) ||
-          (item.tags && item.tags.some(tag => tag.toLowerCase().includes(f)))
-        );
-      } else {
-        linksToShow = getNavTaggedLinks();
+      const subset = f
+        ? navCache.filter(item =>
+            item.label.toLowerCase().includes(f) ||
+            (item.tags && item.tags.some(tag => tag.toLowerCase().includes(f)))
+          )
+        : navCache;
+      if (subset.length === 0) {
+        const li = document.createElement('li');
+        li.innerHTML = '<span style="opacity:0.65;font-size:0.85em;padding:0.55em 0.9em;">No matches</span>';
+        navList.appendChild(li);
+        return;
       }
-      let shown = 0;
-      linksToShow.forEach(item => {
+      subset.forEach((item, idx) => {
         const li = document.createElement('li');
         const a = document.createElement('a');
         a.textContent = item.label;
         a.href = "#";
         a.dataset.md = item.file;
-        if (shown === 0) a.classList.add('active');
+        if (idx === 0) a.classList.add('active');
+        a.addEventListener('click', e => {
+          e.preventDefault();
+          setActiveNav(a);
+          loadMarkdown(a.dataset.md);
+          collapseMobileNavIfNeeded();
+        });
         li.appendChild(a);
         navList.appendChild(li);
-        shown++;
       });
-      if (shown === 0) {
-        const li = document.createElement('li');
-        li.innerHTML = '<span style="opacity:0.7;font-size:0.95em;padding:0.55em 1em;">No matches</span>';
-        navList.appendChild(li);
+    }
+
+    function setActiveNav(anchor) {
+      document.querySelectorAll('#nav-list a').forEach(a => a.classList.remove('active'));
+      if (anchor) anchor.classList.add('active');
+    }
+
+    function collapseMobileNavIfNeeded() {
+      const navList = document.getElementById('nav-list');
+      const menuToggle = document.getElementById('menu-toggle');
+      const mobileFilter = document.getElementById('mobile-filter');
+      if (window.innerWidth <= 600 && navList.classList.contains('show')) {
+        navList.classList.remove('show');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        if (mobileFilter) mobileFilter.classList.add('hide');
       }
     }
 
     function loadMarkdown(filename) {
+      const contentEl = document.getElementById('content');
+      if (markdownCache.has(filename)) {
+        contentEl.innerHTML = markdownCache.get(filename);
+        return;
+      }
+      contentEl.innerHTML = '<div class="loading-spinner"><span class="dot"></span><span class="dot"></span><span class="dot"></span>Loading…</div>';
       fetch(filename)
         .then(r => { if (!r.ok) throw new Error("Not found"); return r.text(); })
         .then(text => {
-          document.getElementById('content').innerHTML = marked.parse(text);
+          const html = marked.parse(text);
+          markdownCache.set(filename, html);
+          contentEl.innerHTML = html;
         })
         .catch(() => {
-          document.getElementById('content').innerHTML = "<p>Could not load " + filename + ".</p>";
+          contentEl.innerHTML = "<p>Could not load " + filename + ".</p>";
         });
     }
 
     function fetchExtraLinks(cb) {
       fetch(localLinksJson)
         .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-        .then(json => { allLinks = json; cb && cb(true); })
+        .then(json => { allLinks = Array.isArray(json) ? json : []; cb && cb(true); })
         .catch(() => { allLinks = []; cb && cb(false); });
+    }
+
+    /* Search Panel */
+    const searchPanel = {
+      root: null,
+      input: null,
+      results: null,
+      openBtn: null,
+      closeBtn: null,
+      isOpen: false,
+      activeIndex: -1,
+      flatResults: [],
+
+      open() {
+        this.root.classList.add('open');
+        this.root.setAttribute('aria-hidden', 'false');
+        this.isOpen = true;
+        this.input.value = "";
+        this.results.innerHTML = "";
+        this.activeIndex = -1;
+        this.flatResults = [];
+        setTimeout(() => this.input.focus(), 30);
+      },
+      close() {
+        this.root.classList.remove('open');
+        this.root.setAttribute('aria-hidden', 'true');
+        this.isOpen = false;
+        this.activeIndex = -1;
+        this.flatResults = [];
+      },
+      buildIndex() {
+        // combine nav + all links; dedupe by file
+        const all = uniqueByFile([...navCache, ...allLinks]);
+        // We'll store objects: {label, file, tags, nav:bool}
+        return all.map(item => ({
+          label: item.label,
+            file: item.file,
+          tags: item.tags || [],
+          nav: isNav(item)
+        }));
+      },
+      search(term) {
+        const q = term.trim().toLowerCase();
+        if (!q) return { nav: navCache.map(i => mapItem(i, true)), other: allLinks.filter(i=>!isNav(i)).map(i => mapItem(i,false)) };
+
+        const idx = this.buildIndex();
+        // Very simple scoring: contains label (score 2), tag (score 1), file (score .5)
+        function score(entry) {
+          let s = 0;
+          if (entry.label.toLowerCase().includes(q)) s += 2;
+          if (entry.tags.some(t => t.toLowerCase().includes(q))) s += 1;
+          if (entry.file.toLowerCase().includes(q)) s += 0.5;
+          return s;
+        }
+        const matches = idx
+          .map(e => ({...e, _score: score(e)}))
+          .filter(e => e._score > 0)
+          .sort((a,b) => b._score - a._score || a.label.localeCompare(b.label));
+        const navGroup = matches.filter(m => m.nav);
+        const otherGroup = matches.filter(m => !m.nav);
+        return {
+          nav: navGroup,
+          other: otherGroup
+        };
+      },
+      render(term) {
+        const {nav, other} = this.search(term);
+        this.results.innerHTML = "";
+        this.flatResults = [];
+        let rendered = 0;
+        function groupBlock(title, arr, container, flatRef) {
+          if (arr.length === 0) return;
+          const wrap = document.createElement('div');
+          wrap.className = 'results-group';
+          const h = document.createElement('h4');
+          h.textContent = title;
+          wrap.appendChild(h);
+          arr.forEach(obj => {
+            const div = document.createElement('div');
+            div.className = 'result-item';
+            div.tabIndex = 0;
+            div.dataset.file = obj.file;
+            div.innerHTML = `
+              <span class="match-label">${obj.label}</span>
+              <div class="match-tags">
+                ${obj.tags.slice(0,6).map(t => `<span>${t}</span>`).join('')}
+              </div>
+            `;
+            div.addEventListener('click', () => {
+              loadMarkdown(obj.file);
+              searchPanel.close();
+            });
+            div.addEventListener('keydown', e => {
+              if (e.key === 'Enter') {
+                loadMarkdown(obj.file);
+                searchPanel.close();
+              }
+            });
+            wrap.appendChild(div);
+            flatRef.push(div);
+          });
+          container.appendChild(wrap);
+        }
+        if (nav.length === 0 && other.length === 0) {
+          const p = document.createElement('div');
+            p.className = 'no-results';
+          p.textContent = 'No results';
+          this.results.appendChild(p);
+          return;
+        }
+        groupBlock('Navigation Pages', nav, this.results, this.flatResults);
+        groupBlock('Other Pages', other, this.results, this.flatResults);
+        rendered = this.flatResults.length;
+        this.activeIndex = rendered > 0 ? 0 : -1;
+        this.applyActive();
+      },
+      applyActive() {
+        this.flatResults.forEach((el, idx) => {
+          el.classList.toggle('active', idx === this.activeIndex);
+        });
+      },
+      move(delta) {
+        if (this.flatResults.length === 0) return;
+        this.activeIndex = (this.activeIndex + delta + this.flatResults.length) % this.flatResults.length;
+        this.applyActive();
+        const activeEl = this.flatResults[this.activeIndex];
+        if (activeEl) {
+          const boundsParent = this.results;
+          const elTop = activeEl.offsetTop;
+          const elBottom = elTop + activeEl.offsetHeight;
+          if (elTop < boundsParent.scrollTop) {
+            boundsParent.scrollTop = elTop - 12;
+          } else if (elBottom > boundsParent.scrollTop + boundsParent.clientHeight) {
+            boundsParent.scrollTop = elBottom - boundsParent.clientHeight + 12;
+          }
+        }
+      },
+      openActive() {
+        if (this.activeIndex < 0 || this.activeIndex >= this.flatResults.length) return;
+        const el = this.flatResults[this.activeIndex];
+        loadMarkdown(el.dataset.file);
+        this.close();
+      }
+    };
+
+    function mapItem(item, nav) {
+      return {
+        label: item.label,
+        file: item.file,
+        tags: item.tags || [],
+        nav
+      };
     }
 
     /* Theme system */
     let themeManifest = [];
-    let activeThemeId = null; // null = baseline
+    let activeThemeId = null;
 
     function clearThemeClasses() {
-      [...document.body.classList].forEach(c => {
-        if (c.startsWith('theme-')) document.body.classList.remove(c);
-      });
+      [...document.body.classList].forEach(c => { if (c.startsWith('theme-')) document.body.classList.remove(c); });
     }
-
     function applyRuntimeVars(varsObj) {
       let styleEl = document.getElementById('dynamic-theme');
       if (!styleEl) {
@@ -753,14 +730,10 @@
         styleEl.id = 'dynamic-theme';
         document.head.appendChild(styleEl);
       }
-      if (!varsObj) {
-        styleEl.textContent = '';
-        return;
-      }
-      const lines = Object.entries(varsObj).map(([k, v]) => `${k}: ${v};`);
+      if (!varsObj) { styleEl.textContent=''; return; }
+      const lines = Object.entries(varsObj).map(([k,v]) => `${k}: ${v};`);
       styleEl.textContent = `:root { ${lines.join(' ')} }`;
     }
-
     function applyTheme(id) {
       const item = themeManifest.find(t => t.id === id);
       applyRuntimeVars(null);
@@ -770,41 +743,31 @@
         markActiveCard();
         return;
       }
-      if (item.class) {
-        document.body.classList.add(item.class);
-      }
-      if (item.vars) {
-        applyRuntimeVars(item.vars);
-      }
+      if (item.class) document.body.classList.add(item.class);
+      if (item.vars) applyRuntimeVars(item.vars);
       activeThemeId = id;
       markActiveCard();
-      // Persistence (disabled):
-      // localStorage.setItem('activeThemeId', id);
     }
-
     function markActiveCard() {
       document.querySelectorAll('.theme-item').forEach(div => {
         if (div.dataset.themeId === (activeThemeId || '')) div.classList.add('active');
         else div.classList.remove('active');
       });
     }
-
     function buildThemeCards() {
       const container = document.getElementById('themes-list');
       container.innerHTML = '';
-
       const baselineCard = document.createElement('div');
       baselineCard.className = 'theme-item';
       baselineCard.dataset.themeId = '';
       baselineCard.innerHTML = `
-    <div class="theme-item-header">
-      <strong>Baseline (Dark)</strong>
-      <button class="apply-theme" type="button">Use</button>
-    </div>
-    <small>Default variables</small>
-  `;
-      baselineCard.querySelector('button.apply-theme')
-        .addEventListener('click', () => applyTheme(null));
+        <div class="theme-item-header">
+          <strong>Baseline (Dark)</strong>
+          <button class="apply-theme" type="button">Use</button>
+        </div>
+        <small>Default variables</small>
+      `;
+      baselineCard.querySelector('button.apply-theme').addEventListener('click', () => applyTheme(null));
       container.appendChild(baselineCard);
 
       themeManifest.forEach(t => {
@@ -814,41 +777,28 @@
         const desc = t.description ? `<small>${t.description}</small>` : '';
         const group = t.group ? `<small style="opacity:0.6;">Group: ${t.group}</small>` : '';
         div.innerHTML = `
-      <div class="theme-item-header">
-        <strong>${t.label || t.id}</strong>
-        <button class="apply-theme" type="button">Use</button>
-      </div>
-      ${desc}
-      ${group}
-    `;
-        div.querySelector('button.apply-theme')
-          .addEventListener('click', () => applyTheme(t.id));
+          <div class="theme-item-header">
+            <strong>${t.label || t.id}</strong>
+            <button class="apply-theme" type="button">Use</button>
+          </div>
+          ${desc}
+          ${group}
+        `;
+        div.querySelector('button.apply-theme').addEventListener('click', () => applyTheme(t.id));
         container.appendChild(div);
       });
       markActiveCard();
     }
-
     function loadThemeManifest() {
       return fetch(THEME_MANIFEST_URL)
-        .then(r => {
-          if (!r.ok) throw new Error('No theme manifest');
-          return r.json();
-        })
-        .then(json => {
-          themeManifest = Array.isArray(json) ? json : [];
-          buildThemeCards();
-        })
-        .catch(() => {
-          themeManifest = [];
-          buildThemeCards();
-        });
+        .then(r => { if (!r.ok) throw new Error('No theme manifest'); return r.json(); })
+        .then(json => { themeManifest = Array.isArray(json) ? json : []; buildThemeCards(); })
+        .catch(() => { themeManifest = []; buildThemeCards(); });
     }
-
     function setupThemeDashboard() {
       const openBtn = document.getElementById('open-theme-dashboard');
       const panel = document.getElementById('theme-dashboard');
       const closeBtn = panel.querySelector('.close-dashboard');
-
       function open() {
         panel.classList.add('open');
         panel.setAttribute('aria-hidden', 'false');
@@ -857,94 +807,269 @@
         panel.classList.remove('open');
         panel.setAttribute('aria-hidden', 'true');
       }
-
       openBtn.addEventListener('click', () => {
         if (panel.classList.contains('open')) close(); else open();
       });
       closeBtn.addEventListener('click', close);
-
       document.addEventListener('keydown', e => {
         if (e.key === 'Escape' && panel.classList.contains('open')) close();
       });
     }
 
-    /* Init */
-    document.addEventListener("DOMContentLoaded", function () {
+    /* Initialization */
+    document.addEventListener('DOMContentLoaded', () => {
       fetchExtraLinks(() => {
-        renderMenuLinks("", true);
+        deriveNavSet();
+        renderNav("");
 
-        const navList = document.getElementById('nav-list');
-        const menuToggle = document.getElementById('menu-toggle');
         const tagFilter = document.getElementById('tag-filter');
         const tagFilterMobile = document.getElementById('tag-filter-mobile');
+        const navList = document.getElementById('nav-list');
+        const menuToggle = document.getElementById('menu-toggle');
         const mobileFilter = document.getElementById('mobile-filter');
 
-        function attachNavHandlers() {
-          const navLinksEls = navList.querySelectorAll("a");
-          function setActive(link) {
-            navLinksEls.forEach(l => l.classList.remove("active"));
-            if (link) link.classList.add("active");
-          }
-          navLinksEls.forEach(link => {
-            link.addEventListener("click", function (e) {
-              e.preventDefault();
-              setActive(this);
-              loadMarkdown(this.dataset.md);
-              if (window.innerWidth <= 600 && navList.classList.contains("show")) {
-                navList.classList.remove("show");
-                menuToggle.setAttribute("aria-expanded", "false");
-              }
-            });
-          });
+        function syncFilters(val) {
+          if (tagFilter) tagFilter.value = val;
+          if (tagFilterMobile) tagFilterMobile.value = val;
         }
 
-        attachNavHandlers();
+        function handleNavFilterInput(val) {
+          lastNavFilter = val;
+          renderNav(lastNavFilter);
+        }
 
-        tagFilter.addEventListener("input", function () {
-          lastFilter = this.value;
-          if (tagFilterMobile) tagFilterMobile.value = lastFilter;
-          renderMenuLinks(lastFilter, false);
-          attachNavHandlers();
-        });
-
+        if (tagFilter) {
+          tagFilter.addEventListener('input', function() {
+            handleNavFilterInput(this.value);
+          });
+        }
         if (tagFilterMobile) {
-          tagFilterMobile.addEventListener("input", function () {
-            lastFilter = this.value;
-            if (tagFilter) tagFilter.value = lastFilter;
-            renderMenuLinks(lastFilter, false);
-            attachNavHandlers();
+          tagFilterMobile.addEventListener('input', function() {
+            handleNavFilterInput(this.value);
           });
         }
-
-        const firstLink = navList.querySelector("a");
-        if (firstLink) loadMarkdown(firstLink.dataset.md);
 
         if (menuToggle) {
-          menuToggle.addEventListener("click", function () {
-            const expanded = navList.classList.toggle("show");
-            menuToggle.setAttribute("aria-expanded", expanded);
+          menuToggle.addEventListener('click', function () {
+            const expanded = navList.classList.toggle('show');
+            menuToggle.setAttribute('aria-expanded', expanded);
             if (mobileFilter) {
-              if (expanded) mobileFilter.classList.remove("hide");
-              else mobileFilter.classList.add("hide");
+              if (expanded) {
+                mobileFilter.classList.remove('hide');
+                syncFilters(lastNavFilter);
+              } else {
+                mobileFilter.classList.add('hide');
+              }
             }
           });
         }
 
         window.addEventListener('resize', () => {
           if (window.innerWidth > 600 && mobileFilter) {
-            mobileFilter.classList.add("hide");
-            navList.classList.remove("show");
-            menuToggle.setAttribute("aria-expanded", "false");
+            mobileFilter.classList.add('hide');
+            navList.classList.remove('show');
+            menuToggle.setAttribute('aria-expanded', 'false');
           }
         });
 
+        // Load first nav page
+        const firstLink = navList.querySelector("a");
+        if (firstLink) loadMarkdown(firstLink.dataset.md);
+
+        // Theme
         setupThemeDashboard();
         loadThemeManifest();
-        // Optional: reapply stored theme (if persistence later):
-        // const saved = localStorage.getItem('activeThemeId'); if(saved) applyTheme(saved);
+
+        // Search panel setup
+        searchPanel.root = document.getElementById('search-panel');
+        searchPanel.input = document.getElementById('global-search-input');
+        searchPanel.results = document.getElementById('search-results');
+        searchPanel.openBtn = document.getElementById('open-search');
+        searchPanel.closeBtn = document.getElementById('close-search');
+
+        searchPanel.openBtn.addEventListener('click', () => searchPanel.open());
+        searchPanel.closeBtn.addEventListener('click', () => searchPanel.close());
+        searchPanel.input.addEventListener('input', function() {
+          searchPanel.render(this.value);
+        });
+
+        document.addEventListener('keydown', e => {
+          if (!searchPanel.isOpen) return;
+            if (e.key === 'Escape') {
+            searchPanel.close();
+            return;
+          }
+          if (e.key === 'ArrowDown') { e.preventDefault(); searchPanel.move(1); }
+          else if (e.key === 'ArrowUp') { e.preventDefault(); searchPanel.move(-1); }
+          else if (e.key === 'Enter') {
+            e.preventDefault();
+            searchPanel.openActive();
+          }
+        });
+
+        // Clicking outside closes search
+        searchPanel.root.addEventListener('mousedown', e => {
+          if (e.target === searchPanel.root) searchPanel.close();
+        });
+
+        // Pre-populate with groups (initial empty term)
+        searchPanel.render("");
       });
+      parseHash(); // apply hash if user loaded with #search=... or #submenu=...
     });
+    
+    
+// --- BEGIN Hard-linkable search & sub menu support ---
+
+// Reuse or wrap existing index builder and scoring logic from searchPanel
+function buildGlobalIndex() {
+  // navCache + allLinks already exist
+  const combined = uniqueByFile([...navCache, ...allLinks]);
+  return combined.map(item => ({
+    label: item.label,
+    file: item.file,
+    tags: item.tags || [],
+    nav: isNav(item)
+  }));
+}
+
+// Simple scoring (same as in searchPanel.search)
+function scoreEntry(entry, q) {
+  const term = q.toLowerCase();
+  let s = 0;
+  if (entry.label.toLowerCase().includes(term)) s += 2;
+  if (entry.tags.some(t => t.toLowerCase().includes(term))) s += 1;
+  if (entry.file.toLowerCase().includes(term)) s += 0.5;
+  return s;
+}
+
+// Pure search returning {nav:[], other:[]}
+function globalSearch(term) {
+  const q = term.trim();
+  const idx = buildGlobalIndex();
+  if (!q) {
+    return {
+      nav: idx.filter(e => e.nav),
+      other: idx.filter(e => !e.nav)
+    };
+  }
+  const matches = idx
+    .map(e => ({ ...e, _score: scoreEntry(e, q) }))
+    .filter(e => e._score > 0)
+    .sort((a,b) => b._score - a._score || a.label.localeCompare(b.label));
+  return {
+    nav: matches.filter(m => m.nav),
+    other: matches.filter(m => !m.nav)
+  };
+}
+
+// Sub menu DOM references
+const subMenu = {
+  container: null,
+  titleEl: null,
+  listEl: null,
+  closeBtn: null,
+  currentQuery: null,
+  show(query, scope) {
+    if (!this.container) {
+      this.container = document.getElementById('sub-menu-container');
+      this.titleEl = document.getElementById('sub-menu-title');
+      this.listEl = document.getElementById('sub-menu-list');
+      this.closeBtn = document.getElementById('close-sub-menu');
+      if (this.closeBtn) {
+        this.closeBtn.addEventListener('click', () => {
+          this.hide();
+          // Clear submenu portion of hash if present
+          if (location.hash.includes('submenu=')) {
+            history.replaceState(null, '', location.pathname + location.search);
+          }
+        });
+      }
+    }
+    const results = globalSearch(query);
+    let pool;
+    switch ((scope || 'all').toLowerCase()) {
+      case 'nav': pool = results.nav; break;
+      case 'other': pool = results.other; break;
+      default: pool = [...results.nav, ...results.other];
+    }
+
+    this.listEl.innerHTML = '';
+    if (pool.length === 0) {
+      const li = document.createElement('li');
+      li.innerHTML = '<span style="opacity:.6;font-size:.75em;">No results</span>';
+      this.listEl.appendChild(li);
+    } else {
+      pool.forEach(item => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.textContent = item.label;
+        a.href = '#'; // still SPA internal
+        a.dataset.md = item.file;
+        a.addEventListener('click', e => {
+          e.preventDefault();
+          loadMarkdown(item.file);
+          // Optionally do not hide: comment out next line if you want persistent menu
+          // this.hide();
+        });
+        li.appendChild(a);
+        this.listEl.appendChild(li);
+      });
+    }
+    this.titleEl.textContent = `Results: ${query}${scope && scope!=='all' ? ' ('+scope+')':''}`;
+    this.container.hidden = false;
+    this.currentQuery = query;
+  },
+  hide() {
+    if (this.container) {
+      this.container.hidden = true;
+      this.currentQuery = null;
+    }
+  }
+};
+
+// Parse hash patterns: #search=term OR #submenu=term[&scope=nav|other|all]
+function parseHash() {
+  const hash = decodeURIComponent(location.hash.slice(1)); // drop #
+  if (!hash) {
+    subMenu.hide();
+    return;
+  }
+  // Split by & into key=value
+  const parts = hash.split('&').map(p => p.trim()).filter(Boolean);
+  const params = {};
+  parts.forEach(p => {
+    const eq = p.indexOf('=');
+    if (eq === -1) return;
+    const k = p.slice(0, eq).toLowerCase();
+    const v = p.slice(eq + 1);
+    params[k] = v;
+  });
+
+  if (params.search) {
+    // Open overlay search with pre-filled query
+    if (!searchPanel.isOpen) searchPanel.open();
+    searchPanel.input.value = params.search;
+    searchPanel.render(params.search);
+  } else if (params.submenu) {
+    const scope = params.scope || 'all';
+    subMenu.show(params.submenu, scope);
+  } else {
+    // neither recognized
+    subMenu.hide();
+  }
+}
+
+window.addEventListener('hashchange', parseHash);
+
+// Optional helper to programmatically set hash without immediate duplicate events
+function setHashSilently(newHash) {
+  if (location.hash === newHash) return;
+  history.pushState(null, '', newHash);
+  parseHash();
+}
+
+// --- END Hard-linkable search & sub menu support ---
   </script>
 </body>
-
 </html>
