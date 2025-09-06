@@ -3,7 +3,6 @@
                 "label": "Armbian config",
                 "file": "https://raw.githubusercontent.com/armbian/configng/refs/heads/main/DOCUMENTATION.md",
                 "tags": [
-                        "nav",
                         "config",
                         "guide",
                         "armbian"

@@ -1,6 +1,0 @@
----
-deployment:
-  tasks:
-    - export DEPLOYPATH=/home/gnuewgxi/public_html/
-    - if [ -d public_html ]; then /bin/cp -R public_html/. $DEPLOYPATH; fi
-    - if [ -d assets ]; then /bin/cp -R assets/. $DEPLOYPATH/assets/; fi
