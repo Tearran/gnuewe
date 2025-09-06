@@ -1,11 +1,22 @@
 [
         {
-                "label": "Armbian config",
-                "file": "https://raw.githubusercontent.com/armbian/configng/refs/heads/main/DOCUMENTATION.md",
+                "label": "Armbian System",
+                "file": "https://raw.githubusercontent.com/armbian/documentation/blob/main/docs/User-Guide_Armbian-Config/System.md",
                 "tags": [
                         "config",
                         "guide",
-                        "armbian"
+                        "armbian",
+                        "armbian-config"
+                ]
+        },
+        {
+                "label": "Armbian Localisation",
+                "file": "https://raw.githubusercontent.com/armbian/documentation/refs/heads/main/docs/User-Guide_Armbian-Config/Localisation.md",
+                "tags": [
+                        "config",
+                        "guide",
+                        "armbian",
+                        "armbian-config"
                 ]
         },
         {
