@@ -1,7 +1,7 @@
 [
         {
                 "label": "Armbian System",
-                "file": "https://raw.githubusercontent.com/armbian/documentation/blob/main/docs/User-Guide_Armbian-Config/System.md",
+                "file": "https://raw.githubusercontent.com/armbian/documentation/refs/heads/main/docs/User-Guide_Armbian-Config/System.md",
                 "tags": [
                         "config",
                         "guide",
