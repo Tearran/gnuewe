@@ -1,0 +1,31 @@
+[
+        {
+                "label": "Armbian config",
+                "file": "https://raw.githubusercontent.com/armbian/configng/refs/heads/main/DOCUMENTATION.md",
+                "tags": [
+                        "nav",
+                        "config",
+                        "guide",
+                        "armbian"
+                ]
+        },
+        {
+                "label": "Tearran",
+                "file": "https://raw.githubusercontent.com/Tearran/Tearran/refs/heads/main/README.md",
+                "tags": [
+                        "tearran",
+                        "joey",
+                        "intro",
+                        "overview"
+                ]
+        },
+        {
+                "label": "Bash",
+                "file": "https://raw.githubusercontent.com/rstacruz/cheatsheets/refs/heads/master/bash.md",
+                "tags": [
+                        "tearran",
+                        "intro",
+                        "overview"
+                ]
+        }
+]

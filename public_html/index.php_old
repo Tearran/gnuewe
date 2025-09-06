@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GNU ewe</title>
+  <meta name="description" content="A hobby FOSS SPA for bash, html, and a simple python3 web server">
+  <meta name="author" content="Tearran (FOSS project)">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" type="image/svg+xml" href="/favicon.ico">
+  <meta name="theme-color" content="#0366d6">
+
+  <style>
+    <?php include 'css/palette.css';
+    ?><?php include 'css/styles.css';
+    ?><?php include 'css/footer.css';
+    ?><?php include 'css/nav.css';
+    ?>
+  </style>
+
+<body>
+  <?php include 'include/header.html'; ?>
+ 
+  <nav>
+    <a href="#home" class="nav-link">Home</a>
+    <a href="#about" class="nav-link">About</a>
+    <a href="#downloads" class="nav-link">Downloads</a>
+  </nav>
+
+  <main class="site-main">
+    <?php include 'include/home.html'; ?>
+    <?php include 'include/configng.html'; ?>
+    <?php include 'include/downloads.html'; ?>
+
+    <section id="about" class="page-section" aria-hidden="true" hidden>
+      <div class="cards">
+        <div class="card md" data-markdown="docs/README.md"></div>
+        <div class="card md" data-markdown="docs/referance.md"></div>
+      </div>
+    </section>
+  </main>
+
+  <?php include 'include/footer.html'; ?>
+
+  <script src="/js/page.js"></script>
+  <script src="/js/loader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/hash-nav.js"></script>
+  <script src="/js/markdown.js"></script>
+
+</body>
+
+</html>
