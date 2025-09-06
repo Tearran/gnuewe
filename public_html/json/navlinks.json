@@ -10,6 +10,16 @@
                 ]
         },
         {
+                "label": "Armbian Software",
+                "file": "https://raw.githubusercontent.com/armbian/documentation/blob/main/docs/User-Guide_Armbian-Config/Software.md",
+                "tags": [
+                        "config",
+                        "guide",
+                        "armbian",
+                        "armbian-config"
+                ]
+        },
+        {
                 "label": "Armbian Localisation",
                 "file": "https://raw.githubusercontent.com/armbian/documentation/refs/heads/main/docs/User-Guide_Armbian-Config/Localisation.md",
                 "tags": [
