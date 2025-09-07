@@ -30,6 +30,7 @@
 			--icon-color-danger: #ff4d4f;
 			--icon-color-warn: #e0a210;
 			--icon-color-success: #31c48d;
+			--outline-width: 300px;
 		}
 
 		html,
@@ -110,7 +111,8 @@
 
 		#menu-toggle,
 		#open-theme-dashboard,
-		#open-search {
+		#open-search,
+		#open-outline {
 			background: none;
 			border: 1px solid var(--border-nav);
 			color: var(--text-link);
@@ -129,6 +131,9 @@
 		#content {
 			padding: 32px;
 			background: var(--bg-main);
+			max-width: 1100px;
+			margin: 0 auto;
+			transition: margin-right .25s ease;
 		}
 
 		@media (max-width:600px) {
@@ -175,6 +180,7 @@
 			color: var(--text-main);
 			margin-top: 1.2em;
 			margin-bottom: 0.5em;
+			line-height: 1.25;
 		}
 
 		code,
@@ -201,7 +207,7 @@
 			color: var(--text-link);
 		}
 
-		/* Sub-menu restored */
+		/* Sub-menu */
 		#sub-menu-container {
 			background: var(--bg-nav);
 			border-bottom: 1px solid var(--border-nav);
@@ -268,11 +274,6 @@
 			gap: 0.35rem;
 		}
 
-		#sub-menu-list li {
-			margin: 0;
-			padding: 0;
-		}
-
 		#sub-menu-list a {
 			display: inline-block;
 			padding: 0.45em 0.7em;
@@ -294,11 +295,6 @@
 			background: var(--bg-active);
 			border-color: var(--text-link);
 			color: var(--text-main);
-		}
-
-		#sub-menu-list a:focus-visible {
-			outline: 2px solid var(--text-link);
-			outline-offset: 2px;
 		}
 
 		/* Theme dashboard */
@@ -626,6 +622,163 @@
 			margin: 0 auto;
 		}
 
+		/* Outline Panel */
+		#outline-panel {
+			position: fixed;
+			top: 0;
+			right: 0;
+			width: var(--outline-width);
+			max-width: 90vw;
+			height: 100vh;
+			background: var(--bg-nav);
+			border-left: 1px solid var(--border-nav);
+			transform: translateX(100%);
+			transition: transform .25s ease;
+			display: flex;
+			flex-direction: column;
+			z-index: 120;
+		}
+
+		#outline-panel.open {
+			transform: translateX(0);
+		}
+
+		#outline-panel header {
+			padding: 0.7em 0.9em;
+			border-bottom: 1px solid var(--border-nav);
+			font-weight: 600;
+			font-size: 0.95em;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: .6em;
+		}
+
+		#outline-panel button.close-outline {
+			background: none;
+			border: 1px solid var(--border-nav);
+			color: var(--text-link);
+			cursor: pointer;
+			padding: 0.25em 0.55em;
+			border-radius: 4px;
+			font-size: 0.9em;
+			line-height: 1;
+		}
+
+		#outline-content {
+			flex: 1;
+			overflow-y: auto;
+			padding: 0.65em 0.55em 1em;
+			display: flex;
+			flex-direction: column;
+			gap: 0.15em;
+			font-size: 0.78em;
+		}
+
+		.outline-empty {
+			opacity: 0.6;
+			font-size: 0.85em;
+			padding: 0.45em 0.3em;
+		}
+
+		.outline-item {
+			display: block;
+			text-decoration: none;
+			color: var(--text-muted);
+			padding: 0.30em 0.45em;
+			border-radius: 4px;
+			border: 1px solid transparent;
+			cursor: pointer;
+			line-height: 1.25;
+			transition: background .15s, color .15s, border-color .15s;
+			max-width: 100%;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			position: relative;
+		}
+
+		.outline-item:focus-visible {
+			outline: 2px solid var(--text-link);
+			outline-offset: 2px;
+		}
+
+		.outline-item:hover {
+			background: var(--bg-active);
+			color: var(--text-main);
+		}
+
+		.outline-item.active {
+			background: var(--bg-active);
+			color: var(--text-main);
+			border-color: var(--text-link);
+		}
+
+		.outline-item .lvl {
+			opacity: .55;
+			margin-right: 4px;
+		}
+
+		.outline-group-label {
+			margin: 0.65em 0 0.35em;
+			font-size: 0.65em;
+			text-transform: uppercase;
+			letter-spacing: .08em;
+			color: var(--text-muted);
+			font-weight: 600;
+			padding: 0 0.3em;
+		}
+
+		.outline-collapser {
+			position: absolute;
+			left: 4px;
+			top: 50%;
+			transform: translateY(-50%);
+			font-size: 0.9em;
+			opacity: 0.7;
+			cursor: pointer;
+			display: none;
+		}
+
+		.outline-item.has-children .outline-collapser {
+			display: inline-block;
+		}
+
+		.outline-children {
+			margin-left: 10px;
+			border-left: 1px dashed var(--border-nav);
+			padding-left: 6px;
+			display: flex;
+			flex-direction: column;
+			gap: 2px;
+		}
+
+		/* When outline open, optionally shrink content (desktop) */
+		@media (min-width: 1000px) {
+			body.outline-open #content {
+				margin-right: var(--outline-width);
+			}
+		}
+
+		/* Highlight currently viewed heading inside document */
+		:root {
+			--current-heading-outline: 0 0 0 2px rgba(88, 166, 255, 0.5);
+		}
+
+		.current-heading-flash {
+			animation: flashBorder .8s ease;
+		}
+
+		@keyframes flashBorder {
+			0% {
+				box-shadow: var(--current-heading-outline);
+			}
+
+			100% {
+				box-shadow: none;
+			}
+		}
+
 		#dynamic-theme {}
 	</style>
 </head>
@@ -638,17 +791,20 @@
 					<img src="images/ewe_hat.svg" alt="Logo" width="64" />
 				</a>
 			</span>
-
-			<!-- Repurposed static links -->
 			<ul id="nav-list" aria-label="Utility links">
 				<li><a href="#submenu=bash" title="Show documents related to 'bash'">Bash</a>
-				<li><a href="#submenu=armbian" title="Show documents related to 'armbian'">Armbian</a></li>
+				<li><a href="#submenu=armbian" title="Show documents related to 'armbian'">Armbian</a>
+				</li>
 			</ul>
-
 			<div class="nav-actions">
 				<button id="open-search" type="button" aria-label="Open search panel">
 					<svg class="icon icon-md">
 						<use href="images/icons.svg#i-search"></use>
+					</svg>
+				</button>
+				<button id="open-outline" type="button" aria-label="Open document outline">
+					<svg class="icon icon-md">
+						<use href="images/icons.svg#i-list"></use>
 					</svg>
 				</button>
 				<button id="open-theme-dashboard" type="button" aria-label="Open theme dashboard">
@@ -666,7 +822,6 @@
 		</div>
 	</nav>
 
-	<!-- Restored sub menu container -->
 	<div id="sub-menu-container" hidden>
 		<div class="sub-menu-header">
 			<span id="sub-menu-title"></span>
@@ -675,7 +830,6 @@
 		<ul id="sub-menu-list"></ul>
 	</div>
 
-	<!-- Search Panel -->
 	<div id="search-panel" aria-hidden="true">
 		<div id="search-box" role="dialog" aria-modal="true" aria-labelledby="search-label">
 			<div id="search-header">
@@ -698,6 +852,15 @@
 		<div class="themes-list" id="themes-list"></div>
 	</aside>
 
+	<!-- New Outline Panel -->
+	<aside id="outline-panel" aria-label="Document outline" aria-hidden="true">
+		<header>
+			<span>Outline</span>
+			<button class="close-outline" aria-label="Close outline panel">✕</button>
+		</header>
+		<div id="outline-content" tabindex="0" aria-label="Outline items"></div>
+	</aside>
+
 	<div id="content">Loading...</div>
 
 	<footer id="site-footer" class="site-footer" role="contentinfo">
@@ -712,7 +875,17 @@
 		const THEME_MANIFEST_URL = 'json/themes.json';
 		const DOCS_MANIFEST_URL = 'json/navlinks.json';
 		const DEFAULT_DOC = 'docs/README.md';
-		/* Markdown loader */
+
+		/* Outline State */
+		const outlineState = {
+			open: false,
+			items: [],
+			activeId: null,
+			observer: null,
+			headingSelector: 'h1, h2, h3, h4, h5, h6'
+		};
+
+		/* Markdown loader with caching */
 		const markdownCache = new Map();
 
 		function loadMarkdown(filename) {
@@ -720,10 +893,10 @@
 			if (!filename) return;
 			if (markdownCache.has(filename)) {
 				contentEl.innerHTML = markdownCache.get(filename);
+				enhanceLoadedContent();
 				return;
 			}
-			contentEl.innerHTML =
-				'<div class="loading-spinner"><span class="dot"></span><span class="dot"></span><span class="dot"></span>Loading…</div>';
+			contentEl.innerHTML = '<div class="loading-spinner"><span class="dot"></span><span class="dot"></span><span class="dot"></span>Loading…</div>';
 			fetch(filename)
 				.then(r => {
 					if (!r.ok) throw new Error('Not found');
@@ -733,11 +906,190 @@
 					const html = marked.parse(text);
 					markdownCache.set(filename, html);
 					contentEl.innerHTML = html;
+					enhanceLoadedContent();
 				})
 				.catch(() => {
 					contentEl.innerHTML = '<p>Could not load ' + filename + '.</p>';
+					clearOutline();
 				});
 		}
+
+		/* Add IDs to headings (stable slug) and build outline */
+		function enhanceLoadedContent() {
+			assignHeadingIds();
+			buildOutline();
+			setupHeadingObserver();
+		}
+
+		function slugify(text, existing) {
+			let s = text.toLowerCase()
+				.replace(/[`~!@#$%^&*()+=<>?,./:;"'|\\[\]{}]/g, '')
+				.replace(/\s+/g, '-')
+				.replace(/-+/g, '-')
+				.replace(/^-|-$/g, '')
+				|| 'section';
+			let base = s;
+			let i = 2;
+			while (existing.has(s)) {
+				s = base + '-' + i++;
+			}
+			return s;
+		}
+
+		function assignHeadingIds() {
+			const contentEl = document.getElementById('content');
+			const headings = contentEl.querySelectorAll(outlineState.headingSelector);
+			const used = new Set();
+			headings.forEach(h => {
+				if (!h.id || used.has(h.id)) {
+					const txt = h.textContent.trim();
+					h.id = slugify(txt, used);
+				}
+				used.add(h.id);
+			});
+		}
+
+		function clearOutline() {
+			outlineState.items = [];
+			const oc = document.getElementById('outline-content');
+			if (oc) oc.innerHTML = '<div class="outline-empty">No headings</div>';
+		}
+
+		function buildOutline() {
+			const contentEl = document.getElementById('content');
+			const oc = document.getElementById('outline-content');
+			if (!oc) return;
+			const headings = [...contentEl.querySelectorAll(outlineState.headingSelector)];
+			if (headings.length === 0) {
+				clearOutline();
+				return;
+			}
+			// Build flat list with level + id + text
+			const items = headings.map(h => ({
+				level: parseInt(h.tagName.slice(1), 10),
+				id: h.id,
+				text: h.textContent.trim()
+			}));
+			outlineState.items = items;
+			// Build nested tree
+			const root = [];
+			const stack = [];
+			items.forEach(item => {
+				const node = { ...item, children: [] };
+				while (stack.length && stack[stack.length - 1].level >= node.level) stack.pop();
+				if (stack.length === 0) {
+					root.push(node);
+				} else {
+					stack[stack.length - 1].children.push(node);
+				}
+				stack.push(node);
+			});
+			oc.innerHTML = '';
+			if (root.length === 0) {
+				clearOutline();
+				return;
+			}
+			const frag = document.createDocumentFragment();
+			root.forEach(n => frag.appendChild(renderOutlineNode(n)));
+			oc.appendChild(frag);
+		}
+
+		function renderOutlineNode(node) {
+			const wrapper = document.createElement('div');
+			wrapper.style.marginLeft = ((node.level - 1) * 4) + 'px';
+
+			const link = document.createElement('a');
+			link.href = '#' + node.id;
+			link.className = 'outline-item';
+			link.dataset.targetId = node.id;
+			link.dataset.level = node.level;
+			link.innerHTML = '<span class="lvl">H' + node.level + ':</span>' + escapeHtml(node.text);
+
+			link.addEventListener('click', e => {
+				e.preventDefault();
+				scrollToHeading(node.id);
+			});
+
+			wrapper.appendChild(link);
+
+			if (node.children && node.children.length) {
+				link.classList.add('has-children');
+				const childrenContainer = document.createElement('div');
+				childrenContainer.className = 'outline-children';
+				node.children.forEach(ch => {
+					childrenContainer.appendChild(renderOutlineNode(ch));
+				});
+				wrapper.appendChild(childrenContainer);
+			}
+			return wrapper;
+		}
+
+		function scrollToHeading(id) {
+			const h = document.getElementById(id);
+			if (!h) return;
+			h.classList.add('current-heading-flash');
+			h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			outlineState.activeId = id;
+			updateActiveOutlineItem();
+			setTimeout(() => h.classList.remove('current-heading-flash'), 900);
+			h.focus?.();
+		}
+
+		function updateActiveOutlineItem() {
+			const oc = document.getElementById('outline-content');
+			if (!oc) return;
+			oc.querySelectorAll('.outline-item').forEach(a => {
+				a.classList.toggle('active', a.dataset.targetId === outlineState.activeId);
+			});
+		}
+
+		function setupHeadingObserver() {
+			// Disconnect previous
+			if (outlineState.observer) {
+				outlineState.observer.disconnect();
+				outlineState.observer = null;
+			}
+			const headings = document.querySelectorAll('#content ' + outlineState.headingSelector);
+			if (!headings.length) return;
+			const opts = {
+				root: null,
+				rootMargin: '0px 0px -70% 0px', // trigger earlier
+				threshold: 0
+			};
+			outlineState.observer = new IntersectionObserver(entries => {
+				entries.forEach(entry => {
+					if (entry.isIntersecting) {
+						outlineState.activeId = entry.target.id;
+						updateActiveOutlineItem();
+					}
+				});
+			}, opts);
+			headings.forEach(h => outlineState.observer.observe(h));
+		}
+
+		function toggleOutline(open) {
+			const panel = document.getElementById('outline-panel');
+			if (!panel) return;
+			const desired = (typeof open === 'boolean') ? open : !outlineState.open;
+			outlineState.open = desired;
+			panel.classList.toggle('open', desired);
+			panel.setAttribute('aria-hidden', desired ? 'false' : 'true');
+			document.body.classList.toggle('outline-open', desired);
+			if (desired) {
+				// Rebuild fresh in case content changed
+				buildOutline();
+				updateActiveOutlineItem();
+				setTimeout(() => {
+					const first = panel.querySelector('.outline-item');
+					first?.focus();
+				}, 50);
+			}
+		}
+
+		function escapeHtml(s) {
+			return s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+		}
+
 		/* Mobile nav */
 		function collapseMobileNavIfNeeded() {
 			const navList = document.getElementById('nav-list');
@@ -747,17 +1099,11 @@
 				menuToggle.setAttribute('aria-expanded', 'false');
 			}
 		}
-		/* Search panel */
+
+		/* Search panel object (unchanged except later calls) */
 		const searchPanel = {
-			root: null,
-			input: null,
-			results: null,
-			openBtn: null,
-			closeBtn: null,
-			isOpen: false,
-			activeIndex: -1,
-			flatResults: [],
-			index: [],
+			root: null, input: null, results: null, openBtn: null, closeBtn: null,
+			isOpen: false, activeIndex: -1, flatResults: [], index: [],
 			open() {
 				this.root.classList.add('open');
 				this.root.setAttribute('aria-hidden', 'false');
@@ -782,15 +1128,15 @@
 					.map(it => ({
 						label: it.label,
 						file: it.file,
-						tags: Array.isArray(it.tags) ? it.tags : (typeof it.tags === 'string' ?
-							it.tags.split(',').map(t => t.trim()).filter(Boolean) :
-							[])
+						tags: Array.isArray(it.tags) ? it.tags :
+							(typeof it.tags === 'string'
+								? it.tags.split(',').map(t => t.trim()).filter(Boolean)
+								: [])
 					}));
 			},
 			search(term) {
 				const q = term.trim().toLowerCase();
 				if (!q) return this.index.slice(0, 200);
-
 				function score(e, q) {
 					let s = 0;
 					if (e.label.toLowerCase().includes(q)) s += 2;
@@ -799,10 +1145,7 @@
 					return s;
 				}
 				return this.index
-					.map(e => ({
-						...e,
-						_s: score(e, q)
-					}))
+					.map(e => ({ ...e, _s: score(e, q) }))
 					.filter(e => e._s > 0)
 					.sort((a, b) => b._s - a._s || a.label.localeCompare(b.label))
 					.slice(0, 400);
@@ -828,11 +1171,10 @@
 					div.className = 'result-item';
 					div.tabIndex = 0;
 					div.dataset.file = obj.file;
-					div.innerHTML = `
-						<span class="match-label">${obj.label}</span>
-						<div class="match-tags">
-							${obj.tags.slice(0, 6).map(t => `<span>${t}</span>`).join('')}
-						</div>`;
+					div.innerHTML = '<span class="match-label">' + escapeHtml(obj.label) + '</span>'
+						+ '<div class="match-tags">' +
+						obj.tags.slice(0, 6).map(t => '<span>' + escapeHtml(t) + '</span>').join('') +
+						'</div>';
 					div.addEventListener('click', () => {
 						loadMarkdown(obj.file);
 						searchPanel.close();
@@ -875,13 +1217,10 @@
 				this.close();
 			}
 		};
-		/* Sub menu (restored, independent of old nav system) */
+
+		/* Sub menu */
 		const subMenu = {
-			container: null,
-			titleEl: null,
-			listEl: null,
-			closeBtn: null,
-			currentQuery: null,
+			container: null, titleEl: null, listEl: null, closeBtn: null, currentQuery: null,
 			ensureDom() {
 				if (this.container) return;
 				this.container = document.getElementById('sub-menu-container');
@@ -891,7 +1230,6 @@
 				if (this.closeBtn) {
 					this.closeBtn.addEventListener('click', () => {
 						this.hide();
-						// Remove hash only if it was a submenu hash
 						const params = parseHashParams();
 						if (params && params.submenu) {
 							history.replaceState(null, '', location.pathname + location.search);
@@ -922,14 +1260,12 @@
 						a.addEventListener('click', e => {
 							e.preventDefault();
 							loadMarkdown(item.file);
-							// Keep submenu open (remove next line to auto-hide)
-							// this.hide();
 						});
 						li.appendChild(a);
 						this.listEl.appendChild(li);
 					});
 				}
-				this.titleEl.textContent = `Results: ${term}`;
+				this.titleEl.textContent = 'Results: ' + term;
 				this.container.hidden = false;
 				this.currentQuery = term;
 			},
@@ -942,12 +1278,11 @@
 
 		function subMenuFilterMatch(entry, term) {
 			const q = term.toLowerCase();
-			if (entry.label.toLowerCase().includes(q)) return true;
-			if (entry.file.toLowerCase().includes(q)) return true;
-			if (entry.tags && entry.tags.some(t => t.toLowerCase().includes(q))) return true;
-			return false;
+			return entry.label.toLowerCase().includes(q) ||
+				entry.file.toLowerCase().includes(q) ||
+				(entry.tags && entry.tags.some(t => t.toLowerCase().includes(q)));
 		}
-		/* Hash parsing */
+
 		function parseHashParams() {
 			const raw = location.hash.startsWith('#') ? decodeURIComponent(location.hash.slice(1)) : '';
 			if (!raw) return null;
@@ -962,7 +1297,7 @@
 			});
 			return Object.keys(obj).length ? obj : null;
 		}
-		// Delay actions until index is ready
+
 		let pendingHashAction = null;
 
 		function applyHashAction(params) {
@@ -974,12 +1309,10 @@
 				if (!searchPanel.isOpen) searchPanel.open();
 				searchPanel.input.value = params.search;
 				searchPanel.render(params.search);
-				// Hide submenu if open
 				subMenu.hide();
 			} else if (params.submenu) {
-				// Ensure index loaded
 				if (searchPanel.index.length === 0) {
-					pendingHashAction = params; // wait
+					pendingHashAction = params;
 				} else {
 					subMenu.show(params.submenu);
 				}
@@ -987,16 +1320,16 @@
 				subMenu.hide();
 			}
 		}
+
 		window.addEventListener('hashchange', () => {
 			const params = parseHashParams();
-			// If index not loaded and submenu requested, store; else immediate
 			if (params && params.submenu && searchPanel.index.length === 0) {
 				pendingHashAction = params;
 			} else {
 				applyHashAction(params);
 			}
 		});
-		/* Theme system */
+
 		let themeManifest = [];
 		let activeThemeId = null;
 
@@ -1005,7 +1338,6 @@
 				if (c.startsWith('theme-')) document.body.classList.remove(c);
 			});
 		}
-
 		function applyRuntimeVars(varsObj) {
 			let styleEl = document.getElementById('dynamic-theme');
 			if (!styleEl) {
@@ -1020,7 +1352,6 @@
 			const lines = Object.entries(varsObj).map(([k, v]) => `${k}: ${v};`);
 			styleEl.textContent = `:root { ${lines.join(' ')} }`;
 		}
-
 		function applyTheme(id) {
 			const item = themeManifest.find(t => t.id === id);
 			applyRuntimeVars(null);
@@ -1035,13 +1366,11 @@
 			activeThemeId = id;
 			markActiveCard();
 		}
-
 		function markActiveCard() {
 			document.querySelectorAll('.theme-item').forEach(div => {
 				div.classList.toggle('active', div.dataset.themeId === (activeThemeId || ''));
 			});
 		}
-
 		function buildThemeCards() {
 			const container = document.getElementById('themes-list');
 			container.innerHTML = '';
@@ -1054,8 +1383,7 @@
 					<button class="apply-theme" type="button">Use</button>
 				</div>
 				<small>Default variables</small>`;
-			baselineCard.querySelector('button.apply-theme')
-				.addEventListener('click', () => applyTheme(null));
+			baselineCard.querySelector('button.apply-theme').addEventListener('click', () => applyTheme(null));
 			container.appendChild(baselineCard);
 			themeManifest.forEach(t => {
 				const div = document.createElement('div');
@@ -1070,13 +1398,11 @@
 					</div>
 					${desc}
 					${group}`;
-				div.querySelector('button.apply-theme')
-					.addEventListener('click', () => applyTheme(t.id));
+				div.querySelector('button.apply-theme').addEventListener('click', () => applyTheme(t.id));
 				container.appendChild(div);
 			});
 			markActiveCard();
 		}
-
 		function loadThemeManifest() {
 			return fetch(THEME_MANIFEST_URL)
 				.then(r => {
@@ -1092,34 +1418,49 @@
 					buildThemeCards();
 				});
 		}
-
 		function setupThemeDashboard() {
 			const openBtn = document.getElementById('open-theme-dashboard');
 			const panel = document.getElementById('theme-dashboard');
 			const closeBtn = panel.querySelector('.close-dashboard');
-
 			function open() {
 				panel.classList.add('open');
 				panel.setAttribute('aria-hidden', 'false');
 			}
-
 			function close() {
 				panel.classList.remove('open');
 				panel.setAttribute('aria-hidden', 'true');
 			}
 			openBtn.addEventListener('click', () => {
-				if (panel.classList.contains('open')) close();
-				else open();
+				if (panel.classList.contains('open')) close(); else open();
 			});
 			closeBtn.addEventListener('click', close);
 			document.addEventListener('keydown', e => {
 				if (e.key === 'Escape' && panel.classList.contains('open')) close();
 			});
 		}
+
+		/* Outline panel controls */
+		function setupOutlinePanel() {
+			const openBtn = document.getElementById('open-outline');
+			const panel = document.getElementById('outline-panel');
+			const closeBtn = panel.querySelector('.close-outline');
+			openBtn.addEventListener('click', () => toggleOutline());
+			closeBtn.addEventListener('click', () => toggleOutline(false));
+			document.addEventListener('keydown', e => {
+				if (e.key === 'Escape' && outlineState.open) toggleOutline(false);
+				// Keyboard shortcut: Ctrl+Shift+O
+				if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'o') {
+					e.preventDefault();
+					toggleOutline();
+				}
+			});
+		}
+
 		document.addEventListener('DOMContentLoaded', () => {
 			setupThemeDashboard();
+			setupOutlinePanel();
 			loadThemeManifest();
-			// Search panel wiring
+			// Search wiring
 			searchPanel.root = document.getElementById('search-panel');
 			searchPanel.input = document.getElementById('global-search-input');
 			searchPanel.results = document.getElementById('search-results');
@@ -1150,7 +1491,8 @@
 			searchPanel.root.addEventListener('mousedown', e => {
 				if (e.target === searchPanel.root) searchPanel.close();
 			});
-			// Mobile nav toggle
+
+			// Mobile nav
 			const navList = document.getElementById('nav-list');
 			const menuToggle = document.getElementById('menu-toggle');
 			if (menuToggle) {
@@ -1165,18 +1507,18 @@
 					menuToggle.setAttribute('aria-expanded', 'false');
 				}
 			});
-			// Capture initial hash params early (before index load)
+
+			// Initial hash
 			const initialParams = parseHashParams();
 			if (initialParams) {
-				// For search param we can open now (even before index)
 				if (initialParams.search) {
 					searchPanel.open();
 					searchPanel.input.value = initialParams.search;
-					// render deferred until index maybe
 				} else if (initialParams.submenu) {
-					pendingHashAction = initialParams; // wait for index
+					pendingHashAction = initialParams;
 				}
 			}
+
 			// Load docs index
 			fetch(DOCS_MANIFEST_URL)
 				.then(r => {
@@ -1187,23 +1529,16 @@
 					searchPanel.loadIndex(json);
 				})
 				.catch(() => {
-					searchPanel.loadIndex([{
-						label: 'README',
-						file: DEFAULT_DOC,
-						tags: ['default']
-					}]);
+					searchPanel.loadIndex([{ label: 'README', file: DEFAULT_DOC, tags: ['default'] }]);
 				})
 				.finally(() => {
 					loadMarkdown(DEFAULT_DOC);
-					// If pending submenu exists, apply now
 					if (pendingHashAction) {
 						applyHashAction(pendingHashAction);
 						pendingHashAction = null;
 					} else if (initialParams && initialParams.search) {
-						// Now render search results after index ready
 						searchPanel.render(initialParams.search);
 					} else {
-						// If URL has #submenu but index load failed earlier handled above
 						const paramsAfter = parseHashParams();
 						if (paramsAfter && paramsAfter.submenu) applyHashAction(paramsAfter);
 					}
