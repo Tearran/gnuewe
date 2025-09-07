@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta charset="UTF-8" />
+        <title>JSON Dataset Editor</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <style>
+                :root {
+                        font-family: system-ui, sans-serif;
+                        color-scheme: light dark;
+                        --bg: #1e1f22;
+                        --fg: #e6e6e6;
+                        --accent: #3d7cff;
+                        --bad: #c62828;
+                        --warn: #d98e00;
+                        --good: #2e7d32;
+                        --border: #444;
+                }
+
+                body {
+                        margin: 0;
+                        padding: 0;
+                        background: var(--bg);
+                        color: var(--fg);
+                }
+
+                header,
+                footer {
+                        padding: 0.75rem 1rem;
+                        background: #121314;
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                        flex-wrap: wrap;
+                        border-bottom: 1px solid var(--border);
+                }
+
+                h1 {
+                        font-size: 1.05rem;
+                        margin: 0;
+                        font-weight: 600;
+                }
+
+                button,
+                input,
+                textarea,
+                select {
+                        font: inherit;
+                }
+
+                button {
+                        cursor: pointer;
+                        background: var(--accent);
+                        color: #fff;
+                        border: 1px solid var(--accent);
+                        padding: 0.4rem 0.75rem;
+                        border-radius: 4px;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 0.35rem;
+                }
+
+                button.secondary {
+                        background: #2d2f33;
+                        border-color: #3a3d42;
+                }
+
+                button.danger {
+                        background: var(--bad);
+                        border-color: var(--bad);
+                }
+
+                button:disabled {
+                        opacity: 0.5;
+                        cursor: not-allowed;
+                }
+
+                #layout {
+                        display: grid;
+                        grid-template-columns: 320px 1fr;
+                        gap: 0;
+                        height: calc(100vh - 60px);
+                }
+
+                @media (max-width:1100px) {
+                        #layout {
+                                grid-template-columns: 1fr;
+                                height: auto;
+                        }
+
+                        #left {
+                                max-height: 360px;
+                        }
+                }
+
+                #left {
+                        border-right: 1px solid var(--border);
+                        display: flex;
+                        flex-direction: column;
+                        background: #18191b;
+                }
+
+                #right {
+                        display: flex;
+                        flex-direction: column;
+                        overflow: hidden;
+                }
+
+                section.block {
+                        padding: 0.75rem;
+                        border-bottom: 1px solid var(--border);
+                }
+
+                section.block h2 {
+                        font-size: 0.9rem;
+                        margin: 0 0 0.5rem;
+                        text-transform: uppercase;
+                        letter-spacing: 0.05em;
+                        opacity: 0.85;
+                }
+
+                textarea#raw {
+                        width: 100%;
+                        min-height: 160px;
+                        resize: vertical;
+                        background: #0f1011;
+                        color: var(--fg);
+                        border: 1px solid var(--border);
+                        padding: 0.5rem;
+                        border-radius: 4px;
+                        font-family: ui-monospace, monospace;
+                        font-size: 0.75rem;
+                        line-height: 1.2;
+                }
+
+                .controls-row {
+                        display: flex;
+                        gap: 0.5rem;
+                        flex-wrap: wrap;
+                        margin-top: 0.5rem;
+                }
+
+                #entries-wrapper {
+                        flex: 1;
+                        overflow: auto;
+                        padding: 0.75rem;
+                        background: #121314;
+                }
+
+                table {
+                        width: 100%;
+                        border-collapse: separate;
+                        border-spacing: 0 6px;
+                }
+
+                thead th {
+                        text-align: left;
+                        font-size: 0.65rem;
+                        text-transform: uppercase;
+                        letter-spacing: 0.08em;
+                        opacity: 0.75;
+                        padding: 0 6px 4px;
+                }
+
+                tbody tr {
+                        background: #1c1d20;
+                        box-shadow: 0 0 0 1px #27292d;
+                        transition: background 0.15s, box-shadow 0.15s;
+                }
+
+                tbody tr.invalid {
+                        box-shadow: 0 0 0 1px var(--bad);
+                }
+
+                tbody tr.modified:not(.invalid) {
+                        box-shadow: 0 0 0 1px var(--accent);
+                }
+
+                tbody td {
+                        padding: 6px;
+                        vertical-align: top;
+                }
+
+                tbody td.actions {
+                        white-space: nowrap;
+                        display: flex;
+                        gap: 4px;
+                        align-items: center;
+                }
+
+                tbody input {
+                        width: 100%;
+                        box-sizing: border-box;
+                        background: #0f1011;
+                        border: 1px solid #2b2d31;
+                        color: var(--fg);
+                        padding: 4px 6px;
+                        font-size: 0.75rem;
+                        border-radius: 3px;
+                        font-family: inherit;
+                }
+
+                tbody input:focus {
+                        outline: 1px solid var(--accent);
+                        border-color: var(--accent);
+                }
+
+                .badge {
+                        padding: 2px 6px;
+                        border-radius: 10px;
+                        background: #2d3035;
+                        font-size: 0.6rem;
+                        letter-spacing: 0.05em;
+                        text-transform: uppercase;
+                }
+
+                .status-bar {
+                        font-size: 0.7rem;
+                        padding: 4px 8px;
+                        background: #18191b;
+                        border-top: 1px solid var(--border);
+                        display: flex;
+                        gap: 1rem;
+                        flex-wrap: wrap;
+                        align-items: center;
+                }
+
+                .status-bar span {
+                        opacity: 0.8;
+                }
+
+                .inline {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 0.35rem;
+                }
+
+                .toggle {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 0.35rem;
+                        font-size: 0.7rem;
+                        cursor: pointer;
+                        user-select: none;
+                }
+
+                .toggle input {
+                        margin: 0;
+                }
+
+                #filter-box {
+                        width: 100%;
+                        background: #0f1011;
+                        border: 1px solid #2b2d31;
+                        color: var(--fg);
+                        padding: 4px 6px;
+                        border-radius: 4px;
+                        font-size: 0.75rem;
+                }
+
+                .note {
+                        font-size: 0.65rem;
+                        opacity: 0.7;
+                        margin-top: 4px;
+                        line-height: 1.3;
+                }
+
+                .small-btn {
+                        background: #2d2f33;
+                        border: 1px solid #3a3d42;
+                        padding: 2px 5px;
+                        font-size: 0.65rem;
+                }
+
+                .small-btn.danger {
+                        background: #6d2424;
+                        border-color: #6d2424;
+                }
+
+                .small-btn.icon {
+                        width: 24px;
+                        padding: 2px 0;
+                        text-align: center;
+                }
+
+                mark {
+                        background: #39495f;
+                        color: inherit;
+                }
+        </style>
+</head>
+
+<body>
+        <header>
+                <h1>JSON Dataset Editor</h1>
+                <button id="btn-new">New Blank</button>
+                <button id="btn-add">Add Entry</button>
+                <button id="btn-export" class="secondary">Download JSON</button>
+                <button id="btn-pretty" class="secondary">Pretty Print</button>
+                <button id="btn-minify" class="secondary">Minify</button>
+                <label class="toggle"><input type="checkbox" id="autosave" checked /> Autosave</label>
+        </header>
+        <div id="layout">
+                <div id="left">
+                        <section class="block">
+                                <h2>Raw JSON</h2>
+                                <textarea id="raw" spellcheck="false" placeholder="Paste JSON array here..."></textarea>
+                                <div class="controls-row">
+                                        <button id="btn-load" class="secondary">Load → Table</button>
+                                        <button id="btn-refresh" class="secondary">← Sync From Table</button>
+                                        <input type="file" id="file-input" hidden accept=".json,application/json" />
+                                        <button id="btn-import" class="secondary">Import File</button>
+                                        <button id="btn-clear" class="danger">Clear</button>
+                                </div>
+                                <div class="note">
+                                        Expected structure: Array of objects with keys: label (string), file (string),
+                                        tags (array of strings).
+                                </div>
+                        </section>
+                        <section class="block">
+                                <h2>Filter</h2>
+                                <input id="filter-box" placeholder="Filter by label or tag..." />
+                                <div class="note">Case-insensitive substring match.</div>
+                        </section>
+                </div>
+                <div id="right">
+                        <div id="entries-wrapper">
+                                <table>
+                                        <thead>
+                                                <tr>
+                                                        <th style="width:18%">Label</th>
+                                                        <th style="width:36%">File URL</th>
+                                                        <th style="width:24%">Tags (comma)</th>
+                                                        <th style="width:22%">Actions</th>
+                                                </tr>
+                                        </thead>
+                                        <tbody id="tbody"></tbody>
+                                </table>
+                        </div>
+                        <div class="status-bar" id="status">
+                                <span id="stat-count">0 entries</span>
+                                <span id="stat-invalid">0 invalid</span>
+                                <span id="stat-modified">0 modified</span>
+                                <span id="stat-filter"></span>
+                                <span style="flex:1"></span>
+                                <span>Unsaved changes are reflected immediately in table; click Sync From Table to push
+                                        to raw JSON.</span>
+                        </div>
+                </div>
+        </div>
+        <footer class="status-bar">
+                <span>Keyboard: Tab to move fields, Enter focuses next. Ctrl+S exports. Esc clears filter focus.</span>
+        </footer>
+        <script>
+                /* Data model */
+                let data = [];
+                let dirtySet = new Set();
+                let prettyMode = true;
+
+                const els = {
+                        raw: document.getElementById('raw'),
+                        tbody: document.getElementById('tbody'),
+                        statCount: document.getElementById('stat-count'),
+                        statInvalid: document.getElementById('stat-invalid'),
+                        statModified: document.getElementById('stat-modified'),
+                        statFilter: document.getElementById('stat-filter'),
+                        filter: document.getElementById('filter-box'),
+                        autosave: document.getElementById('autosave')
+                };
+
+                const STORAGE_KEY = 'json_editor_dataset_v1';
+
+                function loadFromLocalStorage() {
+                        try {
+                                const s = localStorage.getItem(STORAGE_KEY);
+                                if (!s) return;
+                                const parsed = JSON.parse(s);
+                                if (Array.isArray(parsed)) {
+                                        data = parsed;
+                                        render();
+                                        syncRaw();
+                                }
+                        } catch (e) {
+                                console.warn('LocalStorage load failed', e);
+                        }
+                }
+
+                function saveToLocalStorage() {
+                        if (!els.autosave.checked) return;
+                        try {
+                                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                        } catch (e) {
+                                console.warn('LocalStorage save failed', e);
+                        }
+                }
+
+                function validateEntry(o) {
+                        if (!o || typeof o !== 'object') return false;
+                        if (typeof o.label !== 'string' || !o.label.trim()) return false;
+                        if (typeof o.file !== 'string' || !o.file.trim()) return false;
+                        if (!Array.isArray(o.tags)) return false;
+                        if (!o.tags.every(t => typeof t === 'string')) return false;
+                        return true;
+                }
+
+                function normalizeEntry(o) {
+                        return {
+                                label: (o.label ?? '').trim(),
+                                file: (o.file ?? '').trim(),
+                                tags: Array.isArray(o.tags) ? o.tags.map(t => String(t).trim()).filter(t => t) : []
+                        };
+                }
+
+                function addEntry(entry) {
+                        data.push(normalizeEntry(entry || { label: '', file: '', tags: [] }));
+                        render();
+                        saveToLocalStorage();
+                }
+
+                function duplicateEntry(idx) {
+                        const copy = JSON.parse(JSON.stringify(data[idx]));
+                        copy.label = copy.label + ' (copy)';
+                        data.splice(idx + 1, 0, copy);
+                        render();
+                        saveToLocalStorage();
+                }
+
+                function deleteEntry(idx) {
+                        data.splice(idx, 1);
+                        render();
+                        saveToLocalStorage();
+                }
+
+                function moveEntry(idx, dir) {
+                        const newIdx = idx + dir;
+                        if (newIdx < 0 || newIdx >= data.length) return;
+                        const [item] = data.splice(idx, 1);
+                        data.splice(newIdx, 0, item);
+                        render();
+                        saveToLocalStorage();
+                }
+
+                function setField(idx, field, value) {
+                        if (!data[idx]) return;
+                        if (field === 'tags') {
+                                value = value.split(',').map(s => s.trim()).filter(Boolean);
+                        }
+                        data[idx][field] = value;
+                        dirtySet.add(idx);
+                        updateStats();
+                        saveToLocalStorage();
+                }
+
+                function syncRaw() {
+                        els.raw.value = prettyMode ? JSON.stringify(data, null, 2) : JSON.stringify(data);
+                }
+
+                function loadRaw() {
+                        const text = els.raw.value.trim();
+                        if (!text) {
+                                data = [];
+                                render();
+                                return;
+                        }
+                        try {
+                                const parsed = JSON.parse(text);
+                                if (!Array.isArray(parsed)) {
+                                        alert('Top-level JSON must be an array.');
+                                        return;
+                                }
+                                data = parsed.map(normalizeEntry);
+                                dirtySet.clear();
+                                render();
+                                saveToLocalStorage();
+                        } catch (e) {
+                                alert('Invalid JSON: ' + e.message);
+                        }
+                }
+
+                function exportJson() {
+                        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                        const a = document.createElement('a');
+                        a.href = URL.createObjectURL(blob);
+                        a.download = 'dataset.json';
+                        a.click();
+                        URL.revokeObjectURL(a.href);
+                }
+
+                function formatPretty() {
+                        prettyMode = true;
+                        syncRaw();
+                }
+                function formatMinify() {
+                        prettyMode = false;
+                        syncRaw();
+                }
+
+                function matchesFilter(entry, f) {
+                        if (!f) return true;
+                        f = f.toLowerCase();
+                        if (entry.label.toLowerCase().includes(f)) return true;
+                        if (entry.tags.some(t => t.toLowerCase().includes(f))) return true;
+                        return false;
+                }
+
+                function highlightMatch(text, f) {
+                        if (!f) return text;
+                        const i = text.toLowerCase().indexOf(f.toLowerCase());
+                        if (i === -1) return text;
+                        return text.substring(0, i) + '<mark>' + text.substring(i, i + f.length) + '</mark>' + text.substring(i + f.length);
+                }
+
+                function render() {
+                        const filter = els.filter.value.trim();
+                        els.tbody.innerHTML = '';
+                        data.forEach((row, idx) => {
+                                const valid = validateEntry(row);
+                                if (!matchesFilter(row, filter)) return;
+                                const tr = document.createElement('tr');
+                                if (!valid) tr.classList.add('invalid');
+                                if (dirtySet.has(idx)) tr.classList.add('modified');
+                                tr.innerHTML = `
+      <td>
+        <input data-idx="${idx}" data-field="label" value="${escapeHtml(row.label)}" />
+      </td>
+      <td>
+        <input data-idx="${idx}" data-field="file" value="${escapeHtml(row.file)}" />
+      </td>
+      <td>
+        <input data-idx="${idx}" data-field="tags" value="${escapeHtml(row.tags.join(', '))}" />
+      </td>
+      <td class="actions">
+        <button class="small-btn icon" data-act="up" title="Move Up">↑</button>
+        <button class="small-btn icon" data-act="down" title="Move Down">↓</button>
+        <button class="small-btn" data-act="dup" title="Duplicate">Clone</button>
+        <button class="small-btn danger" data-act="del" title="Delete">✕</button>
+      </td>
+    `;
+                                // Filter highlighting
+                                if (filter) {
+                                        const inputs = tr.querySelectorAll('input');
+                                        const f = filter;
+                                        const labelInput = inputs[0];
+                                        const tmp = document.createElement('div');
+                                        tmp.innerHTML = highlightMatch(escapeHtml(row.label), f);
+                                        // We'll just visually highlight by replacing value with plain label to avoid messing with editing.
+                                        // Simpler: ignore highlight inside input; optional: we could use overlay. Leaving default for simplicity.
+                                }
+                                els.tbody.appendChild(tr);
+                        });
+                        updateStats();
+                        attachRowEvents();
+                }
+
+                function updateStats() {
+                        els.statCount.textContent = data.length + ' entr' + (data.length === 1 ? 'y' : 'ies');
+                        const invalid = data.reduce((n, e) => n + (validateEntry(e) ? 0 : 1), 0);
+                        els.statInvalid.textContent = invalid + ' invalid';
+                        els.statInvalid.style.color = invalid ? 'var(--warn)' : 'inherit';
+                        const modified = dirtySet.size;
+                        els.statModified.textContent = modified + ' modified';
+                        const filter = els.filter.value.trim();
+                        els.statFilter.textContent = filter ? 'Filter: "' + filter + '"' : '';
+                }
+
+                function attachRowEvents() {
+                        els.tbody.querySelectorAll('input').forEach(inp => {
+                                inp.addEventListener('input', e => {
+                                        const idx = Number(e.target.dataset.idx);
+                                        const field = e.target.dataset.field;
+                                        setField(idx, field, e.target.value);
+                                        // Re-validate row styling
+                                        const row = e.target.closest('tr');
+                                        const valid = validateEntry(data[idx]);
+                                        row.classList.toggle('invalid', !valid);
+                                        row.classList.add('modified');
+                                });
+                                inp.addEventListener('keydown', e => {
+                                        if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                // focus next input
+                                                const all = Array.from(els.tbody.querySelectorAll('input'));
+                                                const pos = all.indexOf(e.target);
+                                                if (pos >= 0 && pos < all.length - 1) {
+                                                        all[pos + 1].focus();
+                                                        all[pos + 1].select();
+                                                }
+                                        }
+                                });
+                        });
+                        els.tbody.querySelectorAll('button').forEach(btn => {
+                                btn.addEventListener('click', e => {
+                                        const tr = btn.closest('tr');
+                                        if (!tr) return;
+                                        const allRows = Array.from(els.tbody.querySelectorAll('tr'));
+                                        const idxReal = Array.from(els.tbody.children).indexOf(tr); // visible index
+                                        // map visible row index back to actual data index
+                                        const filter = els.filter.value.trim();
+                                        let visibleMapping = [];
+                                        data.forEach((row, i) => {
+                                                if (matchesFilter(row, filter)) visibleMapping.push(i);
+                                        });
+                                        const dataIdx = visibleMapping[idxReal];
+                                        if (dataIdx === undefined) return;
+                                        const act = btn.dataset.act;
+                                        if (act === 'del') {
+                                                if (confirm('Delete entry "' + data[dataIdx].label + '"?')) {
+                                                        deleteEntry(dataIdx);
+                                                }
+                                        } else if (act === 'dup') {
+                                                duplicateEntry(dataIdx);
+                                        } else if (act === 'up') {
+                                                moveEntry(dataIdx, -1);
+                                        } else if (act === 'down') {
+                                                moveEntry(dataIdx, 1);
+                                        }
+                                });
+                        });
+                }
+
+                function escapeHtml(s) {
+                        return String(s)
+                                .replace(/&/g, '&amp;')
+                                .replace(/</g, '&lt;')
+                                .replace(/>/g, '&gt;')
+                                .replace(/"/g, '&quot;');
+                }
+
+                /* Event wiring */
+                document.getElementById('btn-add').addEventListener('click', () => {
+                        addEntry({ label: '', file: '', tags: [] });
+                });
+
+                document.getElementById('btn-new').addEventListener('click', () => {
+                        if (data.length && !confirm('Discard current data and start blank?')) return;
+                        data = [];
+                        dirtySet.clear();
+                        render();
+                        syncRaw();
+                        saveToLocalStorage();
+                });
+
+                document.getElementById('btn-load').addEventListener('click', loadRaw);
+                document.getElementById('btn-refresh').addEventListener('click', () => {
+                        syncRaw();
+                });
+                document.getElementById('btn-export').addEventListener('click', exportJson);
+                document.getElementById('btn-pretty').addEventListener('click', formatPretty);
+                document.getElementById('btn-minify').addEventListener('click', formatMinify);
+
+                document.getElementById('btn-clear').addEventListener('click', () => {
+                        if (!confirm('Clear raw JSON textarea? (Table not affected)')) return;
+                        els.raw.value = '';
+                });
+
+                document.getElementById('btn-import').addEventListener('click', () => {
+                        document.getElementById('file-input').click();
+                });
+                document.getElementById('file-input').addEventListener('change', e => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = ev => {
+                                els.raw.value = ev.target.result;
+                                loadRaw();
+                        };
+                        reader.readAsText(file);
+                        e.target.value = '';
+                });
+
+                els.filter.addEventListener('input', () => {
+                        render();
+                });
+
+                window.addEventListener('keydown', e => {
+                        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                                e.preventDefault();
+                                exportJson();
+                        }
+                        if (e.key === 'Escape' && document.activeElement === els.filter) {
+                                els.filter.blur();
+                        }
+                });
+
+                /* Initialize with example if empty local storage */
+                const initialExample = [
+                        {
+                                "label": "Armbian System",
+                                "file": "https://raw.githubusercontent.com/armbian/documentation/refs/heads/main/docs/User-Guide_Armbian-Config/System.md",
+                                "tags": ["config", "guide", "armbian", "armbian-config"]
+                        },
+                        {
+                                "label": "Armbian Software",
+                                "file": "https://raw.githubusercontent.com/armbian/documentation/refs/heads/main/docs/User-Guide_Armbian-Software/Software.md",
+                                "tags": ["config", "guide", "armbian", "armbian-config"]
+                        },
+                        {
+                                "label": "Armbian Localisation",
+                                "file": "https://raw.githubusercontent.com/armbian/documentation/refs/heads/main/docs/User-Guide_Armbian-Config/Localisation.md",
+                                "tags": ["config", "guide", "armbian", "armbian-config"]
+                        },
+                        {
+                                "label": "Tearran",
+                                "file": "https://raw.githubusercontent.com/Tearran/Tearran/refs/heads/main/README.md",
+                                "tags": ["tearran", "joey", "intro", "overview"]
+                        },
+                        {
+                                "label": "Bash",
+                                "file": "https://raw.githubusercontent.com/rstacruz/cheatsheets/refs/heads/master/bash.md",
+                                "tags": ["tearran", "intro", "overview"]
+                        }
+                ];
+
+                (function init() {
+                        loadFromLocalStorage();
+                        if (data.length === 0) {
+                                data = initialExample;
+                                render();
+                                syncRaw();
+                        } else {
+                                render();
+                                syncRaw();
+                        }
+                })();
+        </script>
+</body>
+
+</html>

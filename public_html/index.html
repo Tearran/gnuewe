@@ -139,7 +139,7 @@
 		@media (max-width:600px) {
 			ul#nav-list {
 				display: none;
-				flex-direction: column;
+				/*flex-direction: column;*/
 				width: 100%;
 				background: var(--bg-nav);
 				border-top: 1px solid var(--border-nav);
@@ -161,9 +161,6 @@
 		}
 
 		@media (min-width:601px) {
-			#menu-toggle {
-				display: none;
-			}
 
 			ul#nav-list {
 				display: flex !important;
@@ -812,12 +809,7 @@
 						<use href="images/icons.svg#i-color"></use>
 					</svg>
 				</button>
-				<button id="menu-toggle" aria-label="Toggle navigation menu" aria-controls="nav-list"
-					aria-expanded="false">
-					<svg class="icon icon-md">
-						<use href="images/icons.svg#i-menu"></use>
-					</svg>
-				</button>
+
 			</div>
 		</div>
 	</nav>
@@ -1090,7 +1082,7 @@
 			return s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 		}
 
-		/* Mobile nav */
+		/* Mobile nav 
 		function collapseMobileNavIfNeeded() {
 			const navList = document.getElementById('nav-list');
 			const menuToggle = document.getElementById('menu-toggle');
@@ -1098,7 +1090,7 @@
 				navList.classList.remove('show');
 				menuToggle.setAttribute('aria-expanded', 'false');
 			}
-		}
+		}*/
 
 		/* Search panel object (unchanged except later calls) */
 		const searchPanel = {
@@ -1493,20 +1485,20 @@
 			});
 
 			// Mobile nav
-			const navList = document.getElementById('nav-list');
+			/*const navList = document.getElementById('nav-list');
 			const menuToggle = document.getElementById('menu-toggle');
 			if (menuToggle) {
 				menuToggle.addEventListener('click', () => {
 					const expanded = navList.classList.toggle('show');
 					menuToggle.setAttribute('aria-expanded', expanded);
 				});
-			}
-			window.addEventListener('resize', () => {
+			}*/
+			/*window.addEventListener('resize', () => {
 				if (window.innerWidth > 600) {
 					navList.classList.remove('show');
 					menuToggle.setAttribute('aria-expanded', 'false');
 				}
-			});
+			});*/
 
 			// Initial hash
 			const initialParams = parseHashParams();
