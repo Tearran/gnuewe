@@ -1,3 +1,20 @@
+<!-- Metadata
+title: GNU EWE
+description: Master index for GNU EWE (Experimenting With Electronics) page
+nav_order: 00
+tags:
+  - ewe
+  - index
+  - electronics
+  - sbc
+status: stable
+last_reviewed: 2025-09-08
+owners:
+  - Tearran
+project: gnu-ewe
+license: GPL-2.0
+/-->
+
 # Welcome
 
 The **GNU EWE (GNU’s Not Unix — Experimenting With Electronics)** is a Linux-focused open-source project designed to help users learn by doing. Through a combination of web tools, scripts, and hands-on guides, GNU EWE encourages exploration, experimentation, and learning through trial and error in Linux and electronics.

@@ -2,6 +2,7 @@
         {
                 "label": "armbian-config System",
                 "file": "https://raw.githubusercontent.com/armbian/documentation/refs/heads/main/docs/User-Guide_Armbian-Config/System.md",
+                "icon": "",
                 "tags": [
                         "config",
                         "guide",
@@ -12,6 +13,7 @@
         {
                 "label": "armbian-config Software",
                 "file": "https://raw.githubusercontent.com/armbian/documentation/refs/heads/main/docs/User-Guide_Armbian-Software/Software.md",
+                "icon": "",
                 "tags": [
                         "config",
                         "guide",
@@ -22,6 +24,7 @@
         {
                 "label": "armbian-config Localisation",
                 "file": "https://raw.githubusercontent.com/armbian/documentation/refs/heads/main/docs/User-Guide_Armbian-Config/Localisation.md",
+                "icon": "",
                 "tags": [
                         "config",
                         "guide",
@@ -32,6 +35,7 @@
         {
                 "label": "Tearran",
                 "file": "https://raw.githubusercontent.com/Tearran/Tearran/refs/heads/main/README.md",
+                "icon": "",
                 "tags": [
                         "tearran",
                         "joey",
@@ -42,12 +46,40 @@
         {
                 "label": "Bash Dev Hints",
                 "file": "https://raw.githubusercontent.com/rstacruz/cheatsheets/refs/heads/master/bash.md",
+                "icon": "",
                 "tags": [
                         "bash",
                         "intro",
                         "overview",
                         "cli",
                         "shell"
+                ]
+        },
+        {
+                "label": "Home",
+                "file": "pages/home.md",
+                "icon": "",
+                "tags": [
+                        "home",
+                        "nav"
+                ]
+        },
+        {
+                "label": "Armbian Overview",
+                "file": "pages/armbian.md",
+                "icon": "",
+                "tags": [
+                        "home",
+                        "nav"
+                ]
+        },
+        {
+                "label": "Armbian",
+                "file": "#submenu=armbian",
+                "icon": "",
+                "tags": [
+                        "home",
+                        "nav"
                 ]
         }
 ]
