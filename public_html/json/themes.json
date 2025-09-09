@@ -25,8 +25,8 @@
                         "--bg-main": "#000000",
                         "--bg-nav": "#000000",
                         "--border-nav": "#444444",
-                        "--text-main": "#ffffff",
-                        "--text-link": "#ffcc00",
+                        "--text-main": "#00ff00",
+                        "--text-link": "#00ff00",
                         "--text-muted": "#bbbbbb",
                         "--bg-active": "#222222"
                 }
