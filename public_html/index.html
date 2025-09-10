@@ -143,18 +143,11 @@
 		const DEFAULT_DOC = 'pages/home.md';
 		const DEFAULT_TAG = 'home';
 
-		/* Outline State */
-		const outlineState = {
-			open: false,
-			items: [],
-			activeId: null,
-			observer: null,
-			headingSelector: 'h1, h2, h3, h4, h5, h6'
-		};
 
 		/* Markdown loader with caching */
 		const markdownCache = new Map();
 
+		/* URL */
 		function updateUrlParameters(params) {
 			// Build a hash string from parameters object
 			const hashParts = [];
@@ -185,7 +178,7 @@
 			// Check if this is a tag filter link
 			if (typeof filename === 'string' && filename.includes('submenu=')) {
 				const term = filename.replace(/^#*submenu=/, '').replace(/^.*?submenu=/, '');
-				subMenu.show(term);
+				tagsMenu.show(term);
 				return;
 			}
 
@@ -382,24 +375,7 @@
 			headings.forEach(h => outlineState.observer.observe(h));
 		}
 
-		function toggleOutline(open) {
-			const panel = document.getElementById('outline-panel');
-			if (!panel) return;
-			const desired = (typeof open === 'boolean') ? open : !outlineState.open;
-			outlineState.open = desired;
-			panel.classList.toggle('open', desired);
-			panel.setAttribute('aria-hidden', desired ? 'false' : 'true');
-			document.body.classList.toggle('outline-open', desired);
-			if (desired) {
-				// Rebuild fresh in case content changed
-				buildOutline();
-				updateActiveOutlineItem();
-				setTimeout(() => {
-					const first = panel.querySelector('.outline-item');
-					first?.focus();
-				}, 50);
-			}
-		}
+
 
 		function escapeHtml(s) {
 			return s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -523,94 +499,6 @@
 			}
 		};
 
-		// 2. Modify the subMenu object to always display content
-		const subMenu = {
-			container: null, titleEl: null, listEl: null, closeBtn: null, currentQuery: null,
-			ensureDom() {
-				if (this.container) return;
-				this.container = document.getElementById('tags-container');
-				this.titleEl = document.getElementById('tags-title');
-				this.listEl = document.getElementById('tags-list');
-				this.closeBtn = document.getElementById('close-sub-menu');
-
-				// Remove close button functionality since menu is always visible
-				if (this.closeBtn) {
-					this.closeBtn.style.display = 'none'; // Hide the close button
-				}
-			},
-			show(query) {
-				this.ensureDom();
-				const term = (query || '').trim();
-				this.listEl.innerHTML = '';
-				if (!term) {
-					this.titleEl.textContent = 'All Documents';
-					// Still populate with all documents when no query
-					const allItems = searchPanel.index || [];
-					this.populateList(allItems);
-					return;
-				}
-				const matches = (searchPanel.index || []).filter(entry => subMenuFilterMatch(entry, term));
-				this.populateList(matches);
-				this.currentQuery = term;
-
-				// Update URL with tag
-				updateUrlParameters({ tags: term });
-			},
-			populateList(items) {
-				this.listEl.innerHTML = '';
-				if (items.length === 0) {
-					const li = document.createElement('li');
-					li.innerHTML = '<span style="opacity:.6;font-size:.75em;">No results</span>';
-					this.listEl.appendChild(li);
-				} else {
-					items.forEach(item => {
-						const li = document.createElement('li');
-						const a = document.createElement('a');
-						a.textContent = item.label;
-
-						// Extract page name from file path
-						const pageName = item.file.split('/').pop().replace('.md', '');
-
-						// Create URL with parameters for bookmarking
-						const tagName = this.currentQuery ||
-							(item.tags && item.tags.length > 0 ? item.tags[0] : '');
-
-						if (tagName) {
-							a.href = `#tags=${tagName}&page=${pageName}`;
-						} else {
-							a.href = `#page=${pageName}`;
-						}
-
-						a.addEventListener('click', e => {
-							e.preventDefault();
-							loadMarkdown(item.file);
-						});
-
-						li.appendChild(a);
-						this.listEl.appendChild(li);
-					});
-				}
-			},
-			// Modify hide to not actually hide, just clear selection
-			hide() {
-				this.ensureDom();
-				this.currentQuery = null;
-				this.titleEl.textContent = 'All Documents';
-
-				// Show all documents instead of hiding
-				const allItems = searchPanel.index || [];
-				this.populateList(allItems);
-			}
-		};
-
-
-		function subMenuFilterMatch(entry, term) {
-			const q = term.toLowerCase();
-			return entry.label.toLowerCase().includes(q) ||
-				entry.file.toLowerCase().includes(q) ||
-				(entry.tags && entry.tags.some(t => t.toLowerCase().includes(q)));
-		}
-
 		function parseHashParams() {
 			const raw = location.hash.startsWith('#') ? decodeURIComponent(location.hash.slice(1)) : '';
 			if (!raw) return null;
@@ -630,7 +518,7 @@
 
 		function applyHashAction(params) {
 			if (!params) {
-				subMenu.show('');
+				tagsMenu.show('');
 				return;
 			}
 
@@ -643,9 +531,9 @@
 
 			// Handle tags parameter
 			if (params.tags) {
-				subMenu.show(params.tags);
+				tagsMenu.show(params.tags);
 			} else {
-				subMenu.show('');
+				tagsMenu.show('');
 			}
 
 			// Handle page parameter
@@ -664,132 +552,11 @@
 			}
 		});
 
-		let themeManifest = [];
-		let activeThemeId = null;
-
-		function clearThemeClasses() {
-			[...document.body.classList].forEach(c => {
-				if (c.startsWith('theme-')) document.body.classList.remove(c);
-			});
-		}
-		function applyRuntimeVars(varsObj) {
-			let styleEl = document.getElementById('dynamic-theme');
-			if (!styleEl) {
-				styleEl = document.createElement('style');
-				styleEl.id = 'dynamic-theme';
-				document.head.appendChild(styleEl);
-			}
-			if (!varsObj) {
-				styleEl.textContent = '';
-				return;
-			}
-			const lines = Object.entries(varsObj).map(([k, v]) => `${k}: ${v};`);
-			styleEl.textContent = `:root { ${lines.join(' ')} }`;
-		}
-		function applyTheme(id) {
-			const item = themeManifest.find(t => t.id === id);
-			applyRuntimeVars(null);
-			clearThemeClasses();
-			if (!item) {
-				activeThemeId = null;
-				markActiveCard();
-				return;
-			}
-			if (item.class) document.body.classList.add(item.class);
-			if (item.vars) applyRuntimeVars(item.vars);
-			activeThemeId = id;
-			markActiveCard();
-		}
-		function markActiveCard() {
-			document.querySelectorAll('.theme-item').forEach(div => {
-				div.classList.toggle('active', div.dataset.themeId === (activeThemeId || ''));
-			});
-		}
-		function buildThemeCards() {
-			const container = document.getElementById('themes-list');
-			container.innerHTML = '';
-			const baselineCard = document.createElement('div');
-			baselineCard.className = 'theme-item';
-			baselineCard.dataset.themeId = '';
-			baselineCard.innerHTML = `
-		<div class="theme-item-header">
-		<strong>Baseline (Dark)</strong>
-		<button class="apply-theme" type="button">Use</button>
-		</div>
-		<small>Default variables</small>`;
-			baselineCard.querySelector('button.apply-theme').addEventListener('click', () => applyTheme(null));
-			container.appendChild(baselineCard);
-			themeManifest.forEach(t => {
-				const div = document.createElement('div');
-				div.className = 'theme-item';
-				div.dataset.themeId = t.id;
-				const desc = t.description ? `<small>${t.description}</small>` : '';
-				const group = t.group ? `<small style="opacity:0.6;">Group: ${t.group}</small>` : '';
-				div.innerHTML = `
-            <div class="theme-item-header">
-                <strong>${t.label || t.id}</strong>
-                <button class="apply-theme" type="button">Use</button>
-            </div>
-            ${desc}
-            ${group}`;
-				div.querySelector('button.apply-theme').addEventListener('click', () => applyTheme(t.id));
-				container.appendChild(div);
-			});
-			markActiveCard();
-		}
-		function loadThemeManifest() {
-			return fetch(THEME_MANIFEST_URL)
-				.then(r => {
-					if (!r.ok) throw new Error('No theme manifest');
-					return r.json();
-				})
-				.then(json => {
-					themeManifest = Array.isArray(json) ? json : [];
-					buildThemeCards();
-				})
-				.catch(() => {
-					themeManifest = [];
-					buildThemeCards();
-				});
-		}
-		function setupThemeDashboard() {
-			const openBtn = document.getElementById('open-theme-dashboard');
-			const panel = document.getElementById('theme-dashboard');
-			const closeBtn = panel.querySelector('.close-dashboard');
-			function open() {
-				panel.classList.add('open');
-				panel.setAttribute('aria-hidden', 'false');
-			}
-			function close() {
-				panel.classList.remove('open');
-				panel.setAttribute('aria-hidden', 'true');
-			}
-			openBtn.addEventListener('click', () => {
-				if (panel.classList.contains('open')) close(); else open();
-			});
-			closeBtn.addEventListener('click', close);
-			document.addEventListener('keydown', e => {
-				if (e.key === 'Escape' && panel.classList.contains('open')) close();
-			});
-		}
-
-		/* Outline panel controls */
-		function setupOutlinePanel() {
-			const openBtn = document.getElementById('open-outline');
-			const panel = document.getElementById('outline-panel');
-			const closeBtn = panel.querySelector('.close-outline');
-			openBtn.addEventListener('click', () => toggleOutline());
-			closeBtn.addEventListener('click', () => toggleOutline(false));
-			document.addEventListener('keydown', e => {
-				if (e.key === 'Escape' && outlineState.open) toggleOutline(false);
-				// Keyboard shortcut: Ctrl+Shift+O
-				if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'o') {
-					e.preventDefault();
-					toggleOutline();
-				}
-			});
-		}
-
+	</script>
+	<script src="/js/tags_bar.js"></script>
+	<script src="/js/markdown_outline.js"></script>
+	<script src="js/theme.js"></script>
+	<script>
 		document.addEventListener('DOMContentLoaded', () => {
 			setupThemeDashboard();
 			setupOutlinePanel();
@@ -805,13 +572,13 @@
 					searchPanel.loadIndex(json);
 
 					// Show default tag - add this line
-					subMenu.show(DEFAULT_TAG);
+					tagsMenu.show(DEFAULT_TAG);
 				})
 				.catch(() => {
 					searchPanel.loadIndex([{ label: 'TAGS NOT FOUND', file: DEFAULT_DOC, tags: ['default'] }]);
 
 					// Show default tag even on error - add this line
-					subMenu.show(DEFAULT_TAG);
+					tagsMenu.show(DEFAULT_TAG);
 				})
 				.finally(() => {
 					loadMarkdown(DEFAULT_DOC, { skipUrlUpdate: true });
@@ -834,7 +601,7 @@
 					if (href && href.includes('submenu=')) {
 						e.preventDefault();
 						const term = href.replace(/^#*submenu=/, '');
-						subMenu.show(term);
+						tagsMenu.show(term);
 						updateUrlParameters({ tags: term });
 					} else if (href && href.startsWith('#page=')) {
 						e.preventDefault();
