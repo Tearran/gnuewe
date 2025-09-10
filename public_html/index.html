@@ -654,32 +654,6 @@
 					pendingHashAction = initialParams;
 				}
 			}
-
-			// Load docs index
-			fetch(DOCS_MANIFEST_URL)
-				.then(r => {
-					if (!r.ok) throw new Error();
-					return r.json();
-				})
-				.then(json => {
-					searchPanel.loadIndex(json);
-				})
-				.catch(() => {
-					searchPanel.loadIndex([{ title: 'README', file: DEFAULT_DOC, tags: ['default'] }]);
-				})
-				.finally(() => {
-					loadMarkdown(DEFAULT_DOC);
-					if (pendingHashAction) {
-						applyHashAction(pendingHashAction);
-						pendingHashAction = null;
-					} else if (initialParams && initialParams.search) {
-						searchPanel.render(initialParams.search);
-					} else {
-						const paramsAfter = parseHashParams();
-						if (paramsAfter && (paramsAfter.tags || paramsAfter.submenu))
-							applyHashAction(paramsAfter);
-					}
-				});
 		});
 	</script>
 </body>
