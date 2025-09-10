@@ -48,7 +48,7 @@
 </head>
 
 <body>
-	<nav id="topnav" aria-label="Primary site navigation">
+	<nav id="topnav" aria-title="Primary site navigation">
 		<div class="nav-inner">
 			<span class="nav-title">
 				<a href="/" style="color:inherit;text-decoration:none;">
@@ -62,7 +62,7 @@
 						<use href="images/icons.svg#i-home"></use>
 					</svg>
 				</a>
-				<button id="open-search" type="button" aria-label="Open search panel">
+				<button id="open-search" type="button" aria-title="Open search panel">
 					<svg class="icon icon-md">
 						<use href="images/icons.svg#i-search"></use>
 					</svg>
@@ -74,12 +74,12 @@
 					</svg>
 				</a>
 
-				<button id="open-theme-dashboard" type="button" aria-label="Open theme dashboard">
+				<button id="open-theme-dashboard" type="button" aria-title="Open theme dashboard">
 					<svg class="icon icon-md">
 						<use href="images/icons.svg#i-color"></use>
 					</svg>
 				</button>
-				<button id="open-outline" type="button" aria-label="Open document outline">
+				<button id="open-outline" type="button" aria-title="Open document outline">
 					<svg class="icon icon-md">
 						<use href="images/icons.svg#i-list"></use>
 					</svg>
@@ -91,40 +91,40 @@
 	<div id="tags-container">
 		<div class="tags-header">
 			<span id="tags-title"></span>
-			<button id="close-sub-menu" type="button" aria-label="Close sub menu">✕</button>
+			<button id="close-sub-menu" type="button" aria-title="Close sub menu">✕</button>
 		</div>
 		<ul id="tags-list"></ul>
 	</div>
 
 	<div id="search-panel" aria-hidden="true">
-		<div id="search-box" role="dialog" aria-modal="true" aria-labelledby="search-label">
+		<div id="search-box" role="dialog" aria-modal="true" aria-titleledby="search-title">
 			<div id="search-header">
 				<svg class="icon icon-md">
 					<use href="images/icons.svg#i-search"></use>
 				</svg>
 				<input id="global-search-input" type="text" placeholder="Search documentation..."
-					aria-label="Search all documentation" autocomplete="off" />
-				<button id="close-search" aria-label="Close search">✕</button>
+					aria-title="Search all documentation" autocomplete="off" />
+				<button id="close-search" aria-title="Close search">✕</button>
 			</div>
 			<div id="search-results" aria-live="polite"></div>
 		</div>
 	</div>
 
-	<aside id="theme-dashboard" aria-label="Theme dashboard" aria-hidden="true">
+	<aside id="theme-dashboard" aria-title="Theme dashboard" aria-hidden="true">
 		<header>
 			Themes
-			<button class="close-dashboard" aria-label="Close themes panel">✕</button>
+			<button class="close-dashboard" aria-title="Close themes panel">✕</button>
 		</header>
 		<div class="themes-list" id="themes-list"></div>
 	</aside>
 
 	<!-- New Outline Panel -->
-	<aside id="outline-panel" aria-label="Document outline" aria-hidden="true">
+	<aside id="outline-panel" aria-title="Document outline" aria-hidden="true">
 		<header>
 			<span>Outline</span>
-			<button class="close-outline" aria-label="Close outline panel">✕</button>
+			<button class="close-outline" aria-title="Close outline panel">✕</button>
 		</header>
-		<div id="outline-content" tabindex="0" aria-label="Outline items"></div>
+		<div id="outline-content" tabindex="0" aria-title="Outline items"></div>
 	</aside>
 
 	<div id="content">Loading...</div>
@@ -405,9 +405,9 @@
 			},
 			loadIndex(jsonArray) {
 				this.index = (Array.isArray(jsonArray) ? jsonArray : [])
-					.filter(it => it.label && it.file)
+					.filter(it => it.title && it.file)
 					.map(it => ({
-						label: it.label,
+						title: it.title,
 						file: it.file,
 						tags: Array.isArray(it.tags) ? it.tags :
 							(typeof it.tags === 'string'
@@ -420,7 +420,7 @@
 				if (!q) return this.index.slice(0, 200);
 				function score(e, q) {
 					let s = 0;
-					if (e.label.toLowerCase().includes(q)) s += 2;
+					if (e.title.toLowerCase().includes(q)) s += 2;
 					if (e.file.toLowerCase().includes(q)) s += 0.8;
 					if (e.tags.some(t => t.toLowerCase().includes(q))) s += 1;
 					return s;
@@ -428,7 +428,7 @@
 				return this.index
 					.map(e => ({ ...e, _s: score(e, q) }))
 					.filter(e => e._s > 0)
-					.sort((a, b) => b._s - a._s || a.label.localeCompare(b.label))
+					.sort((a, b) => b._s - a._s || a.title.localeCompare(b.title))
 					.slice(0, 400);
 			},
 			render(term) {
@@ -452,7 +452,7 @@
 					div.className = 'result-item';
 					div.tabIndex = 0;
 					div.dataset.file = obj.file;
-					div.innerHTML = '<span class="match-label">' + escapeHtml(obj.label) + '</span>'
+					div.innerHTML = '<span class="match-title">' + escapeHtml(obj.title) + '</span>'
 						+ '<div class="match-tags">' +
 						obj.tags.slice(0, 6).map(t => '<span>' + escapeHtml(t) + '</span>').join('') +
 						'</div>';
@@ -575,7 +575,7 @@
 					tagsMenu.show(DEFAULT_TAG);
 				})
 				.catch(() => {
-					searchPanel.loadIndex([{ label: 'TAGS NOT FOUND', file: DEFAULT_DOC, tags: ['default'] }]);
+					searchPanel.loadIndex([{ title: 'TAGS NOT FOUND', file: DEFAULT_DOC, tags: ['default'] }]);
 
 					// Show default tag even on error - add this line
 					tagsMenu.show(DEFAULT_TAG);
@@ -665,7 +665,7 @@
 					searchPanel.loadIndex(json);
 				})
 				.catch(() => {
-					searchPanel.loadIndex([{ label: 'README', file: DEFAULT_DOC, tags: ['default'] }]);
+					searchPanel.loadIndex([{ title: 'README', file: DEFAULT_DOC, tags: ['default'] }]);
 				})
 				.finally(() => {
 					loadMarkdown(DEFAULT_DOC);

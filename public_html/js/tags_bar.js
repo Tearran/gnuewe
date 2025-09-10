@@ -41,7 +41,7 @@ const tagsMenu = {
                         items.forEach(item => {
                                 const li = document.createElement('li');
                                 const a = document.createElement('a');
-                                a.textContent = item.label;
+                                a.textContent = item.title;
 
                                 // Extract page name from file path
                                 const pageName = item.file.split('/').pop().replace('.md', '');
@@ -81,7 +81,7 @@ const tagsMenu = {
 
 function tagsMenuFilterMatch(entry, term) {
         const q = term.toLowerCase();
-        return entry.label.toLowerCase().includes(q) ||
+        return entry.title.toLowerCase().includes(q) ||
                 entry.file.toLowerCase().includes(q) ||
                 (entry.tags && entry.tags.some(t => t.toLowerCase().includes(q)));
 }
