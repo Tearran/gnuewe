@@ -79,6 +79,12 @@ const tagsMenu = {
 };
 
 
+/**
+ * Returns true when the given search term is a case-insensitive substring of the entry's title, file path, or any tag.
+ * @param {Object} entry - Search index entry with at least `title` and `file`; may include `tags` (string[]).
+ * @param {string} term - Search term to match.
+ * @return {boolean} True if a match is found, otherwise false.
+ */
 function tagsMenuFilterMatch(entry, term) {
         const q = term.toLowerCase();
         return entry.title.toLowerCase().includes(q) ||

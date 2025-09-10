@@ -1,4 +1,3 @@
-
 /* Outline State */
 const outlineState = {
         open: false,
@@ -8,7 +7,16 @@ const outlineState = {
         headingSelector: 'h1, h2, h3, h4, h5, h6'
 };
 
-/* toggle Outline panel controls */
+/**
+ * Toggle the visibility of the outline panel.
+ *
+ * When opening, rebuilds the outline, updates the active item, and focuses the first `.outline-item`.
+ * Updates `outlineState.open`, toggles the panel's `open` class, sets `aria-hidden` on the panel,
+ * and toggles the `outline-open` class on document.body. If the panel element (`#outline-panel`) is
+ * not present the function returns without side effects.
+ *
+ * @param {boolean} [open] - If provided, forces the panel to the given state; otherwise toggles it.
+ */
 function toggleOutline(open) {
         const panel = document.getElementById('outline-panel');
         if (!panel) return;
@@ -28,7 +36,17 @@ function toggleOutline(open) {
         }
 }
 
-/* Outline panel controls */
+/**
+ * Wire up UI controls and keyboard shortcuts for the outline panel.
+ *
+ * Attaches click handlers to the "open-outline" button and the panel's
+ * ".close-outline" control, and a global keydown handler that:
+ * - closes the panel on Escape when open
+ * - toggles the panel on Ctrl/Cmd + Shift + O (prevents the default)
+ *
+ * Assumes elements with IDs "open-outline" and "outline-panel" (and a
+ * ".close-outline" child inside the panel) exist in the DOM.
+ */
 function setupOutlinePanel() {
         const openBtn = document.getElementById('open-outline');
         const panel = document.getElementById('outline-panel');
