@@ -6,12 +6,7 @@ const tagsMenu = {
                 this.container = document.getElementById('tags-container');
                 this.titleEl = document.getElementById('tags-title');
                 this.listEl = document.getElementById('tags-list');
-                this.closeBtn = document.getElementById('close-sub-menu');
 
-                // Remove close button functionality since menu is always visible
-                if (this.closeBtn) {
-                        this.closeBtn.style.display = 'none'; // Hide the close button
-                }
         },
         show(query) {
                 this.ensureDom();
