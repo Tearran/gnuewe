@@ -712,11 +712,11 @@
 			baselineCard.className = 'theme-item';
 			baselineCard.dataset.themeId = '';
 			baselineCard.innerHTML = `
-        <div class="theme-item-header">
-            <strong>Baseline (Dark)</strong>
-            <button class="apply-theme" type="button">Use</button>
-        </div>
-        <small>Default variables</small>`;
+		<div class="theme-item-header">
+		<strong>Baseline (Dark)</strong>
+		<button class="apply-theme" type="button">Use</button>
+		</div>
+		<small>Default variables</small>`;
 			baselineCard.querySelector('button.apply-theme').addEventListener('click', () => applyTheme(null));
 			container.appendChild(baselineCard);
 			themeManifest.forEach(t => {

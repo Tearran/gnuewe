@@ -1,14 +1,14 @@
 [
   {
     "label": "Home",
-    "file": "#tags=home&page=home",
+    "file": "pages/home.md",
     "tags": [
       "home"
     ]
   },
   {
     "label": "Armbian",
-    "file": "#tags=armbian&page=armbian",
+    "file": "#tags=home&submenu=armbian",
     "tags": [
       "home",
       "linux"
