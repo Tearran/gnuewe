@@ -2,7 +2,7 @@
     title: Markdown Example
     url: #tags=home&page=example
     tags: [home,linux]
-\-->
+-->
 
 
 # Example Markdown Document
