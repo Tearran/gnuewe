@@ -27,8 +27,8 @@
   },
   {
     "title": "Icons",
-    "file": "pages/example.md",
-    "url": "#tags=site-media&page=example",
+    "file": "pages/icons.md",
+    "url": "#tags=site-media&page=icons",
     "tags": [
       "home",
       "site-media"
