@@ -1,3 +1,8 @@
+---
+title: Document Title
+date: 2025-09-07T07:52:35.424Z
+---
+
 
 # Example Markdown Document
 
@@ -94,3 +99,4 @@ apt update
 
 - [x] Write example
 - [ ] Add more features
+
