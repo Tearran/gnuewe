@@ -1,0 +1,41 @@
+[
+  {
+    "label": "Home",
+    "title": "Home",
+    "file": "pages/home.md",
+    "url": "#tags=home&page=home",
+    "tags": [
+      "home"
+    ]
+  },
+  {
+    "label": "Armbian",
+    "title": "Armbian",
+    "file": "pages/armbian.md",
+    "url": "#tag=home&page=armbain",
+    "tags": [
+      "home",
+      "linux"
+    ]
+  },
+  {
+    "label": "Example",
+    "title": "",
+    "file": "pages/exampel.md",
+    "url": "#tag=site-media&page=example",
+    "tags": [
+      "home",
+      "site-media"
+    ]
+  },
+  {
+    "label": "Icons",
+    "title": "",
+    "file": "pages/icons.md",
+    "url": "#tags=site-media&page=icons",
+    "url": "",
+    "tags": [
+      "site-media"
+    ]
+  }
+]

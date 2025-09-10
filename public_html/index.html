@@ -88,12 +88,12 @@
 		</div>
 	</nav>
 
-	<div id="sub-menu-container">
-		<div class="sub-menu-header">
-			<span id="sub-menu-title"></span>
+	<div id="tags-container">
+		<div class="tags-header">
+			<span id="tags-title"></span>
 			<button id="close-sub-menu" type="button" aria-label="Close sub menu">✕</button>
 		</div>
-		<ul id="sub-menu-list"></ul>
+		<ul id="tags-list"></ul>
 	</div>
 
 	<div id="search-panel" aria-hidden="true">
@@ -139,7 +139,7 @@
 	<script>
 		/* Config */
 		const THEME_MANIFEST_URL = 'json/themes.json';
-		const DOCS_MANIFEST_URL = 'json/navlinks.json';
+		const DOCS_MANIFEST_URL = 'json/taglinks.json';
 		const DEFAULT_DOC = 'pages/home.md';
 		const DEFAULT_TAG = 'home';
 
@@ -528,9 +528,9 @@
 			container: null, titleEl: null, listEl: null, closeBtn: null, currentQuery: null,
 			ensureDom() {
 				if (this.container) return;
-				this.container = document.getElementById('sub-menu-container');
-				this.titleEl = document.getElementById('sub-menu-title');
-				this.listEl = document.getElementById('sub-menu-list');
+				this.container = document.getElementById('tags-container');
+				this.titleEl = document.getElementById('tags-title');
+				this.listEl = document.getElementById('tags-list');
 				this.closeBtn = document.getElementById('close-sub-menu');
 
 				// Remove close button functionality since menu is always visible
@@ -808,7 +808,7 @@
 					subMenu.show(DEFAULT_TAG);
 				})
 				.catch(() => {
-					searchPanel.loadIndex([{ label: 'README', file: DEFAULT_DOC, tags: ['default'] }]);
+					searchPanel.loadIndex([{ label: 'TAGS NOT FOUND', file: DEFAULT_DOC, tags: ['default'] }]);
 
 					// Show default tag even on error - add this line
 					subMenu.show(DEFAULT_TAG);
