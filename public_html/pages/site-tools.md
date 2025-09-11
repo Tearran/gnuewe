@@ -1,6 +1,6 @@
 <!--
     title: Site tools
-    tags: [home,site-tools,]
+    tags: [home,site-tools]
 -->
 
 | URL | Tools |
