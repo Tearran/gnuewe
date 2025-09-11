@@ -1,5 +1,5 @@
 <!--
-    title: Site tools
+    title: Site-tools
     tags: [home,site-tools]
 -->
 
