@@ -10,7 +10,7 @@
   {
     "title": "Armbian",
     "file": "pages/armbian.md",
-    "url": "#tags=home&page=armbain",
+    "url": "#tags=home&page=armbian",
     "tags": [
       "home",
       "linux"
@@ -21,17 +21,21 @@
     "file": "pages/example.md",
     "url": "#tags=site-media&page=example",
     "tags": [
-      "home",
-      "site-media"
+      "site-demo",
+      "example",
+      "markdown"
     ]
   },
   {
-    "title": "Icons",
-    "file": "pages/icons.md",
-    "url": "#tags=site-media&page=icons",
+    "title": "Site-Tools",
+    "file": "pages/site-tools.md",
+    "url": "#tags=site-media&page=site-tools",
     "tags": [
       "home",
-      "site-media"
+      "site-media",
+      "site-demo",
+      "site-tools",
+      "svg"
     ]
   }
 ]

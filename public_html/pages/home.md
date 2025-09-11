@@ -1,18 +1,6 @@
-<!-- Metadata
-title: GNU EWE
-description: Master index for GNU EWE (Experimenting With Electronics) page
-nav_order: 00
-tags:
-  - ewe
-  - index
-  - electronics
-  - sbc
-status: stable
-last_reviewed: 2025-09-08
-owners:
-  - Tearran
-project: gnu-ewe
-license: GPL-2.0
+<!--
+title: Home
+tags: [home]
 /-->
 
 # Welcome
