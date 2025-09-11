@@ -47,8 +47,10 @@ const tagsMenu = {
 
                                 if (tagName) {
                                         a.href = `#tags=${tagName}&page=${pageName}`;
-                                } else {
+                                } else if (pageName) {
                                         a.href = `#page=${pageName}`;
+                                } else {
+                                        a.href = `#tags=home&page=home`;
                                 }
 
                                 a.addEventListener('click', e => {
