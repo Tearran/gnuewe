@@ -88,16 +88,16 @@
 		</div>
 	</nav>
 
-	<div id="sub-menu-container">
-		<div class="sub-menu-header">
-			<span id="sub-menu-title"></span>
-			<button id="close-sub-menu" type="button" aria-label="Close sub menu">✕</button>
+	<div id="tags-container">
+		<div class="tags-header">
+			<span id="tags-title"></span>
+
 		</div>
-		<ul id="sub-menu-list"></ul>
+		<ul id="tags-list"></ul>
 	</div>
 
 	<div id="search-panel" aria-hidden="true">
-		<div id="search-box" role="dialog" aria-modal="true" aria-labelledby="search-label">
+		<div id="search-box" role="dialog" aria-modal="true" aria-titleledby="search-title">
 			<div id="search-header">
 				<svg class="icon icon-md">
 					<use href="images/icons.svg#i-search"></use>
@@ -139,22 +139,15 @@
 	<script>
 		/* Config */
 		const THEME_MANIFEST_URL = 'json/themes.json';
-		const DOCS_MANIFEST_URL = 'json/navlinks.json';
+		const DOCS_MANIFEST_URL = 'json/taglinks.json';
 		const DEFAULT_DOC = 'pages/home.md';
 		const DEFAULT_TAG = 'home';
 
-		/* Outline State */
-		const outlineState = {
-			open: false,
-			items: [],
-			activeId: null,
-			observer: null,
-			headingSelector: 'h1, h2, h3, h4, h5, h6'
-		};
 
 		/* Markdown loader with caching */
 		const markdownCache = new Map();
 
+		/* URL */
 		function updateUrlParameters(params) {
 			// Build a hash string from parameters object
 			const hashParts = [];
@@ -185,7 +178,7 @@
 			// Check if this is a tag filter link
 			if (typeof filename === 'string' && filename.includes('submenu=')) {
 				const term = filename.replace(/^#*submenu=/, '').replace(/^.*?submenu=/, '');
-				subMenu.show(term);
+				tagsMenu.show(term);
 				return;
 			}
 
@@ -382,24 +375,7 @@
 			headings.forEach(h => outlineState.observer.observe(h));
 		}
 
-		function toggleOutline(open) {
-			const panel = document.getElementById('outline-panel');
-			if (!panel) return;
-			const desired = (typeof open === 'boolean') ? open : !outlineState.open;
-			outlineState.open = desired;
-			panel.classList.toggle('open', desired);
-			panel.setAttribute('aria-hidden', desired ? 'false' : 'true');
-			document.body.classList.toggle('outline-open', desired);
-			if (desired) {
-				// Rebuild fresh in case content changed
-				buildOutline();
-				updateActiveOutlineItem();
-				setTimeout(() => {
-					const first = panel.querySelector('.outline-item');
-					first?.focus();
-				}, 50);
-			}
-		}
+
 
 		function escapeHtml(s) {
 			return s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -429,9 +405,9 @@
 			},
 			loadIndex(jsonArray) {
 				this.index = (Array.isArray(jsonArray) ? jsonArray : [])
-					.filter(it => it.label && it.file)
+					.filter(it => it.title && it.file)
 					.map(it => ({
-						label: it.label,
+						title: it.title,
 						file: it.file,
 						tags: Array.isArray(it.tags) ? it.tags :
 							(typeof it.tags === 'string'
@@ -444,15 +420,16 @@
 				if (!q) return this.index.slice(0, 200);
 				function score(e, q) {
 					let s = 0;
-					if (e.label.toLowerCase().includes(q)) s += 2;
-					if (e.file.toLowerCase().includes(q)) s += 0.8;
+					if (e.title.toLowerCase().includes(q)) s += 2;
+					if (e.url && e.url.toLowerCase().includes(q)) s += 1;
+					if (e.file && e.file.toLowerCase().includes(q)) s += 0.5;
 					if (e.tags.some(t => t.toLowerCase().includes(q))) s += 1;
 					return s;
 				}
 				return this.index
 					.map(e => ({ ...e, _s: score(e, q) }))
 					.filter(e => e._s > 0)
-					.sort((a, b) => b._s - a._s || a.label.localeCompare(b.label))
+					.sort((a, b) => b._s - a._s || a.title.localeCompare(b.title))
 					.slice(0, 400);
 			},
 			render(term) {
@@ -476,7 +453,7 @@
 					div.className = 'result-item';
 					div.tabIndex = 0;
 					div.dataset.file = obj.file;
-					div.innerHTML = '<span class="match-label">' + escapeHtml(obj.label) + '</span>'
+					div.innerHTML = '<span class="match-title">' + escapeHtml(obj.title) + '</span>'
 						+ '<div class="match-tags">' +
 						obj.tags.slice(0, 6).map(t => '<span>' + escapeHtml(t) + '</span>').join('') +
 						'</div>';
@@ -523,94 +500,6 @@
 			}
 		};
 
-		// 2. Modify the subMenu object to always display content
-		const subMenu = {
-			container: null, titleEl: null, listEl: null, closeBtn: null, currentQuery: null,
-			ensureDom() {
-				if (this.container) return;
-				this.container = document.getElementById('sub-menu-container');
-				this.titleEl = document.getElementById('sub-menu-title');
-				this.listEl = document.getElementById('sub-menu-list');
-				this.closeBtn = document.getElementById('close-sub-menu');
-
-				// Remove close button functionality since menu is always visible
-				if (this.closeBtn) {
-					this.closeBtn.style.display = 'none'; // Hide the close button
-				}
-			},
-			show(query) {
-				this.ensureDom();
-				const term = (query || '').trim();
-				this.listEl.innerHTML = '';
-				if (!term) {
-					this.titleEl.textContent = 'All Documents';
-					// Still populate with all documents when no query
-					const allItems = searchPanel.index || [];
-					this.populateList(allItems);
-					return;
-				}
-				const matches = (searchPanel.index || []).filter(entry => subMenuFilterMatch(entry, term));
-				this.populateList(matches);
-				this.currentQuery = term;
-
-				// Update URL with tag
-				updateUrlParameters({ tags: term });
-			},
-			populateList(items) {
-				this.listEl.innerHTML = '';
-				if (items.length === 0) {
-					const li = document.createElement('li');
-					li.innerHTML = '<span style="opacity:.6;font-size:.75em;">No results</span>';
-					this.listEl.appendChild(li);
-				} else {
-					items.forEach(item => {
-						const li = document.createElement('li');
-						const a = document.createElement('a');
-						a.textContent = item.label;
-
-						// Extract page name from file path
-						const pageName = item.file.split('/').pop().replace('.md', '');
-
-						// Create URL with parameters for bookmarking
-						const tagName = this.currentQuery ||
-							(item.tags && item.tags.length > 0 ? item.tags[0] : '');
-
-						if (tagName) {
-							a.href = `#tags=${tagName}&page=${pageName}`;
-						} else {
-							a.href = `#page=${pageName}`;
-						}
-
-						a.addEventListener('click', e => {
-							e.preventDefault();
-							loadMarkdown(item.file);
-						});
-
-						li.appendChild(a);
-						this.listEl.appendChild(li);
-					});
-				}
-			},
-			// Modify hide to not actually hide, just clear selection
-			hide() {
-				this.ensureDom();
-				this.currentQuery = null;
-				this.titleEl.textContent = 'All Documents';
-
-				// Show all documents instead of hiding
-				const allItems = searchPanel.index || [];
-				this.populateList(allItems);
-			}
-		};
-
-
-		function subMenuFilterMatch(entry, term) {
-			const q = term.toLowerCase();
-			return entry.label.toLowerCase().includes(q) ||
-				entry.file.toLowerCase().includes(q) ||
-				(entry.tags && entry.tags.some(t => t.toLowerCase().includes(q)));
-		}
-
 		function parseHashParams() {
 			const raw = location.hash.startsWith('#') ? decodeURIComponent(location.hash.slice(1)) : '';
 			if (!raw) return null;
@@ -630,7 +519,7 @@
 
 		function applyHashAction(params) {
 			if (!params) {
-				subMenu.show('');
+				tagsMenu.show('');
 				return;
 			}
 
@@ -643,9 +532,9 @@
 
 			// Handle tags parameter
 			if (params.tags) {
-				subMenu.show(params.tags);
+				tagsMenu.show(params.tags);
 			} else {
-				subMenu.show('');
+				tagsMenu.show('');
 			}
 
 			// Handle page parameter
@@ -664,132 +553,11 @@
 			}
 		});
 
-		let themeManifest = [];
-		let activeThemeId = null;
-
-		function clearThemeClasses() {
-			[...document.body.classList].forEach(c => {
-				if (c.startsWith('theme-')) document.body.classList.remove(c);
-			});
-		}
-		function applyRuntimeVars(varsObj) {
-			let styleEl = document.getElementById('dynamic-theme');
-			if (!styleEl) {
-				styleEl = document.createElement('style');
-				styleEl.id = 'dynamic-theme';
-				document.head.appendChild(styleEl);
-			}
-			if (!varsObj) {
-				styleEl.textContent = '';
-				return;
-			}
-			const lines = Object.entries(varsObj).map(([k, v]) => `${k}: ${v};`);
-			styleEl.textContent = `:root { ${lines.join(' ')} }`;
-		}
-		function applyTheme(id) {
-			const item = themeManifest.find(t => t.id === id);
-			applyRuntimeVars(null);
-			clearThemeClasses();
-			if (!item) {
-				activeThemeId = null;
-				markActiveCard();
-				return;
-			}
-			if (item.class) document.body.classList.add(item.class);
-			if (item.vars) applyRuntimeVars(item.vars);
-			activeThemeId = id;
-			markActiveCard();
-		}
-		function markActiveCard() {
-			document.querySelectorAll('.theme-item').forEach(div => {
-				div.classList.toggle('active', div.dataset.themeId === (activeThemeId || ''));
-			});
-		}
-		function buildThemeCards() {
-			const container = document.getElementById('themes-list');
-			container.innerHTML = '';
-			const baselineCard = document.createElement('div');
-			baselineCard.className = 'theme-item';
-			baselineCard.dataset.themeId = '';
-			baselineCard.innerHTML = `
-        <div class="theme-item-header">
-            <strong>Baseline (Dark)</strong>
-            <button class="apply-theme" type="button">Use</button>
-        </div>
-        <small>Default variables</small>`;
-			baselineCard.querySelector('button.apply-theme').addEventListener('click', () => applyTheme(null));
-			container.appendChild(baselineCard);
-			themeManifest.forEach(t => {
-				const div = document.createElement('div');
-				div.className = 'theme-item';
-				div.dataset.themeId = t.id;
-				const desc = t.description ? `<small>${t.description}</small>` : '';
-				const group = t.group ? `<small style="opacity:0.6;">Group: ${t.group}</small>` : '';
-				div.innerHTML = `
-            <div class="theme-item-header">
-                <strong>${t.label || t.id}</strong>
-                <button class="apply-theme" type="button">Use</button>
-            </div>
-            ${desc}
-            ${group}`;
-				div.querySelector('button.apply-theme').addEventListener('click', () => applyTheme(t.id));
-				container.appendChild(div);
-			});
-			markActiveCard();
-		}
-		function loadThemeManifest() {
-			return fetch(THEME_MANIFEST_URL)
-				.then(r => {
-					if (!r.ok) throw new Error('No theme manifest');
-					return r.json();
-				})
-				.then(json => {
-					themeManifest = Array.isArray(json) ? json : [];
-					buildThemeCards();
-				})
-				.catch(() => {
-					themeManifest = [];
-					buildThemeCards();
-				});
-		}
-		function setupThemeDashboard() {
-			const openBtn = document.getElementById('open-theme-dashboard');
-			const panel = document.getElementById('theme-dashboard');
-			const closeBtn = panel.querySelector('.close-dashboard');
-			function open() {
-				panel.classList.add('open');
-				panel.setAttribute('aria-hidden', 'false');
-			}
-			function close() {
-				panel.classList.remove('open');
-				panel.setAttribute('aria-hidden', 'true');
-			}
-			openBtn.addEventListener('click', () => {
-				if (panel.classList.contains('open')) close(); else open();
-			});
-			closeBtn.addEventListener('click', close);
-			document.addEventListener('keydown', e => {
-				if (e.key === 'Escape' && panel.classList.contains('open')) close();
-			});
-		}
-
-		/* Outline panel controls */
-		function setupOutlinePanel() {
-			const openBtn = document.getElementById('open-outline');
-			const panel = document.getElementById('outline-panel');
-			const closeBtn = panel.querySelector('.close-outline');
-			openBtn.addEventListener('click', () => toggleOutline());
-			closeBtn.addEventListener('click', () => toggleOutline(false));
-			document.addEventListener('keydown', e => {
-				if (e.key === 'Escape' && outlineState.open) toggleOutline(false);
-				// Keyboard shortcut: Ctrl+Shift+O
-				if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'o') {
-					e.preventDefault();
-					toggleOutline();
-				}
-			});
-		}
-
+	</script>
+	<script src="/js/tags_bar.js"></script>
+	<script src="/js/markdown_outline.js"></script>
+	<script src="js/theme.js"></script>
+	<script>
 		document.addEventListener('DOMContentLoaded', () => {
 			setupThemeDashboard();
 			setupOutlinePanel();
@@ -805,13 +573,13 @@
 					searchPanel.loadIndex(json);
 
 					// Show default tag - add this line
-					subMenu.show(DEFAULT_TAG);
+					tagsMenu.show(DEFAULT_TAG);
 				})
 				.catch(() => {
-					searchPanel.loadIndex([{ label: 'README', file: DEFAULT_DOC, tags: ['default'] }]);
+					searchPanel.loadIndex([{ title: 'TAGS NOT FOUND', file: DEFAULT_DOC, tags: ['default'] }]);
 
 					// Show default tag even on error - add this line
-					subMenu.show(DEFAULT_TAG);
+					tagsMenu.show(DEFAULT_TAG);
 				})
 				.finally(() => {
 					loadMarkdown(DEFAULT_DOC, { skipUrlUpdate: true });
@@ -834,7 +602,7 @@
 					if (href && href.includes('submenu=')) {
 						e.preventDefault();
 						const term = href.replace(/^#*submenu=/, '');
-						subMenu.show(term);
+						tagsMenu.show(term);
 						updateUrlParameters({ tags: term });
 					} else if (href && href.startsWith('#page=')) {
 						e.preventDefault();
@@ -887,32 +655,6 @@
 					pendingHashAction = initialParams;
 				}
 			}
-
-			// Load docs index
-			fetch(DOCS_MANIFEST_URL)
-				.then(r => {
-					if (!r.ok) throw new Error();
-					return r.json();
-				})
-				.then(json => {
-					searchPanel.loadIndex(json);
-				})
-				.catch(() => {
-					searchPanel.loadIndex([{ label: 'README', file: DEFAULT_DOC, tags: ['default'] }]);
-				})
-				.finally(() => {
-					loadMarkdown(DEFAULT_DOC);
-					if (pendingHashAction) {
-						applyHashAction(pendingHashAction);
-						pendingHashAction = null;
-					} else if (initialParams && initialParams.search) {
-						searchPanel.render(initialParams.search);
-					} else {
-						const paramsAfter = parseHashParams();
-						if (paramsAfter && (paramsAfter.tags || paramsAfter.submenu))
-							applyHashAction(paramsAfter);
-					}
-				});
 		});
 	</script>
 </body>
