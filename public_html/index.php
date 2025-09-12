@@ -1,6 +1,6 @@
 <?php
 // ---- Config ----
-$docsDir = __DIR__ . '/pages';
+$docsDir = __DIR__ . '/docs';
 
 // ---- Front matter parser (simple) ----
 function parseFrontMatter($markdown) {
@@ -142,12 +142,14 @@ function renderNav($files, $current) {
 <head>
 <meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>IT's a GNU EWE</title>
+	<title><?= htmlspecialchars($meta['title'] ?? "GNU EWE") ?></title>
 	<meta name="description" content="A hobby FOSS SPA for bash, html, and a simple python3 web server">
 	<meta name="author" content="Tearran (FOSS project)">
 	<meta name="robots" content="index, follow">
 	<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-	<meta name="theme-color" content="#0366d6">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#0066ff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0af" media="(prefers-color-scheme: dark)">
     <style>
  :root {
         --bg-default: #fff;
