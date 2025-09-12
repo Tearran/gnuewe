@@ -20,7 +20,7 @@ function renderNav($files, $cur) {
             renderNav($v, $cur);
             echo "</details></li>";
         } else {
-            $a = $v === $cur ? 'class=\"active\"' : '';
+            $a = $v === $cur ? 'class="active"' : '';
             echo "<li><a $a href='?file=" . urlencode($v) . "'>$k</a></li>";
         }
     }
@@ -85,172 +85,107 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
     $contentHtml = safeMarkdown($markdown, $outlineArr);
     $outlineHtml = renderOutline($outlineArr);
 }
-?>
-<!DOCTYPE html>
-<html>
+?><!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Docs Viewer</title>
-<meta name="color-scheme" content="light dark">
-<style>
-:root {
-    --bg-default: #fff;
-    --bg-nav: #eee;
-    --bg-header: #ddd;
-    --bg-aside: #f5f5f5;
-    --text-default: #111;
-    --text-header: #000;
-    --text-nav: #222;
-    --text-link: #0077cc;
-    --text-link-hover: #004499;
-    --btn-bg: #ddd;
-    --btn-hover: #bbb;
-    --btn-text: #000;
-    --accent: #0066ff;
-}
-html.dark-mode {
-    --bg-default: #111;
-    --bg-nav: #222;
-    --bg-header: #000;
-    --bg-aside: #1a1a1a;
-    --text-default: #ddd;
-    --text-header: #fff;
-    --text-nav: #eee;
-    --text-link: #ccc;
-    --text-link-hover: #fff;
-    --btn-bg: #333;
-    --btn-hover: #555;
-    --btn-text: #fff;
-    --accent: #0af;
-}
-body {
-    margin: 0;
-    font-family: sans-serif;
-    height: 100vh;
-    background: var(--bg-default);
-    color: var(--text-default);
-    display: flex; flex-direction: column;
-}
-.header-tools {
-    background: var(--bg-header);
-    color: var(--text-header);
-    padding: 10px 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.layout {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-    flex-direction: row;
-}
-nav, aside {
-    width: 250px;
-    min-width: 0;
-    padding: 10px;
-    overflow-y: auto;
-    background: var(--bg-nav);
-    color: var(--text-nav);
-    transition: all 0.3s ease;
-}
-aside { background: var(--bg-aside); color: var(--text-default);}
-main {
-    flex: 1;
-    min-width: 350px;
-    max-width: 900px;
-    padding: 20px;
-    overflow-y: auto;
-}
-nav.hidden, aside.hidden { display:none !important; }
-@media (max-width: 700px) {
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsive Layout</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+    }
+
+    header {
+      background: #222;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #brand {
+      font-weight: bold;
+    }
+
+    #actions button {
+      margin-left: 0.5rem;
+      background: #444;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    #actions button:hover {
+      background: #0077cc;
+    }
+
     .layout {
-        flex-direction: column;
+      display: flex;
+      flex-direction: column;
     }
-    nav, aside, main {
-        width: 100vw;
-        max-width: 100vw;
-        min-width: 0;
-        position: static;
-        box-shadow: 0 2px 12px #0008;
-        z-index: 10;
+
+    nav, main, aside {
+      padding: 1rem;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      min-width: 0;
+      min-height: 0;
     }
-    nav.hidden, aside.hidden { display:none !important; }
-    .header-tools { position: sticky; top: 0; z-index: 100; }
-}
-nav a {
-    color: var(--text-link);
-    text-decoration: none;
-}
-nav a:hover {
-    color: var(--text-link-hover);
-}
-.icon-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    background: var(--btn-bg);
-    color: var(--btn-text);
-    border: none;
-    font: inherit;
-    margin-right: 4px;
-}
-.icon-btn:hover { background: var(--btn-hover);}
-.icon-btn svg { width: 32px; height: 32px; }
-</style>
+
+    nav   { background: #f3f3f3; }
+    main  { background: #fff; }
+    aside { background: #fafafa; }
+
+    @media (min-width: 768px) {
+      .layout {
+        display: grid;
+        grid-template-columns: 200px 1fr 200px;
+        grid-template-areas: "nav main outline";
+        height: calc(100vh - 50px); /* subtract header */
+      }
+
+      nav   { grid-area: nav; overflow-y: auto; }
+      main  { grid-area: main; overflow-y: auto; }
+      aside { grid-area: outline; overflow-y: auto; }
+    }
+
+    ul { margin: 0; padding-left: 1.2em; }
+    .outline-list { list-style: none; padding-left: 0; }
+    .outline-list li { margin: 0; }
+    nav a.active { font-weight: bold; color: #0077cc; }
+  </style>
 </head>
 <body>
 <header>
-    <div class="header-tools">
-        <button class="icon-btn" onclick="togglePanel('nav')" title="Nav">&#9776;</button>
-        <div>
-            <button class="icon-btn" onclick="toggleMode()" title="Theme">&#9788;</button>
-            <button class="icon-btn" onclick="togglePanel('outline')" title="Outline">&#9776;</button>
-        </div>
-    </div>
+  <div id="brand">GNUEWE</div>
+  <div id="actions">
+    <button onclick="togglePanel('nav')">Toggle Nav</button>
+    <button onclick="togglePanel('aside')">Toggle Outline</button>
+  </div>
 </header>
+
 <div class="layout">
-    <nav id="nav">
-        <h2>Docs</h2>
-        <?php renderNav($files, $currentFile); ?>
-    </nav>
-    <main id="main">
-        <article><?= $contentHtml ?></article>
-    </main>
-    <aside id="outline">
-        <?= $outlineHtml ?>
-    </aside>
+  <nav>
+    <?php renderNav($files, $currentFile); ?>
+  </nav>
+  <aside>
+    <?= $outlineHtml ?>
+  </aside>
+  <main>
+    <article><?= $contentHtml ?></article>
+  </main>
 </div>
+
 <script>
-function togglePanel(which) {
-    var panel = document.getElementById(which);
-    panel.classList.toggle('hidden');
-}
-function toggleMode() {
-    document.documentElement.classList.toggle('dark-mode');
-    localStorage.setItem('theme',
-        document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light');
-}
-window.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem('theme') === 'dark')
-        document.documentElement.classList.add('dark-mode');
-    // On load, ensure panels are visible by default
-    document.getElementById('nav').classList.remove('hidden');
-    document.getElementById('outline').classList.remove('hidden');
-    // Outline closes when a link is clicked
-    document.getElementById('outline').addEventListener('click', function(e) {
-        if (e.target.tagName === 'A') {
-            document.getElementById('outline').classList.add('hidden');
-        }
-    });
-});
-window.addEventListener('resize', () => {
-    // On resize, do nothing: user manages toggles on both desktop and mobile
-});
+  function togglePanel(panel) {
+    const el = document.querySelector(panel);
+    el.hidden = !el.hidden;
+  }
 </script>
 </body>
 </html>
