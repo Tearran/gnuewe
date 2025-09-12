@@ -403,9 +403,16 @@ nav.hidden {
         }
         function toggleMode() {
             document.documentElement.classList.toggle('dark-mode');
+            // Save mode correctly
+            const mode = document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light';
+            localStorage.setItem('theme', mode);
         }
 
-
+// Restore theme on load
+window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark') document.documentElement.classList.add('dark-mode');
+});
 
 
 </script>
