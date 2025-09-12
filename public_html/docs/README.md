@@ -7,7 +7,7 @@ tags: [home]
 
 The **GNU EWE (GNU’s Not Unix — Experimenting With Electronics)** is a Linux-focused open-source project designed to help users learn by doing. Through a combination of web tools, scripts, and hands-on guides, GNU EWE encourages exploration, experimentation, and learning through trial and error in Linux and electronics.
 
-<img src="images/ewe_hat.svg" width="256" height="256" >
+<img src="images/ewe_hat.svg" width="256" height="256" alt="GNU EWE logo" loading="lazy" decoding="async">
 
 ## Pronunciation Tip
 
