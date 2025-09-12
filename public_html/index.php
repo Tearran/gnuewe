@@ -85,21 +85,53 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
     $contentHtml = safeMarkdown($markdown, $outlineArr);
     $outlineHtml = renderOutline($outlineArr);
 }
-?><!DOCTYPE html>
+?>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Responsive Layout</title>
+  <title>Responsive Layout with Dark Mode</title>
   <style>
+    /* í ¼í¾¨ Theme variables */
+    :root {
+      --color-bg: #fff;
+      --color-text: #000;
+      --color-header-bg: #222;
+      --color-header-text: #fff;
+      --color-nav-bg: #f3f3f3;
+      --color-main-bg: #fff;
+      --color-aside-bg: #fafafa;
+      --color-border: #ccc;
+      --color-btn-bg: #444;
+      --color-btn-hover: #0077cc;
+      --color-btn-text: #fff;
+    }
+
+    body.dark-mode {
+      --color-bg: #111;
+      --color-text: #ddd;
+      --color-header-bg: #000;
+      --color-header-text: #fff;
+      --color-nav-bg: #222;
+      --color-main-bg: #111;
+      --color-aside-bg: #1a1a1a;
+      --color-border: #444;
+      --color-btn-bg: #333;
+      --color-btn-hover: #555;
+      --color-btn-text: #fff;
+    }
+
     body {
       margin: 0;
       font-family: sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
     }
 
     header {
-      background: #222;
-      color: #fff;
+      background: var(--color-header-bg);
+      color: var(--color-header-text);
       padding: 0.5rem 1rem;
       display: flex;
       align-items: center;
@@ -110,18 +142,31 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
       font-weight: bold;
     }
 
+    #actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
     #actions button {
-      margin-left: 0.5rem;
-      background: #444;
-      color: #fff;
+      background: var(--color-btn-bg);
+      color: var(--color-btn-text);
       border: none;
-      padding: 0.5rem 1rem;
+      padding: 0.5rem;
       cursor: pointer;
       border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     #actions button:hover {
-      background: #0077cc;
+      background: var(--color-btn-hover);
+    }
+
+    #actions svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
     }
 
     .layout {
@@ -131,15 +176,15 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
 
     nav, main, aside {
       padding: 1rem;
-      border: 1px solid #ccc;
+      border: 1px solid var(--color-border);
       box-sizing: border-box;
       min-width: 0;
       min-height: 0;
     }
 
-    nav   { background: #f3f3f3; }
-    main  { background: #fff; }
-    aside { background: #fafafa; }
+    nav   { background: var(--color-nav-bg); }
+    main  { background: var(--color-main-bg); }
+    aside { background: var(--color-aside-bg); }
 
     @media (min-width: 768px) {
       .layout {
@@ -157,15 +202,27 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
     ul { margin: 0; padding-left: 1.2em; }
     .outline-list { list-style: none; padding-left: 0; }
     .outline-list li { margin: 0; }
-    nav a.active { font-weight: bold; color: #0077cc; }
+    nav a.active { font-weight: bold; color: var(--color-btn-hover); }
   </style>
 </head>
 <body>
 <header>
   <div id="brand">GNUEWE</div>
   <div id="actions">
-    <button onclick="togglePanel('nav')">Toggle Nav</button>
-    <button onclick="togglePanel('aside')">Toggle Outline</button>
+    <!-- Nav toggle -->
+    <button onclick="togglePanel('nav')" title="Toggle Navigation">
+      <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+    <!-- Outline toggle -->
+    <button onclick="togglePanel('aside')" title="Toggle Outline">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <!-- Dark mode toggle -->
+    <button onclick="toggleDarkMode()" title="Toggle Dark Mode">
+      <svg id="darkIcon" viewBox="0 0 24 24">
+        <path d="M12 3a9 9 0 0 0 0 18 9 9 0 0 1 0-18z"/>
+      </svg>
+    </button>
   </div>
 </header>
 
@@ -186,6 +243,19 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
     const el = document.querySelector(panel);
     el.hidden = !el.hidden;
   }
+
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    const icon = document.getElementById('darkIcon');
+    if (document.body.classList.contains('dark-mode')) {
+      // sun icon
+      icon.innerHTML = '<circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2m11-11h-2M3 12H1m16.95-6.95-1.41 1.41M6.46 17.54l-1.41 1.41m0-13.9 1.41 1.41M17.54 17.54l1.41 1.41"/>';
+    } else {
+      // moon icon
+      icon.innerHTML = '<path d="M12 3a9 9 0 0 0 0 18 9 9 0 0 1 0-18z"/>';
+    }
+  }
 </script>
 </body>
 </html>
+
