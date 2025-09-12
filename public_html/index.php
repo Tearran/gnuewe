@@ -1,6 +1,6 @@
 <?php
 // ---- Config ----
-$docsDir = __DIR__ . '/docs';
+$docsDir = __DIR__ . '/pages';
 
 // ---- Front matter parser (simple) ----
 function parseFrontMatter($markdown) {
@@ -394,7 +394,6 @@ nav.hidden {
 </div>
 
 
-
 <script>
         function toggleOutline() {
                 document.getElementById('outline').classList.toggle('hidden');
@@ -403,11 +402,11 @@ nav.hidden {
                 document.getElementById('nav').classList.toggle('hidden');
         }
         function toggleMode() {
-    document.documentElement.classList.toggle('dark-mode');
-    // Save mode correctly
-    const mode = document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light';
-    localStorage.setItem('theme', mode);
-}
+            document.documentElement.classList.toggle('dark-mode');
+            // Save mode correctly
+            const mode = document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light';
+            localStorage.setItem('theme', mode);
+        }
 
 // Restore theme on load
 window.addEventListener('DOMContentLoaded', () => {

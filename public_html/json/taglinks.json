@@ -9,11 +9,21 @@
   },
   {
     "title": "Armbian",
-    "file": "pages/armbian.md",
-    "url": "#tags=home&page=armbian",
+    "file": "pages/armbian/armbian.md",
+    "url": "#tags=armbian&page=armbian",
     "tags": [
       "home",
-      "linux"
+      "linux",
+      "armbian"
+    ]
+  },
+  {
+    "title": "Armbian-Config",
+    "file": "https://raw.githubusercontent.com/armbian/documentation/refs/heads/main/docs/User-Guide_Armbian-Config/Network.md",
+    "url": "#tags=home&page=armbian",
+    "tags": [
+      "linux",
+      "armbian" 
     ]
   },
   {

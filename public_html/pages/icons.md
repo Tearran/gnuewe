@@ -1,3 +1,8 @@
+<!--
+    title: Armbian
+    tags: [images,icone,site-tools]
+-->
+
 # SVG Icon Sprite (`icons.svg`) – Usage Guide
 
 Version: 0.1 (tentative)  
