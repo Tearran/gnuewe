@@ -1,103 +1,144 @@
----
-title: Exampole
-tags: 
-  -home
----
+# Markdown Syntax Demo
 
-
-# Example Markdown Document
-
-This file demonstrates common Markdown features: headings, lists, images, code, links, and more.
+Welcome to the **Markdown Syntax Demo**.  
+This document covers all major Markdown features to test a parser.
 
 ---
 
-## Headings
+## 1. Headings
 
 # H1 Heading
 ## H2 Heading
 ### H3 Heading
+#### H4 Heading
+##### H5 Heading
+###### H6 Heading
+
+Setext-style:
+Title Level 1
+=============
+Title Level 2
+-------------
 
 ---
 
-## Lists
+## 2. Paragraphs & Line Breaks
 
-**Unordered list**
-- First item
-- Second item
-- Third item
+This is a paragraph.
 
-**Ordered list**
-1. First
-2. Second
-3. Third
+This is another paragraph,  
+with a manual line break after "paragraph,".
 
 ---
 
-## Links
+## 3. Emphasis
 
-- [GitHub](https://github.com/)
-- Inline link example: [Visit Example](https://example.com)
-
----
-
-## Images
-
-![GitHub Logo](https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png)
-![Alt text for accessibility](https://placekitten.com/200/300)
-
----
-
-## Emphasis
-
-*Italic text*  
-_Alternate italic_
-
-**Bold text**  
-__Alternate bold__
-
+*Italic* or _Italic_  
+**Bold** or __Bold__  
+***Bold and Italic***  
 ~~Strikethrough~~
 
 ---
 
-## Code
+## 4. Links & Images
 
-Inline code: `print("Hello, world!")`
-
-Code block (Python):
-
-```python
-def hello():
-    print("Hello, Markdown!")
-```
-
-```bash
-apt update
-```
+Link: [GitHub](https://github.com)  
+Image: ![Alt text](https://via.placeholder.com/48 "Placeholder")
 
 ---
 
-## Blockquote
+## 5. Inline Code & Code Blocks
+
+Inline code: `echo "Hello, world!"`
+
+Inline code with backticks: ``Use `code` inside double backticks.``
+
+Fenced code block (with language):
+```php
+// PHP example
+echo "Hello, world!";
+```
+
+Indented code block:
+    function foo() {
+        return "bar";
+    }
+
+---
+
+## 6. Lists
+
+Unordered list:
+- Item 1
+- Item 2
+    - Nested Item 2.1
+    - Nested Item 2.2
+
+* Item 3 (asterisk)
+
++ Item 4 (plus)
+
+Ordered list:
+1. First
+2. Second
+    1. Sub-item a
+    2. Sub-item b
+
+---
+
+## 7. Blockquotes
 
 > This is a blockquote.
-> It can span multiple lines.
+>
+> - It can span multiple lines.
+> - And include lists
+> 
+> > Nested blockquote
 
 ---
 
-## Horizontal Rule
+## 8. Horizontal Rule
 
 ---
 
-## Table
+## 9. Tables
 
-| Header 1 | Header 2 |
-|----------|----------|
-| Cell 1   | Cell 2   |
-| Cell 3   | Cell 4   |
+| Name    | Age | City      |
+|---------|-----|-----------|
+| Alice   | 23  | Seattle   |
+| Bob     | 34  | Portland  |
+| **Sum** | 57  | —         |
 
 ---
 
-## Task List
+## 10. Escaping
 
-- [x] Write example
-- [ ] Add more features
+\*This text is not italic\*  
+\# Not a heading  
+\\ Backslash
 
+---
+
+## 11. HTML passthrough
+
+<div style="color:red">This is raw HTML.</div>
+
+---
+
+## 12. Mix: All Together
+
+> **Note:** Use `code` and [links](https://example.com) in blockquotes and lists.
+> 
+> Example:
+> 
+> - List item with `inline code`
+> - ![img](https://via.placeholder.com/32)
+> - [Link](https://example.com)
+> 
+> ```
+> code block in blockquote
+> ```
+
+---
+
+End of demo.

@@ -1,340 +1,192 @@
 <?php
-// ---- Config ----
 $docsDir = __DIR__ . '/docs';
 
-// ---- Front matter parser (simple) ----
-function parseFrontMatter($markdown) {
-    $meta = [];
-    $content = $markdown;
-
-    if (preg_match('/^---\s*\n(.*?)\n---\s*\n/s', $markdown, $m)) {
-        $yaml = trim($m[1]);
-        $content = substr($markdown, strlen($m[0]));
-
-        foreach (preg_split("/\r\n|\n|\r/", $yaml) as $line) {
-            if (preg_match('/^([A-Za-z0-9_-]+):\s*(.*)$/', $line, $kv)) {
-                $key = $kv[1];
-                $val = trim($kv[2], "\"' ");
-                // inline array [a, b, c]
-                if (preg_match('/^\[(.*)\]$/', $val, $arr)) {
-                    $val = array_map('trim', explode(',', $arr[1]));
-                }
-                $meta[$key] = $val;
-            }
+function listMdFiles($dir, $base = '') {
+    $out = [];
+    foreach (scandir($dir) as $f) {
+        if ($f[0] === '.') continue;
+        $p = "$dir/$f";
+        $rel = ltrim("$base/$f", '/');
+        if (is_dir($p)) $out[$f] = listMdFiles($p, $rel);
+        elseif (preg_match('/\.md$/i', $f)) $out[$f] = $rel;
+    }
+    return $out;
+}
+function renderNav($files, $cur) {
+    echo "<ul>";
+    foreach ($files as $k => $v) {
+        if (is_array($v)) {
+            echo "<li><details><summary>$k</summary>";
+            renderNav($v, $cur);
+            echo "</details></li>";
+        } else {
+            $a = $v === $cur ? 'class=\"active\"' : '';
+            echo "<li><a $a href='?file=" . urlencode($v) . "'>$k</a></li>";
         }
     }
-    return [$meta, $content];
+    echo "</ul>";
 }
-
-// ---- Markdown parser (lightweight GFM-ish) ----
-function parseMarkdown($text) {
-    // Fenced code blocks
-    $codeBlocks = [];
-    $text = preg_replace_callback('/```(.*?)\n(.*?)```/s', function($m) use (&$codeBlocks) {
-        $lang = htmlspecialchars(trim($m[1]));
-        $code = htmlspecialchars($m[2]);
-        $placeholder = "%%CODE" . count($codeBlocks) . "%%";
-        $codeBlocks[$placeholder] = "<pre><code class='language-$lang'>$code</code></pre>";
-        return $placeholder;
-    }, $text);
-
-    // Headings
-    $text = preg_replace('/^###### (.*)$/m', '<h6>$1</h6>', $text);
-    $text = preg_replace('/^##### (.*)$/m', '<h5>$1</h5>', $text);
-    $text = preg_replace('/^#### (.*)$/m', '<h4>$1</h4>', $text);
-    $text = preg_replace('/^### (.*)$/m', '<h3>$1</h3>', $text);
-    $text = preg_replace('/^## (.*)$/m', '<h2>$1</h2>', $text);
-    $text = preg_replace('/^# (.*)$/m', '<h1>$1</h1>', $text);
-
-    // Inline formatting
-    $text = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $text);
-    $text = preg_replace('/\*(.*?)\*/', '<em>$1</em>', $text);
-    $text = preg_replace('/\[(.*?)\]\((.*?)\)/', '<a href="$2">$1</a>', $text);
-    $text = preg_replace('/~~(.*?)~~/', '<del>$1</del>', $text); // strikethrough
-
-    // Lists
-    $text = preg_replace('/^\s*-\s(.*)$/m', '<li>$1</li>', $text);
-    $text = preg_replace('/(<li>.*<\/li>)/s', '<ul>$1</ul>', $text);
-
-    // Paragraphs
-    $text = preg_replace('/\n{2,}/', "</p><p>", $text);
-    $text = "<p>$text</p>";
-
-    // Restore code blocks
-    $text = strtr($text, $codeBlocks);
-
-    return $text;
+function safeMarkdown($md, &$outline = null) {
+    $outlineItems = [];
+    $md = preg_replace_callback('/^(#{1,6}) (.+)$/m', function($m) use (&$outlineItems) {
+        $level = strlen($m[1]);
+        $text = trim($m[2]);
+        $id = strtolower(preg_replace('/[^a-z0-9]+/', '-', $text));
+        $id = trim($id, '-');
+        $outlineItems[] = ['level'=>$level,'text'=>$text,'id'=>$id];
+        return "<h$level id=\"$id\">$text</h$level>";
+    }, $md);
+    $md = preg_replace_callback('/^(```|~~~)[ \t]*([\w-]*)[^\n]*\n([\s\S]*?)^\1[ \t]*$/m', function($m) {
+        $c = htmlspecialchars($m[3]);
+        $lang = htmlspecialchars($m[2]);
+        return "<pre><code class=\"language-$lang\">$c</code></pre>";
+    }, $md);
+    $md = preg_replace_callback('/`([^`]+)`/', fn($m) => '<code>' . htmlspecialchars($m[1]) . '</code>', $md);
+    $md = preg_replace('/^> ?(.*)$/m', '<blockquote>$1</blockquote>', $md);
+    $md = preg_replace('/^\s*[-*+] (.*)$/m', '<li>$1</li>', $md);
+    $md = preg_replace('/^\s*\d+\. (.*)$/m', '<li>$1</li>', $md);
+    $md = preg_replace_callback('/(<li>.*<\/li>)+/s', function($m) {
+        return (preg_match('/<li>\d/', $m[0]) ? "<ol>{$m[0]}</ol>" : "<ul>{$m[0]}</ul>");
+    }, $md);
+    $md = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $md);
+    $md = preg_replace('/\*(.*?)\*/s', '<em>$1</em>', $md);
+    $md = preg_replace('/!\[([^\]]*)\]\(([^)]+)\)/', '<img alt=\"$1\" src=\"$2\">', $md);
+    $md = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a href=\"$2\">$1</a>', $md);
+    $md = preg_replace('/\n{2,}/', "\n\n", $md);
+    $md = preg_replace('/(?:^|\n)([^\n<][^\n]*)\n/', "\n<p>$1</p>\n", $md);
+    if (is_array($outline)) $outline = $outlineItems;
+    return $md;
 }
-
-// ---- Outline ----
-function generateOutline($html) {
-    preg_match_all('/<h([1-6])>(.*?)<\/h\1>/', $html, $matches, PREG_SET_ORDER);
-    if (!$matches) return [$html, ''];
-    $out = "<h3>Outline</h3><ul>";
-    foreach ($matches as $m) {
-        $id = strtolower(trim(preg_replace('/[^a-z0-9]+/', '-', $m[2]), '-'));
-        $out .= "<li style='margin-left:" . (20 * ($m[1]-1)) . "px'><a href='#$id'>$m[2]</a></li>";
-        $html = str_replace($m[0], "<h$m[1] id='$id'>$m[2]</h$m[1]>", $html);
+function renderOutline($outline) {
+    if (!$outline) return "";
+    $out = "<b>Outline</b><ul class='outline-list'>";
+    foreach ($outline as $item) {
+        $out .= "<li style='margin-left:" . (16*($item['level']-1)) . "px'><a href='#{$item['id']}'>{$item['text']}</a></li>";
     }
     $out .= "</ul>";
-    return [$html, $out];
+    return $out;
 }
-
-// ---- File navigation ----
-function listMarkdownFiles($dir, $base = '') {
-    $items = [];
-    foreach (scandir($dir) as $file) {
-        if ($file === '.' || $file === '..') continue;
-        $path = "$dir/$file";
-        $rel = ltrim("$base/$file", '/');
-        if (is_dir($path)) {
-            $items[$file] = listMarkdownFiles($path, $rel);
-        } elseif (pathinfo($file, PATHINFO_EXTENSION) === 'md') {
-            $items[$file] = $rel;
-        }
-    }
-    return $items;
-}
-
-// ---- Main ----
-$files = listMarkdownFiles($docsDir);
-function pickFirst($files) {
-    foreach ($files as $val) {
-        if (is_array($val)) {
-            $nested = pickFirst($val);
-            if ($nested) return $nested;
-        } else return $val;
+$files = listMdFiles($docsDir);
+function pickFirst($arr) {
+    foreach ($arr as $v) {
+        if (is_array($v)) {
+            $f = pickFirst($v); if ($f) return $f;
+        } else return $v;
     }
     return null;
 }
 $currentFile = $_GET['file'] ?? pickFirst($files);
 $fullPath = $currentFile ? realpath("$docsDir/$currentFile") : null;
-
 $contentHtml = "<p>Select a page</p>";
+$outlineArr = [];
 $outlineHtml = "";
-
 if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPath)) {
     $markdown = file_get_contents($fullPath);
-    [$meta, $markdown] = parseFrontMatter($markdown);
-    $contentHtml = parseMarkdown($markdown);
-    [$contentHtml, $outlineHtml] = generateOutline($contentHtml);
-}
-
-function renderNav($files, $current) {
-    echo "<ul>";
-    foreach ($files as $name => $val) {
-        if (is_array($val)) {
-            echo "<li><details><summary>$name</summary>";
-            renderNav($val, $current);
-            echo "</details></li>";
-        } else {
-            $active = ($val === $current) ? 'class="active"' : '';
-            echo "<li><a $active href='?file=" . urlencode($val) . "'>$name</a></li>";
-        }
-    }
-    echo "</ul>";
+    $contentHtml = safeMarkdown($markdown, $outlineArr);
+    $outlineHtml = renderOutline($outlineArr);
 }
 ?>
-
-
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?= htmlspecialchars($meta['title'] ?? "GNU EWE") ?></title>
-	<meta name="description" content="A hobby FOSS SPA for bash, html, and a simple python3 web server">
-	<meta name="author" content="Tearran (FOSS project)">
-	<meta name="robots" content="index, follow">
-	<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <meta name="color-scheme" content="light dark">
-    <meta name="theme-color" content="#0066ff" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#0af" media="(prefers-color-scheme: dark)">
-    <style>
- :root {
-        --bg-default: #fff;
-        --bg-nav: #eee;
-        --bg-header: #ddd;
-        --bg-aside: #f5f5f5;
-
-        --text-default: #111;
-        --text-header: #000;
-        --text-nav: #222;
-        --text-link: #0077cc;
-        --text-link-hover: #004499;
-
-        --btn-bg: #ddd;
-        --btn-hover: #bbb;
-        --btn-text: #000;
-
-        --accent: #0066ff;
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docs Viewer</title>
+<meta name="color-scheme" content="light dark">
+<style>
+:root {
+    --bg-default: #fff;
+    --bg-nav: #eee;
+    --bg-header: #ddd;
+    --bg-aside: #f5f5f5;
+    --text-default: #111;
+    --text-header: #000;
+    --text-nav: #222;
+    --text-link: #0077cc;
+    --text-link-hover: #004499;
+    --btn-bg: #ddd;
+    --btn-hover: #bbb;
+    --btn-text: #000;
+    --accent: #0066ff;
 }
-
-html.light-mode {
-        --bg-default: #fff;
-        --bg-nav: #eee;
-        --bg-header: #ddd;
-        --bg-aside: #f5f5f5;
-
-        --text-default: #111;
-        --text-header: #000;
-        --text-nav: #222;
-        --text-link: #0077cc;
-        --text-link-hover: #004499;
-
-        --btn-bg: #ddd;
-        --btn-hover: #bbb;
-        --btn-text: #000;
-
-        --accent: #0066ff;
-}
-
 html.dark-mode {
-        --bg-default: #111;
-        --bg-nav: #222;
-        --bg-header: #000;
-        --bg-aside: #1a1a1a;
-
-        --text-default: #ddd;
-        --text-header: #fff;
-        --text-nav: #eee;
-        --text-link: #ccc;
-        --text-link-hover: #fff;
-
-        --btn-bg: #333;
-        --btn-hover: #555;
-        --btn-text: #fff;
-
-        --accent: #0af;
+    --bg-default: #111;
+    --bg-nav: #222;
+    --bg-header: #000;
+    --bg-aside: #1a1a1a;
+    --text-default: #ddd;
+    --text-header: #fff;
+    --text-nav: #eee;
+    --text-link: #ccc;
+    --text-link-hover: #fff;
+    --btn-bg: #333;
+    --btn-hover: #555;
+    --btn-text: #fff;
+    --accent: #0af;
 }
-
-pre {
-    background: var(--bg-aside);
-    color: var(--text-default);
-    padding: 10px;
-    border-radius: 6px;
-    overflow-x: auto;
-    font-family: monospace;
-    font-size: 0.9em;
-}
-pre code {
-    background: none;
-    color: inherit;
-}
-
-
 body {
-        margin: 0;
-        font-family: sans-serif;
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-        background: var(--bg-default);
-        color: var(--text-default);
+    margin: 0;
+    font-family: sans-serif;
+    height: 100vh;
+    background: var(--bg-default);
+    color: var(--text-default);
+    display: flex; flex-direction: column;
 }
-
 .header-tools {
-        background: var(--bg-header);
-        color: var(--text-header);
-        padding: 10px 15px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    background: var(--bg-header);
+    color: var(--text-header);
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
-
 .layout {
-        display: flex;
-        flex: 1;
-        overflow: hidden;
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    flex-direction: row;
 }
-
-/* Columns */
-nav {
-        width: 250px;
-        min-width: 0;
-        /* allow flex to shrink */
-        background: var(--bg-nav);
-        color: var(--text-nav);
-        padding: 10px;
-        overflow-y: auto;
-        transition: all 0.3s ease;
+nav, aside {
+    width: 250px;
+    min-width: 0;
+    padding: 10px;
+    overflow-y: auto;
+    background: var(--bg-nav);
+    color: var(--text-nav);
+    transition: all 0.3s ease;
 }
-
+aside { background: var(--bg-aside); color: var(--text-default);}
 main {
-        flex: 1;
-        padding: 20px;
-        overflow-y: auto;
+    flex: 1;
+    min-width: 350px;
+    max-width: 900px;
+    padding: 20px;
+    overflow-y: auto;
 }
-
-aside {
-        width: 250px;
+nav.hidden, aside.hidden { display:none !important; }
+@media (max-width: 700px) {
+    .layout {
+        flex-direction: column;
+    }
+    nav, aside, main {
+        width: 100vw;
+        max-width: 100vw;
         min-width: 0;
-        background: var(--bg-aside);
-        color: var(--text-default);
-        padding: 10px;
-        overflow-y: auto;
-        transition: all 0.3s ease;
+        position: static;
+        box-shadow: 0 2px 12px #0008;
+        z-index: 10;
+    }
+    nav.hidden, aside.hidden { display:none !important; }
+    .header-tools { position: sticky; top: 0; z-index: 100; }
 }
-
-/* Hidden state for toggling */
-nav.hidden,
-aside.hidden {
-        width: 0;
-        padding: 0;
-        opacity: 0;
-        overflow: hidden;
-}
-
-
 nav a {
-        color: var(--text-link);
-        text-decoration: none;
+    color: var(--text-link);
+    text-decoration: none;
 }
-
 nav a:hover {
-        color: var(--text-link-hover);
+    color: var(--text-link-hover);
 }
-
-aside {
-        width: 250px;
-        background: var(--bg-aside);
-        color: var(--text-default);
-        padding: 10px;
-        overflow-y: auto;
-        transition: all 0.3s ease;
-}
-
-main {
-        flex: 1;
-        padding: 20px;
-        overflow-y: auto;
-}
-
-aside.hidden,
-nav.hidden {
-        display: none;
-}
-
-/* Icons */
-.icon {
-        width: 32px;
-        height: 32px;
-        display: inline-block;
-        vertical-align: middle;
-        flex-shrink: 0;
-        color: var(--icon-color-base);
-        stroke: currentColor;
-        stroke-width: var(--icon-stroke-width);
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        fill: none;
-        vector-effect: non-scaling-stroke;
-        transition: color var(--icon-transition), stroke var(--icon-transition),
-                fill var(--icon-transition), transform var(--icon-transition), opacity var(--icon-transition);
-}
-
-/* Unified style for all buttons and links acting as buttons */
-.icon-btn, .btn {
+.icon-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -343,87 +195,62 @@ nav.hidden {
     cursor: pointer;
     background: var(--btn-bg);
     color: var(--btn-text);
-    text-decoration: none;
-    transition: background 0.2s, color 0.2s;
     border: none;
     font: inherit;
+    margin-right: 4px;
 }
-
-.icon-btn:hover, .btn:hover {
-    background: var(--btn-hover);
-    color: var(--btn-text);
-}
-
-.icon-btn svg.icon {
-    width: 32px;
-    height: 32px;
-    pointer-events: none;
-}
-
-    </style>
+.icon-btn:hover { background: var(--btn-hover);}
+.icon-btn svg { width: 32px; height: 32px; }
+</style>
 </head>
 <body>
- 
 <header>
     <div class="header-tools">
-
-    <a href="#" class="icon-btn" onclick="toggleNav()">
-    <svg class="icon icon-md">
-        <use href="images/icons.svg#i-grid"></use>
-    </svg>
-</a>
-<div>
-                <a href="#" class="icon-btn" onclick="toggleMode()">
-                    <svg class="icon icon-md">
-                        <use href="images/icons.svg#i-color"></use>
-                    </svg>
-                </a>
-                <a href="#" class="icon-btn" onclick="toggleOutline()">
-                    <svg class="icon icon-md">
-                            <use href="images/icons.svg#i-list"></use>
-                    </svg>
-                </a>
-
-                </div>
+        <button class="icon-btn" onclick="togglePanel('nav')" title="Nav">&#9776;</button>
+        <div>
+            <button class="icon-btn" onclick="toggleMode()" title="Theme">&#9788;</button>
+            <button class="icon-btn" onclick="togglePanel('outline')" title="Outline">&#9776;</button>
         </div>
+    </div>
 </header>
-
-<div class="layout">     
-    <nav id="nav" class="hidden">
+<div class="layout">
+    <nav id="nav">
         <h2>Docs</h2>
         <?php renderNav($files, $currentFile); ?>
     </nav>
-    <main>
+    <main id="main">
         <article><?= $contentHtml ?></article>
     </main>
-    <aside id="outline" class="hidden">
+    <aside id="outline">
         <?= $outlineHtml ?>
     </aside>
 </div>
-
-
 <script>
-        function toggleOutline() {
-                document.getElementById('outline').classList.toggle('hidden');
-        }
-        function toggleNav() {
-                document.getElementById('nav').classList.toggle('hidden');
-        }
-        function toggleMode() {
-            document.documentElement.classList.toggle('dark-mode');
-            // Save mode correctly
-            const mode = document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light';
-            localStorage.setItem('theme', mode);
-        }
-
-// Restore theme on load
+function togglePanel(which) {
+    var panel = document.getElementById(which);
+    panel.classList.toggle('hidden');
+}
+function toggleMode() {
+    document.documentElement.classList.toggle('dark-mode');
+    localStorage.setItem('theme',
+        document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light');
+}
 window.addEventListener('DOMContentLoaded', () => {
-    const saved = localStorage.getItem('theme');
-    if (saved === 'dark') document.documentElement.classList.add('dark-mode');
+    if (localStorage.getItem('theme') === 'dark')
+        document.documentElement.classList.add('dark-mode');
+    // On load, ensure panels are visible by default
+    document.getElementById('nav').classList.remove('hidden');
+    document.getElementById('outline').classList.remove('hidden');
+    // Outline closes when a link is clicked
+    document.getElementById('outline').addEventListener('click', function(e) {
+        if (e.target.tagName === 'A') {
+            document.getElementById('outline').classList.add('hidden');
+        }
+    });
 });
-
-
+window.addEventListener('resize', () => {
+    // On resize, do nothing: user manages toggles on both desktop and mobile
+});
 </script>
-
 </body>
 </html>
