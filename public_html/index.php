@@ -92,117 +92,191 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Responsive Layout with Dark Mode</title>
-  <style>
-    /* í ¼í¾¨ Theme variables */
+<style>
+    /* =====================
+       Theme Variables
+       ===================== */
     :root {
-      --color-bg: #fff;
-      --color-text: #000;
-      --color-header-bg: #222;
-      --color-header-text: #fff;
-      --color-nav-bg: #f3f3f3;
-      --color-main-bg: #fff;
-      --color-aside-bg: #fafafa;
-      --color-border: #ccc;
-      --color-btn-bg: #444;
-      --color-btn-hover: #0077cc;
-      --color-btn-text: #fff;
+        /* Main page background and text */
+        --color-bg: #fff;
+        --color-text: #000;
+
+        /* Header colors */
+        --color-header-bg: #222;
+        --color-header-text: #fff;
+
+        /* Section backgrounds */
+        --color-nav-bg: #f3f3f3;
+        --color-main-bg: #fff;
+        --color-aside-bg: #fafafa;
+
+        /* Borders */
+        --color-border: #ccc;
+
+        /* Buttons */
+        --color-btn-bg: #444;
+        --color-btn-hover: #0077cc;
+        --color-btn-text: #fff;
     }
 
+    /* =====================
+       Dark Mode Overrides
+       ===================== */
     body.dark-mode {
-      --color-bg: #111;
-      --color-text: #ddd;
-      --color-header-bg: #000;
-      --color-header-text: #fff;
-      --color-nav-bg: #222;
-      --color-main-bg: #111;
-      --color-aside-bg: #1a1a1a;
-      --color-border: #444;
-      --color-btn-bg: #333;
-      --color-btn-hover: #555;
-      --color-btn-text: #fff;
+        --color-bg: #111;
+        --color-text: #ddd;
+        --color-header-bg: #000;
+        --color-header-text: #fff;
+        --color-nav-bg: #222;
+        --color-main-bg: #111;
+        --color-aside-bg: #1a1a1a;
+        --color-border: #444;
+        --color-btn-bg: #333;
+        --color-btn-hover: #555;
+        --color-btn-text: #fff;
     }
 
+    /* =====================
+       Base Body Styling
+       ===================== */
     body {
-      margin: 0;
-      font-family: sans-serif;
-      background: var(--color-bg);
-      color: var(--color-text);
+        margin: 0;
+        font-family: sans-serif;
+        background: var(--color-bg);
+        color: var(--color-text);
     }
 
+    /* =====================
+       Header / Top Bar
+       ===================== */
     header {
-      background: var(--color-header-bg);
-      color: var(--color-header-text);
-      padding: 0.5rem 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+        background: var(--color-header-bg);
+        color: var(--color-header-text);
+        padding: 0.5rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
 
     #brand {
-      font-weight: bold;
+        font-weight: bold; /* Brand text */
     }
 
+    /* =====================
+       Action Buttons in Top Bar
+       ===================== */
     #actions {
-      display: flex;
-      gap: 0.5rem;
+        display: flex;      /* Always side by side */
+        gap: 0.5rem;        /* Spacing between buttons */
     }
 
     #actions button {
-      background: var(--color-btn-bg);
-      color: var(--color-btn-text);
-      border: none;
-      padding: 0.5rem;
-      cursor: pointer;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+        background: var(--color-btn-bg);
+        color: var(--color-btn-text);
+        border: none;
+        padding: 0.5rem;
+        cursor: pointer;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     #actions button:hover {
-      background: var(--color-btn-hover);
+        background: var(--color-btn-hover);
     }
 
     #actions svg {
-      width: 20px;
-      height: 20px;
-      fill: currentColor;
+        width: 20px;
+        height: 20px;
+        fill: currentColor; /* Icon inherits button text color */
     }
 
+    /* =====================
+       Layout Containers
+       ===================== */
     .layout {
-      display: flex;
-      flex-direction: column;
+        display: flex;          /* Default: stacked for mobile */
+        flex-direction: column;
     }
 
     nav, main, aside {
-      padding: 1rem;
-      border: 1px solid var(--color-border);
-      box-sizing: border-box;
-      min-width: 0;
-      min-height: 0;
+        padding: 1rem;
+        border: 1px solid var(--color-border);
+        box-sizing: border-box;
+        min-width: 0;
+        min-height: 0;
     }
 
+    /* Section backgrounds */
     nav   { background: var(--color-nav-bg); }
     main  { background: var(--color-main-bg); }
     aside { background: var(--color-aside-bg); }
 
-    @media (min-width: 768px) {
-      .layout {
-        display: grid;
-        grid-template-columns: 200px 1fr 200px;
-        grid-template-areas: "nav main outline";
-        height: calc(100vh - 50px); /* subtract header */
-      }
 
-      nav   { grid-area: nav; overflow-y: auto; }
-      main  { grid-area: main; overflow-y: auto; }
-      aside { grid-area: outline; overflow-y: auto; }
+    /* =====================
+       List Styling
+       ===================== */
+    ul { 
+        margin: 0; 
+        padding-left: 1.2em; 
     }
 
-    ul { margin: 0; padding-left: 1.2em; }
-    .outline-list { list-style: none; padding-left: 0; }
-    .outline-list li { margin: 0; }
-    nav a.active { font-weight: bold; color: var(--color-btn-hover); }
+    .outline-list { 
+        list-style: none;      /* Remove bullets */
+        padding-left: 0; 
+    }
+
+    .outline-list li { 
+        margin: 0; 
+    }
+
+    nav a.active { 
+        font-weight: bold; 
+        color: var(--color-btn-hover); /* Highlight current nav link */ 
+    }
+
+    .layout {
+      display: flex;
+      flex-direction: row;
+      min-height: 100vh;
+    }
+
+    nav, main, aside {
+      padding: 1rem;
+    }
+
+    nav {
+      flex: 0 0 200px;
+    }
+
+    main {
+      flex: 1;
+    }
+
+    aside {
+      flex: 0 0 250px;
+    }
+
+
+/* Mobile layout */
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+  }
+  nav {
+    order: 0; /* top */
+  }
+  aside {
+    order: 1; /* second */
+    flex: 0 0 auto;   /* <-- important, let it size by content */
+  }
+  main {
+    order: 2; /* last */
+    flex: 1 1 auto;   /* main takes remaining space */
+  }
+}
+
   </style>
 </head>
 <body>
@@ -226,17 +300,16 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
   </div>
 </header>
 
-<div class="layout">
-  <nav>
-    <?php renderNav($files, $currentFile); ?>
-  </nav>
-  <aside>
-    <?= $outlineHtml ?>
-  </aside>
-  <main>
-    <article><?= $contentHtml ?></article>
-  </main>
-</div>
+
+
+  <div class="layout">
+    <nav><?php renderNav($files, $currentFile); ?></nav>
+    <main>
+        <article><?= $contentHtml ?></article>
+    </main>
+    <aside> <?= $outlineHtml ?></aside>
+  </div>
+
 
 <script>
   function togglePanel(panel) {
