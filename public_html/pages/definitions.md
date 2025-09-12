@@ -1,3 +1,8 @@
+<!--
+    title: Site-def
+    tags: [gnu,linux,ewe]
+-->
+
 ## Quick definitions
 
 - **[FOSS](https://en.wikipedia.org/wiki/Free_and_open-source_software "Free and Open-Source Software")** — Free and Open-Source Software: software you are free to run, read, modify, and redistribute (examples of licenses: GPL, MIT, BSD, Apache).

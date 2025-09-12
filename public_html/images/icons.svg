@@ -167,6 +167,10 @@
 				<path id="path75" d="M9 6h11M9 12h11M9 18h11"/>
 				<path id="path76" d="M4 6h.01M4 12h.01M4 18h.01"/>
 		</symbol>
+		<symbol id="sprite-list" viewBox="0 0 24 24">
+				<path id="path75" d="M9 6h11M9 12h11M9 18h11"/>
+				<path id="path76" d="M4 6h.01M4 12h.01M4 18h.01"/>
+		</symbol>
 		<symbol id="i-grid" viewBox="0 0 24 24">
 				<rect id="rect76" x="4" y="4" width="6" height="6" rx="1"/>
 				<rect id="rect77" x="14" y="4" width="6" height="6" rx="1"/>

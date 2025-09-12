@@ -1,7 +1,8 @@
-<!--
-    title: Markdown Example
-    tags: [site-demo,example,markdown]
--->
+---
+title: Exampole
+tags: 
+  -home
+---
 
 
 # Example Markdown Document
