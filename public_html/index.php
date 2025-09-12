@@ -140,8 +140,14 @@ function renderNav($files, $current) {
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Markdown Docs</title>
+<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>IT's a GNU EWE</title>
+	<meta name="description" content="A hobby FOSS SPA for bash, html, and a simple python3 web server">
+	<meta name="author" content="Tearran (FOSS project)">
+	<meta name="robots" content="index, follow">
+	<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+	<meta name="theme-color" content="#0366d6">
     <style>
  :root {
         --bg-default: #fff;
