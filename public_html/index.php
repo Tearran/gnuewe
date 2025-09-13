@@ -97,8 +97,13 @@ $md = preg_replace_callback('/(<li>.*<\/li>)+/s', function($m) {
         $href = htmlspecialchars($href, ENT_QUOTES, 'UTF-8');
         return "<a href=\"$href\">$text</a>";
     }, $md);
+//$md = preg_replace('/\n{2,}/', "\n\n", $md);
 $md = preg_replace('/\n{2,}/', "\n\n", $md);
-    $md = preg_replace('/(?:^|\n)([^\n<][^\n]*)\n/', "\n<p>$1</p>\n", $md);
+// Escape any raw HTML tags not produced by this sanitizer (prevents XSS)
+$md = preg_replace('/<(?!\/?(?:h[1-6]|p|ul|ol|li|blockquote|pre|code|img|a|strong|em|br)(?:\s|>))/i', '&lt;', $md);
+
+$md = preg_replace('/(?:^|\n)([^\n<][^\n]*)\n/', "\n<p>$1</p>\n", $md);
+
     if (is_array($outline)) $outline = $outlineItems;
     return $md;
 }
