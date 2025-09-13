@@ -20,7 +20,7 @@ function renderNav($files, $cur) {
             renderNav($v, $cur);
             echo "</details></li>";
         } else {
-            $a = $v === $cur ? 'class=\"active\"' : '';
+            $a = $v === $cur ? 'class="active"' : '';
             echo "<li><a $a href='?file=" . urlencode($v) . "'>$k</a></li>";
         }
     }
@@ -86,171 +86,299 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
     $outlineHtml = renderOutline($outlineArr);
 }
 ?>
+
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Docs Viewer</title>
-<meta name="color-scheme" content="light dark">
-<style>
-:root {
-    --bg-default: #fff;
-    --bg-nav: #eee;
-    --bg-header: #ddd;
-    --bg-aside: #f5f5f5;
-    --text-default: #111;
-    --text-header: #000;
-    --text-nav: #222;
-    --text-link: #0077cc;
-    --text-link-hover: #004499;
-    --btn-bg: #ddd;
-    --btn-hover: #bbb;
-    --btn-text: #000;
-    --accent: #0066ff;
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>GNU EWE</title>
+	<style>
+	/* =====================
+       Theme Variables
+       ===================== */
+       :root {
+        /* Main page background and text */
+        --color-bg: #fff;
+        --color-text: #000;
+        /* Header colors */
+        --color-header-bg: #222;
+        --color-header-text: #fff;
+        /* Section backgrounds */
+        --color-nav-bg: #f3f3f3;
+        --color-main-bg: #fff;
+        --color-aside-bg: #fafafa;
+        /* Borders */
+        --color-border: #ccc;
+        /* Buttons */
+        --color-btn-bg: #fff;
+        --color-btn-hover: #0077cc;
+        --color-btn-text: #444;
+        --icon-stroke-width: 1.6;
+        --icon-transition: 120ms;
+        --icon-color-base: var(--text-main);
+        --icon-color-accent: var(--text-link);
+        --icon-color-muted: var(--text-muted);
+        --icon-color-danger: #ff4d4f;
+        --icon-color-warn: #e0a210;
+        --icon-color-success: #31c48d;
 }
-html.dark-mode {
-    --bg-default: #111;
-    --bg-nav: #222;
-    --bg-header: #000;
-    --bg-aside: #1a1a1a;
-    --text-default: #ddd;
-    --text-header: #fff;
-    --text-nav: #eee;
-    --text-link: #ccc;
-    --text-link-hover: #fff;
-    --btn-bg: #333;
-    --btn-hover: #555;
-    --btn-text: #fff;
-    --accent: #0af;
-}
-body {
-    margin: 0;
-    font-family: sans-serif;
-    height: 100vh;
-    background: var(--bg-default);
-    color: var(--text-default);
-    display: flex; flex-direction: column;
-}
-.header-tools {
-    background: var(--bg-header);
-    color: var(--text-header);
-    padding: 10px 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.layout {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-    flex-direction: row;
-}
-nav, aside {
-    width: 250px;
-    min-width: 0;
-    padding: 10px;
-    overflow-y: auto;
-    background: var(--bg-nav);
-    color: var(--text-nav);
-    transition: all 0.3s ease;
-}
-aside { background: var(--bg-aside); color: var(--text-default);}
-main {
-    flex: 1;
-    min-width: 350px;
-    max-width: 900px;
-    padding: 20px;
-    overflow-y: auto;
-}
-nav.hidden, aside.hidden { display:none !important; }
-@media (max-width: 700px) {
-    .layout {
-        flex-direction: column;
-    }
-    nav, aside, main {
-        width: 100vw;
-        max-width: 100vw;
-        min-width: 0;
-        position: static;
-        box-shadow: 0 2px 12px #0008;
-        z-index: 10;
-    }
-    nav.hidden, aside.hidden { display:none !important; }
-    .header-tools { position: sticky; top: 0; z-index: 100; }
-}
-nav a {
-    color: var(--text-link);
-    text-decoration: none;
-}
-nav a:hover {
-    color: var(--text-link-hover);
-}
-.icon-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    background: var(--btn-bg);
-    color: var(--btn-text);
-    border: none;
-    font: inherit;
-    margin-right: 4px;
-}
-.icon-btn:hover { background: var(--btn-hover);}
-.icon-btn svg { width: 32px; height: 32px; }
-</style>
+
+		/* =====================
+       Dark Mode Overrides
+       ===================== */
+		body.dark-mode {
+			--color-bg: #111;
+			--color-text: #ddd;
+			--color-header-bg: #000;
+			--color-header-text: #fff;
+			--color-nav-bg: #222;
+			--color-main-bg: #111;
+			--color-aside-bg: #1a1a1a;
+			--color-border: #444;
+			--color-btn-bg: #333;
+			--color-btn-hover: #555;
+			--color-btn-text: #fff;
+		}
+
+		/* =====================
+       Base Body Styling
+       ===================== */
+		body {
+			margin: 0;
+			font-family: sans-serif;
+			background: var(--color-bg);
+			color: var(--color-text);
+		}
+
+		/* =====================
+       Header / Top Bar
+       ===================== */
+		.action-bar {
+			background: var(--color-nav-bg);
+			color: var(--color-text);
+			padding: 0.5rem 1rem;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		#brand {
+			font-weight: bold;
+			/* Brand text */
+		}
+
+		/* =====================
+       Action Buttons in Top Bar
+       ===================== */
+		#actions {
+			display: flex;
+			/* Always side by side */
+			gap: 0.5rem;
+			/* Spacing between buttons */
+		}
+
+		#actions button {
+			background: var(--color-btn-bg);
+			color: var(--color-btn-text);
+			border: none;
+			padding: 0.5rem;
+			cursor: pointer;
+			border-radius: 4px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		#actions button:hover {
+			background: var(--color-btn-hover);
+		}
+
+		#actions svg {
+			width: 20px;
+			height: 20px;
+		}
+
+		/* Icons */
+		.icon {
+			width: 1em;
+			height: 1em;
+			display: inline-block;
+			vertical-align: middle;
+			flex-shrink: 0;
+			color: var(--icon-color-base);
+			stroke: currentColor;
+			stroke-width: var(--icon-stroke-width);
+			stroke-linecap: round;
+			stroke-linejoin: round;
+			fill: none;
+			vector-effect: non-scaling-stroke;
+			transition: color var(--icon-transition), stroke var(--icon-transition),
+				fill var(--icon-transition), transform var(--icon-transition), opacity var(--icon-transition);
+		}
+
+		/* =====================
+       Layout Containers
+       ===================== */
+		.layout {
+			display: flex;
+			/* Default: stacked for mobile */
+			flex-direction: column;
+		}
+
+		nav,
+		main,
+		aside {
+			padding: 1rem;
+			border: 1px solid var(--color-border);
+			box-sizing: border-box;
+			min-width: 0;
+			min-height: 0;
+		}
+
+		/* Section backgrounds */
+		nav {
+			background: var(--color-nav-bg);
+		}
+
+		main {
+			background: var(--color-main-bg);
+		}
+
+		aside {
+			background: var(--color-aside-bg);
+		}
+
+		/* =====================
+       List Styling
+       ===================== */
+		ul {
+			margin: 0;
+			padding-left: 1.2em;
+		}
+
+		.outline-list {
+			list-style: none;
+			/* Remove bullets */
+			padding-left: 0;
+		}
+
+		.outline-list li {
+			margin: 0;
+		}
+
+		nav a.active {
+			font-weight: bold;
+			color: var(--color-btn-hover);
+			/* Highlight current nav link */
+		}
+
+		.layout {
+			display: flex;
+			flex-direction: row;
+			min-height: 100vh;
+		}
+
+		nav,
+		main,
+		aside {
+			padding: 1rem;
+		}
+
+		nav {
+			flex: 0 0 200px;
+		}
+
+		main {
+			flex: 1;
+		}
+
+		aside {
+			flex: 0 0 250px;
+		}
+
+		/* Mobile layout */
+		@media (max-width: 768px) {
+			.layout {
+				flex-direction: column;
+			}
+
+			nav {
+				order: 0;
+				/* top */
+			}
+
+			aside {
+				order: 1;
+				/* second */
+				flex: 0 0 auto;
+				/* <-- important, let it size by content */
+			}
+
+			main {
+				order: 2;
+				/* last */
+				flex: 1 1 auto;
+				/* main takes remaining space */
+			}
+		}
+	</style>
 </head>
+
 <body>
-<header>
-    <div class="header-tools">
-        <button class="icon-btn" onclick="togglePanel('nav')" title="Nav">&#9776;</button>
-        <div>
-            <button class="icon-btn" onclick="toggleMode()" title="Theme">&#9788;</button>
-            <button class="icon-btn" onclick="togglePanel('outline')" title="Outline">&#9776;</button>
-        </div>
-    </div>
-</header>
-<div class="layout">
-    <nav id="nav">
-        <h2>Docs</h2>
-        <?php renderNav($files, $currentFile); ?>
-    </nav>
-    <main id="main">
-        <article><?= $contentHtml ?></article>
-    </main>
-    <aside id="outline">
-        <?= $outlineHtml ?>
-    </aside>
-</div>
-<script>
-function togglePanel(which) {
-    var panel = document.getElementById(which);
-    panel.classList.toggle('hidden');
-}
-function toggleMode() {
-    document.documentElement.classList.toggle('dark-mode');
-    localStorage.setItem('theme',
-        document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light');
-}
-window.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem('theme') === 'dark')
-        document.documentElement.classList.add('dark-mode');
-    // On load, ensure panels are visible by default
-    document.getElementById('nav').classList.remove('hidden');
-    document.getElementById('outline').classList.remove('hidden');
-    // Outline closes when a link is clicked
-    document.getElementById('outline').addEventListener('click', function(e) {
-        if (e.target.tagName === 'A') {
-            document.getElementById('outline').classList.add('hidden');
-        }
-    });
-});
-window.addEventListener('resize', () => {
-    // On resize, do nothing: user manages toggles on both desktop and mobile
-});
-</script>
+	<section class="action-bar" >
+		<div id="brand">
+			GNUEWE </div>
+		<div id="actions">
+			<!-- Nav toggle -->
+			<button onclick="togglePanel('nav')" title="Toggle Navigation">
+				<svg class="icon icon-md">
+					<use href="/images/icons.svg#i-list"></use>
+				</svg>
+			</button>
+			<!-- Dark mode toggle -->
+			<button onclick="toggleDarkMode()" title="Toggle Dark Mode">
+				<svg class="icon icon-md">
+					<use href="images/icons.svg#i-sun"></use>
+				</svg>
+			</button>
+			<!-- Outline toggle -->
+			<button onclick="togglePanel('aside')" title="Toggle Outline">
+				<svg class="icon icon-md">
+					<use href="images/icons.svg#i-book"></use>
+				</svg>
+			</button>
+		</div>
+	</section>
+
+	<div class="layout">
+		<nav><?php renderNav($files, $currentFile); ?></nav>
+		<main>
+			<article><?= $contentHtml ?></article>
+		</main>
+		<aside> <?= $outlineHtml ?></aside>
+	</div>
+
+	<script>
+		function togglePanel(panel) {
+			const el = document.querySelector(panel);
+			el.hidden = !el.hidden;
+		}
+
+		function toggleDarkMode() {
+			document.body.classList.toggle('dark-mode');
+			const icon = document.getElementById('darkIcon');
+			if (document.body.classList.contains('dark-mode')) {
+				// sun icon
+				icon.innerHTML = '<circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2m11-11h-2M3 12H1m16.95-6.95-1.41 1.41M6.46 17.54l-1.41 1.41m0-13.9 1.41 1.41M17.54 17.54l1.41 1.41"/>';
+			} else {
+				// moon icon
+				icon.innerHTML = '<path d="M12 3a9 9 0 0 0 0 18 9 9 0 0 1 0-18z"/>';
+			}
+		}
+	</script>
 </body>
+
 </html>
