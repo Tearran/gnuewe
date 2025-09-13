@@ -28,34 +28,68 @@ function renderNav($files, $cur) {
 }
 function safeMarkdown($md, &$outline = null) {
     $outlineItems = [];
+    // 1) Handle fenced code first
+    $md = preg_replace_callback('/^(```|~~~)[ \t]*([\w-]*)[^\n]*\n([\s\S]*?)^\1[ \t]*$/m', function($m) {
+        $c = htmlspecialchars($m[3]);
+        $lang = htmlspecialchars($m[2]);
+        return "<pre><code class=\"language-$lang\">$c</code></pre>";
+    }, $md);
+    // 2) Then ATX headings (outline-safe)
     $md = preg_replace_callback('/^(#{1,6}) (.+)$/m', function($m) use (&$outlineItems) {
         $level = strlen($m[1]);
         $text = trim($m[2]);
         $id = strtolower(preg_replace('/[^a-z0-9]+/', '-', $text));
         $id = trim($id, '-');
         $outlineItems[] = ['level'=>$level,'text'=>$text,'id'=>$id];
-        return "<h$level id=\"$id\">$text</h$level>";
-    }, $md);
-    $md = preg_replace_callback('/^(```|~~~)[ \t]*([\w-]*)[^\n]*\n([\s\S]*?)^\1[ \t]*$/m', function($m) {
-        $c = htmlspecialchars($m[3]);
-        $lang = htmlspecialchars($m[2]);
-        return "<pre><code class=\"language-$lang\">$c</code></pre>";
+        $safe = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+        return "<h$level id=\"$id\">$safe</h$level>";
     }, $md);
     $md = preg_replace_callback('/`([^`]+)`/', fn($m) => '<code>' . htmlspecialchars($m[1]) . '</code>', $md);
     $md = preg_replace_callback('/^> ?(.*)$/m', fn($m) => '<blockquote>' . htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8') . '</blockquote>', $md);
     $md = preg_replace_callback('/^\s*[-*+] (.*)$/m', fn($m) => '<li>' . htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8') . '</li>', $md);
     $md = preg_replace_callback('/^\s*\d+\. (.*)$/m', fn($m) => '<li>' . htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8') . '</li>', $md);
-
-
-
+            // Unordered lists: group contiguous bullets
+            $md = preg_replace_callback('/(?:^\s*[-*+]\s+.+\n?)+/m', function($m) {
+                $items = preg_replace_callback(
+                    '/^\s*[-*+]\s+(.+)$/m',
+                    fn($i) => '<li>' . htmlspecialchars($i[1], ENT_QUOTES, 'UTF-8') . '</li>',
+                    $m[0]
+                );
+                return "<ul>\n$items\n</ul>";
+            }, $md);
+            // Ordered lists: group contiguous numbered items
+            $md = preg_replace_callback('/(?:^\s*\d+\.\s+.+\n?)+/m', function($m) {
+                $items = preg_replace_callback(
+                    '/^\s*\d+\.\s+(.+)$/m',
+                    fn($i) => '<li>' . htmlspecialchars($i[1], ENT_QUOTES, 'UTF-8') . '</li>',
+                    $m[0]
+                );
+                return "<ol>\n$items\n</ol>";
+            }, $md);
 $md = preg_replace_callback('/(<li>.*<\/li>)+/s', function($m) {
         return (preg_match('/<li>\d/', $m[0]) ? "<ol>{$m[0]}</ol>" : "<ul>{$m[0]}</ul>");
     }, $md);
+
+
     $md = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $md);
     $md = preg_replace('/\*(.*?)\*/s', '<em>$1</em>', $md);
-    $md = preg_replace('/!\[([^\]]*)\]\(([^)]+)\)/', '<img alt=\"$1\" src=\"$2\">', $md);
-    $md = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a href=\"$2\">$1</a>', $md);
-    $md = preg_replace('/\n{2,}/', "\n\n", $md);
+    // Images: escape content and allow only http(s), data:image, or relative URLs
+    $md = preg_replace_callback('/!\[([^\]]*)\]\(([^)]+)\)/', function($m) {
+        $alt = htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8');
+        $src = trim($m[2]);
+        if (!preg_match('#^(https?:)?//|^/|^\./|^\.\./|^data:image/#i', $src)) $src = '#';
+        $src = htmlspecialchars($src, ENT_QUOTES, 'UTF-8');
+        return "<img alt=\"$alt\" src=\"$src\">";
+    }, $md);
+    // Links: escape content and allow only http(s), mailto:, or relative URLs
+    $md = preg_replace_callback('/\[([^\]]+)\]\(([^)]+)\)/', function($m) {
+        $text = htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8');
+        $href = trim($m[2]);
+        if (!preg_match('#^(?:https?:)?//|^/|^\./|^\.\./|^mailto:#i', $href)) $href = '#';
+        $href = htmlspecialchars($href, ENT_QUOTES, 'UTF-8');
+        return "<a href=\"$href\">$text</a>";
+    }, $md);
+$md = preg_replace('/\n{2,}/', "\n\n", $md);
     $md = preg_replace('/(?:^|\n)([^\n<][^\n]*)\n/', "\n<p>$1</p>\n", $md);
     if (is_array($outline)) $outline = $outlineItems;
     return $md;
