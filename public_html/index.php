@@ -42,10 +42,13 @@ function safeMarkdown($md, &$outline = null) {
         return "<pre><code class=\"language-$lang\">$c</code></pre>";
     }, $md);
     $md = preg_replace_callback('/`([^`]+)`/', fn($m) => '<code>' . htmlspecialchars($m[1]) . '</code>', $md);
-    $md = preg_replace('/^> ?(.*)$/m', '<blockquote>$1</blockquote>', $md);
-    $md = preg_replace('/^\s*[-*+] (.*)$/m', '<li>$1</li>', $md);
-    $md = preg_replace('/^\s*\d+\. (.*)$/m', '<li>$1</li>', $md);
-    $md = preg_replace_callback('/(<li>.*<\/li>)+/s', function($m) {
+    $md = preg_replace_callback('/^> ?(.*)$/m', fn($m) => '<blockquote>' . htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8') . '</blockquote>', $md);
+    $md = preg_replace_callback('/^\s*[-*+] (.*)$/m', fn($m) => '<li>' . htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8') . '</li>', $md);
+    $md = preg_replace_callback('/^\s*\d+\. (.*)$/m', fn($m) => '<li>' . htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8') . '</li>', $md);
+
+
+
+$md = preg_replace_callback('/(<li>.*<\/li>)+/s', function($m) {
         return (preg_match('/<li>\d/', $m[0]) ? "<ol>{$m[0]}</ol>" : "<ul>{$m[0]}</ul>");
     }, $md);
     $md = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $md);
@@ -61,7 +64,8 @@ function renderOutline($outline) {
     if (!$outline) return "";
     $out = "<b>Outline</b><ul class='outline-list'>";
     foreach ($outline as $item) {
-        $out .= "<li style='margin-left:" . (16*($item['level']-1)) . "px'><a href='#{$item['id']}'>{$item['text']}</a></li>";
+        $out .= "<li style='margin-left:" . (16*($item['level']-1)) . "px'><a href='#{$item['id']}'>" .
+                htmlspecialchars($item['text'], ENT_QUOTES, 'UTF-8') . "</a></li>";
     }
     $out .= "</ul>";
     return $out;
@@ -333,11 +337,7 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
 		<div id="brand">
 			GNUEWE </div>
 		<div id="actions">
-			<button onclick="toggleDarkMode()" title="Toggle Dark Mode" aria-pressed="false">
-				<svg id="darkIcon" class="icon icon-md">
-				<use href="images/icons.svg#i-sun"></use>
-				</svg>
-			</button>
+
 			<!-- Nav toggle -->
 			<button onclick="togglePanel('nav')" title="Toggle Navigation">
 				<svg class="icon icon-md">
@@ -345,11 +345,12 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
 				</svg>
 			</button>
 			<!-- Dark mode toggle -->
-			<button onclick="toggleDarkMode()" title="Toggle Dark Mode">
-				<svg class="icon icon-md">
-					<use href="images/icons.svg#i-sun"></use>
+			<button onclick="toggleDarkMode()" title="Toggle Dark Mode" aria-pressed="false">
+				<svg id="darkIcon" class="icon icon-md">
+				<use href="images/icons.svg#i-sun"></use>
 				</svg>
 			</button>
+			
 			<!-- Outline toggle -->
 			<button onclick="togglePanel('aside')" title="Toggle Outline">
 				<svg class="icon icon-md">
@@ -373,17 +374,22 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
 			el.hidden = !el.hidden;
 		}
 
-		function toggleDarkMode() {
-			document.body.classList.toggle('dark-mode');
-			const icon = document.getElementById('darkIcon');
-			if (document.body.classList.contains('dark-mode')) {
-				// sun icon
-				icon.innerHTML = '<circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2m11-11h-2M3 12H1m16.95-6.95-1.41 1.41M6.46 17.54l-1.41 1.41m0-13.9 1.41 1.41M17.54 17.54l1.41 1.41"/>';
-			} else {
-				// moon icon
-				icon.innerHTML = '<path d="M12 3a9 9 0 0 0 0 18 9 9 0 0 1 0-18z"/>';
-			}
-		}
+
+
+
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const pressed = document.body.classList.contains('dark-mode');
+            const useEl = document.querySelector('#darkIcon use');
+            const hrefVal = pressed ? 'images/icons.svg#i-moon' : 'images/icons.svg#i-sun';
+            // Switch both href and xlink:href for broader browser support
+            useEl.setAttribute('href', hrefVal);
+            useEl.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href', hrefVal);
+            // reflect state for a11y
+            document.querySelector('button[title="Toggle Dark Mode"]').setAttribute('aria-pressed', String(pressed));
+        }
+
 	</script>
 </body>
 
