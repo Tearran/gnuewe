@@ -1,7 +1,10 @@
-<!--
-    title: Armbian
-    tags: [armbian,linux]
--->
+---
+title: Referance
+tagss:
+  - links
+  - referance
+---
+
 # Reference Links
 
 ## Armbian

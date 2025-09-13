@@ -1,7 +1,12 @@
-<!--
+---
 title: Home
-tags: [home]
-/-->
+tags:
+        - docs
+        - viewer
+        - markdown
+        - php
+        - html
+---
 
 # GNUEWE 
 ## Document Viewer (Experiment)
