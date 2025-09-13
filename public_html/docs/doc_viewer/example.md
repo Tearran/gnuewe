@@ -1,3 +1,12 @@
+---
+title: Example
+tags:
+  - docs
+  - viewer
+  - markdown
+  - example
+---
+
 # Markdown Syntax Demo
 
 Welcome to the **Markdown Syntax Demo**.  

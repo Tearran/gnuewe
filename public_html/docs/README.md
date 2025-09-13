@@ -1,7 +1,14 @@
-<!--
+---
 title: Home
-tags: [home]
-/-->
+tags:
+  - Variables
+  - Functions
+  - Interpolation
+  - Brace expansions
+  - Loops
+  - Conditional execution
+  - Command substitution
+---
 
 # Welcome
 
