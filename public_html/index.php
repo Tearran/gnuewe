@@ -16,12 +16,12 @@ function renderNav($files, $cur) {
     echo "<ul>";
     foreach ($files as $k => $v) {
         if (is_array($v)) {
-            echo "<li><details><summary>$k</summary>";
+            echo "<li><details><summary>" . htmlspecialchars($k, ENT_QUOTES, 'UTF-8') . "</summary>";
             renderNav($v, $cur);
             echo "</details></li>";
         } else {
             $a = $v === $cur ? 'class="active"' : '';
-            echo "<li><a $a href='?file=" . urlencode($v) . "'>$k</a></li>";
+            echo "<li><a $a href='?file=" . rawurlencode($v) . "'>" . htmlspecialchars($k, ENT_QUOTES, 'UTF-8') . "</a></li>";
         }
     }
     echo "</ul>";
