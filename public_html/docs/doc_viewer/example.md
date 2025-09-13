@@ -60,18 +60,13 @@ Image: ![Alt text](https://via.placeholder.com/48 "Placeholder")
 
 Inline code: `echo "Hello, world!"`
 
-Inline code with backticks: ``Use `code` inside double backticks.``
-
 Fenced code block (with language):
-```php
+
+```
 // PHP example
 echo "Hello, world!";
 ```
 
-Indented code block:
-    function foo() {
-        return "bar";
-    }
 
 ---
 
@@ -122,15 +117,20 @@ Ordered list:
 
 ## 10. Escaping
 
+```css
 \*This text is not italic\*  
 \# Not a heading  
 \\ Backslash
-
+```
 ---
 
 ## 11. HTML passthrough
-
+```HTML
 <div style="color:red">This is raw HTML.</div>
+```
+---
+
+End of demo.
 
 ---
 
@@ -143,11 +143,9 @@ Ordered list:
 > - List item with `inline code`
 > - ![img](https://via.placeholder.com/32)
 > - [Link](https://example.com)
-> 
-> ```
-> code block in blockquote
-> ```
+
+## 13. TODO:
 
 ---
 
-End of demo.
+
