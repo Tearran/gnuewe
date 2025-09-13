@@ -45,7 +45,15 @@ function safeMarkdown($md, &$outline = null) {
         return "<h$level id=\"$id\">$safe</h$level>";
     }, $md);
     $md = preg_replace_callback('/`([^`]+)`/', fn($m) => '<code>' . htmlspecialchars($m[1]) . '</code>', $md);
-    $md = preg_replace_callback('/^> ?(.*)$/m', fn($m) => '<blockquote>' . htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8') . '</blockquote>', $md);
+    // Blockquotes: group contiguous lines starting with '>'
+    $md = preg_replace_callback('/(?:^> ?.*(?:\n|$))+?/m', function($m) {
+        $inner = preg_replace('/^> ?/m', '', rtrim($m[0]));
+        $escaped = implode("\n", array_map(
+            fn($l) => htmlspecialchars($l, ENT_QUOTES, 'UTF-8'),
+            explode("\n", $inner)
+        ));
+        return "<blockquote>$escaped</blockquote>";
+    }, $md);
     $md = preg_replace_callback('/^\s*[-*+] (.*)$/m', fn($m) => '<li>' . htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8') . '</li>', $md);
     $md = preg_replace_callback('/^\s*\d+\. (.*)$/m', fn($m) => '<li>' . htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8') . '</li>', $md);
             // Unordered lists: group contiguous bullets
