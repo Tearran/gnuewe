@@ -28,32 +28,90 @@ function renderNav($files, $cur) {
 }
 function safeMarkdown($md, &$outline = null) {
     $outlineItems = [];
+    // 1) Handle fenced code first
+    $md = preg_replace_callback('/^(```|~~~)[ \t]*([\w-]*)[^\n]*\n([\s\S]*?)^\1[ \t]*$/m', function($m) {
+        $c = htmlspecialchars($m[3]);
+        $lang = htmlspecialchars($m[2]);
+        return "<pre><code class=\"language-$lang\">$c</code></pre>";
+    }, $md);
+    // 2) Then ATX headings (outline-safe)
     $md = preg_replace_callback('/^(#{1,6}) (.+)$/m', function($m) use (&$outlineItems) {
         $level = strlen($m[1]);
         $text = trim($m[2]);
         $id = strtolower(preg_replace('/[^a-z0-9]+/', '-', $text));
         $id = trim($id, '-');
         $outlineItems[] = ['level'=>$level,'text'=>$text,'id'=>$id];
-        return "<h$level id=\"$id\">$text</h$level>";
-    }, $md);
-    $md = preg_replace_callback('/^(```|~~~)[ \t]*([\w-]*)[^\n]*\n([\s\S]*?)^\1[ \t]*$/m', function($m) {
-        $c = htmlspecialchars($m[3]);
-        $lang = htmlspecialchars($m[2]);
-        return "<pre><code class=\"language-$lang\">$c</code></pre>";
+        $safe = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+        return "<h$level id=\"$id\">$safe</h$level>";
     }, $md);
     $md = preg_replace_callback('/`([^`]+)`/', fn($m) => '<code>' . htmlspecialchars($m[1]) . '</code>', $md);
-    $md = preg_replace('/^> ?(.*)$/m', '<blockquote>$1</blockquote>', $md);
-    $md = preg_replace('/^\s*[-*+] (.*)$/m', '<li>$1</li>', $md);
-    $md = preg_replace('/^\s*\d+\. (.*)$/m', '<li>$1</li>', $md);
-    $md = preg_replace_callback('/(<li>.*<\/li>)+/s', function($m) {
+    // Blockquotes: group contiguous lines starting with '>'
+    $md = preg_replace_callback('/(?:^> ?.*(?:\n|$))+?/m', function($m) {
+        $inner = preg_replace('/^> ?/m', '', rtrim($m[0]));
+        $escaped = implode("\n", array_map(
+            fn($l) => htmlspecialchars($l, ENT_QUOTES, 'UTF-8'),
+            explode("\n", $inner)
+        ));
+        return "<blockquote>$escaped</blockquote>";
+    }, $md);
+    $md = preg_replace_callback('/(?:^> ?.*(?:\r?\n|$))+/m', function($m) {
+        $inner = preg_replace('/^> ?/m', '', rtrim($m[0]));
+        $escaped = implode("<br>\n", array_map(
+            fn($l) => htmlspecialchars($l, ENT_QUOTES, 'UTF-8'),
+            explode("\n", $inner)
+        ));
+        return "<blockquote>$escaped</blockquote>";
+    }, $md);
+    $md = preg_replace_callback('/^\s*[-*+] (.*)$/m', fn($m) => '<li>' . htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8') . '</li>', $md);
+    $md = preg_replace_callback('/^\s*\d+\. (.*)$/m', fn($m) => '<li>' . htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8') . '</li>', $md);
+            // Unordered lists: group contiguous bullets
+            $md = preg_replace_callback('/(?:^\s*[-*+]\s+.+\n?)+/m', function($m) {
+                $items = preg_replace_callback(
+                    '/^\s*[-*+]\s+(.+)$/m',
+                    fn($i) => '<li>' . htmlspecialchars($i[1], ENT_QUOTES, 'UTF-8') . '</li>',
+                    $m[0]
+                );
+                return "<ul>\n$items\n</ul>";
+            }, $md);
+            // Ordered lists: group contiguous numbered items
+            $md = preg_replace_callback('/(?:^\s*\d+\.\s+.+\n?)+/m', function($m) {
+                $items = preg_replace_callback(
+                    '/^\s*\d+\.\s+(.+)$/m',
+                    fn($i) => '<li>' . htmlspecialchars($i[1], ENT_QUOTES, 'UTF-8') . '</li>',
+                    $m[0]
+                );
+                return "<ol>\n$items\n</ol>";
+            }, $md);
+$md = preg_replace_callback('/(<li>.*<\/li>)+/s', function($m) {
         return (preg_match('/<li>\d/', $m[0]) ? "<ol>{$m[0]}</ol>" : "<ul>{$m[0]}</ul>");
     }, $md);
+
+
     $md = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $md);
     $md = preg_replace('/\*(.*?)\*/s', '<em>$1</em>', $md);
-    $md = preg_replace('/!\[([^\]]*)\]\(([^)]+)\)/', '<img alt=\"$1\" src=\"$2\">', $md);
-    $md = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a href=\"$2\">$1</a>', $md);
-    $md = preg_replace('/\n{2,}/', "\n\n", $md);
-    $md = preg_replace('/(?:^|\n)([^\n<][^\n]*)\n/', "\n<p>$1</p>\n", $md);
+    // Images: escape content and allow only http(s), data:image, or relative URLs
+    $md = preg_replace_callback('/!\[([^\]]*)\]\(([^)]+)\)/', function($m) {
+        $alt = htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8');
+        $src = trim($m[2]);
+        if (!preg_match('#^(https?:)?//|^/|^\./|^\.\./|^data:image/#i', $src)) $src = '#';
+        $src = htmlspecialchars($src, ENT_QUOTES, 'UTF-8');
+        return "<img alt=\"$alt\" src=\"$src\">";
+    }, $md);
+    // Links: escape content and allow only http(s), mailto:, or relative URLs
+    $md = preg_replace_callback('/\[([^\]]+)\]\(([^)]+)\)/', function($m) {
+        $text = htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8');
+        $href = trim($m[2]);
+        if (!preg_match('#^(?:https?:)?//|^/|^\./|^\.\./|^mailto:#i', $href)) $href = '#';
+        $href = htmlspecialchars($href, ENT_QUOTES, 'UTF-8');
+        return "<a href=\"$href\">$text</a>";
+    }, $md);
+//$md = preg_replace('/\n{2,}/', "\n\n", $md);
+$md = preg_replace('/\n{2,}/', "\n\n", $md);
+// Escape any raw HTML tags not produced by this sanitizer (prevents XSS)
+$md = preg_replace('/<(?!\/?(?:h[1-6]|p|ul|ol|li|blockquote|pre|code|img|a|strong|em|br)(?:\s|>))/i', '&lt;', $md);
+
+$md = preg_replace('/(?:^|\n)([^\n<][^\n]*)\n/', "\n<p>$1</p>\n", $md);
+
     if (is_array($outline)) $outline = $outlineItems;
     return $md;
 }
@@ -61,7 +119,8 @@ function renderOutline($outline) {
     if (!$outline) return "";
     $out = "<b>Outline</b><ul class='outline-list'>";
     foreach ($outline as $item) {
-        $out .= "<li style='margin-left:" . (16*($item['level']-1)) . "px'><a href='#{$item['id']}'>{$item['text']}</a></li>";
+        $out .= "<li style='margin-left:" . (16*($item['level']-1)) . "px'><a href='#{$item['id']}'>" .
+                htmlspecialchars($item['text'], ENT_QUOTES, 'UTF-8') . "</a></li>";
     }
     $out .= "</ul>";
     return $out;
@@ -124,6 +183,7 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
         --icon-color-danger: #ff4d4f;
         --icon-color-warn: #e0a210;
         --icon-color-success: #31c48d;
+
 }
 
 		/* =====================
@@ -332,18 +392,20 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
 		<div id="brand">
 			GNUEWE </div>
 		<div id="actions">
+
 			<!-- Nav toggle -->
 			<button onclick="togglePanel('nav')" title="Toggle Navigation">
 				<svg class="icon icon-md">
-					<use href="/images/icons.svg#i-list"></use>
+					<use href="images/icons.svg#i-list"></use>
 				</svg>
 			</button>
 			<!-- Dark mode toggle -->
-			<button onclick="toggleDarkMode()" title="Toggle Dark Mode">
-				<svg class="icon icon-md">
-					<use href="images/icons.svg#i-sun"></use>
+			<button onclick="toggleDarkMode()" title="Toggle Dark Mode" aria-pressed="false">
+				<svg id="darkIcon" class="icon icon-md">
+				<use href="images/icons.svg#i-sun"></use>
 				</svg>
 			</button>
+			
 			<!-- Outline toggle -->
 			<button onclick="togglePanel('aside')" title="Toggle Outline">
 				<svg class="icon icon-md">
@@ -367,17 +429,22 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
 			el.hidden = !el.hidden;
 		}
 
-		function toggleDarkMode() {
-			document.body.classList.toggle('dark-mode');
-			const icon = document.getElementById('darkIcon');
-			if (document.body.classList.contains('dark-mode')) {
-				// sun icon
-				icon.innerHTML = '<circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2m11-11h-2M3 12H1m16.95-6.95-1.41 1.41M6.46 17.54l-1.41 1.41m0-13.9 1.41 1.41M17.54 17.54l1.41 1.41"/>';
-			} else {
-				// moon icon
-				icon.innerHTML = '<path d="M12 3a9 9 0 0 0 0 18 9 9 0 0 1 0-18z"/>';
-			}
-		}
+
+
+
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const pressed = document.body.classList.contains('dark-mode');
+            const useEl = document.querySelector('#darkIcon use');
+            const hrefVal = pressed ? 'images/icons.svg#i-moon' : 'images/icons.svg#i-sun';
+            // Switch both href and xlink:href for broader browser support
+            useEl.setAttribute('href', hrefVal);
+            useEl.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href', hrefVal);
+            // reflect state for a11y
+            document.querySelector('button[title="Toggle Dark Mode"]').setAttribute('aria-pressed', String(pressed));
+        }
+
 	</script>
 </body>
 
