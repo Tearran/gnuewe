@@ -124,6 +124,9 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
         --icon-color-danger: #ff4d4f;
         --icon-color-warn: #e0a210;
         --icon-color-success: #31c48d;
+	--icon-color-base: var(--text-main, var(--color-text));
+        --icon-color-accent: var(--text-link, #0077cc);
+        --icon-color-muted: var(--text-muted, #666);
 }
 
 		/* =====================
