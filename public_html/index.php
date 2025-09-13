@@ -124,9 +124,7 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
         --icon-color-danger: #ff4d4f;
         --icon-color-warn: #e0a210;
         --icon-color-success: #31c48d;
-	--icon-color-base: var(--text-main, var(--color-text));
-        --icon-color-accent: var(--text-link, #0077cc);
-        --icon-color-muted: var(--text-muted, #666);
+
 }
 
 		/* =====================
@@ -335,10 +333,15 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
 		<div id="brand">
 			GNUEWE </div>
 		<div id="actions">
+			<button onclick="toggleDarkMode()" title="Toggle Dark Mode" aria-pressed="false">
+				<svg id="darkIcon" class="icon icon-md">
+				<use href="images/icons.svg#i-sun"></use>
+				</svg>
+			</button>
 			<!-- Nav toggle -->
 			<button onclick="togglePanel('nav')" title="Toggle Navigation">
 				<svg class="icon icon-md">
-					<use href="/images/icons.svg#i-list"></use>
+					<use href="images/icons.svg#i-list"></use>
 				</svg>
 			</button>
 			<!-- Dark mode toggle -->
