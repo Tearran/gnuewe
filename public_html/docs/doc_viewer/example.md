@@ -1,10 +1,10 @@
 ---
 title: Example
 tags:
-        - docs
-        - viewer
-        - markdown
-        - example
+  - docs
+  - viewer
+  - markdown
+  - example
 ---
 
 # Markdown Syntax Demo

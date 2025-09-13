@@ -1,8 +1,8 @@
 ---
-title: Referance
-tagss:
+title: Reference
+tags:
   - links
-  - referance
+  - reference
 ---
 
 # Reference Links

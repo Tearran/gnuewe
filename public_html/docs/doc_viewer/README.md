@@ -1,11 +1,11 @@
 ---
 title: Home
 tags:
-        - docs
-        - viewer
-        - markdown
-        - php
-        - html
+  - docs
+  - viewer
+  - markdown
+  - php
+  - html
 ---
 
 # GNUEWE 
