@@ -127,7 +127,8 @@ function safeMarkdown($md, &$outline = null) {
         $src = htmlspecialchars($src, ENT_QUOTES, 'UTF-8');
         return "<img alt=\"$alt\" src=\"$src\">";
     }, $md);
-
+    // Horizontal rule: three or more -, *, or _ on a line by itself
+$md = preg_replace('/^(?: {0,3})([-*_])(?: *\1){2,} *$/m', "<hr>", $md);
     // Links
     $md = preg_replace_callback('/\[([^\]]+)\]\(([^)]+)\)/', function($m) {
         $text = htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8');
@@ -141,7 +142,7 @@ function safeMarkdown($md, &$outline = null) {
 
     // Paragraphs and safety
     $md = preg_replace('/\n{2,}/', "\n\n", $md);
-    $md = preg_replace('/<(?!\/?(?:h[1-6]|p|ul|ol|li|blockquote|pre|code|img|a|strong|em|br)(?:\s|>))/i', '&lt;', $md);
+    $md = preg_replace('/<(?!\/?(?:h[1-6]|p|ul|ol|li|blockquote|pre|code|img|a|strong|em|br|hr)(?:\s|>))/i', '&lt;', $md);
     $md = preg_replace('/(?:^|\n)([^\n<][^\n]*)\n/', "\n<p>$1</p>\n", $md);
 
     if (is_array($outline)) $outline = $outlineItems;
