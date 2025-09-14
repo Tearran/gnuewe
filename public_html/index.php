@@ -176,7 +176,8 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
     if ($frontMatter) {
         $metaHtml = '<div>
             <div onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden" type="button" aria-expanded="false" aria-controls="metadata-content">
-                Show Metadata
+                		<svg class="icon icon-md"><use href="#i-list"></use></svg>
+		<span class="brand"> Metadata </span>
             </div>
             <pre id="metadata-content" hidden style="border:1px solid; padding:0.5em;">' .
             htmlspecialchars($frontMatter, ENT_QUOTES, 'UTF-8') .
@@ -463,15 +464,15 @@ body.dark-mode {
 		<div id="left-bar" class="actions">
 			<button onclick="togglePanel('nav')" title="Toggle Navigation">
 				<svg class="icon icon-md"><use href="#i-list"></use></svg>
-				<span> GNUEWE </span>
+				<span class="brand"> GNUEWE </span>
 			</button>	
-			<button onclick="togglePanel('nav')" title="Toggle Navigation">
-				<svg class="icon icon-md"><use href="#i-search"></use></svg>
-			</button>	
+
 
 		</div>
 		<div id="right-bar" class="actions">
-
+		<button onclick="togglePanel('nav')" title="Toggle Navigation">
+				<svg class="icon icon-md"><use href="#i-search"></use></svg>
+			</button>	
 			<button onclick="toggleDarkMode()" title="Toggle Dark Mode" aria-pressed="false">
 				<svg id="darkIcon" class="icon icon-md"><use href="#i-sun"></use></svg>
 			</button>
