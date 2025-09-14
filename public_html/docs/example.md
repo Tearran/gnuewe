@@ -52,7 +52,7 @@ with a manual line break after "paragraph,".
 ## 4. Links & Images
 
 Link: [GitHub](https://github.com)  
-Image: ![Alt text](https://via.placeholder.com/48 "Placeholder")
+Image: ![Alt text](https://placehold.co/600x400?text=Hello+World)
 
 ---
 
@@ -141,7 +141,7 @@ End of demo.
 > Example:
 > 
 > - List item with `inline code`
-> - ![img](https://via.placeholder.com/32)
+> - ![img](https://placehold.co/600x400?text=Hello+World)
 > - [Link](https://example.com)
 
 ## 13. TODO:
