@@ -190,18 +190,40 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
        Dark Mode Overrides
        ===================== */
 		body.dark-mode {
-			--color-bg: #111;
-			--color-text: #ddd;
-			--color-header-bg: #000;
-			--color-header-text: #fff;
-			--color-nav-bg: #222;
-			--color-main-bg: #111;
-			--color-aside-bg: #1a1a1a;
-			--color-border: #444;
-			--color-btn-bg: #333;
-			--color-btn-hover: #555;
-			--color-btn-text: #fff;
-		}
+  /* Main page background and text */
+  --color-bg: #181a1b;
+    --color-text: #ececec;
+    /* Header colors */
+    --color-header-bg: #23272e;
+    --color-header-text: #f6f6f6;
+    /* Section backgrounds */
+    --color-nav-bg: #23272e;
+    --color-main-bg: #181a1b;
+    --color-aside-bg: #1e2124;
+    /* Borders */
+    --color-border: #333a41;
+    /* Buttons */
+    --color-btn-bg: #23272e;
+    --color-btn-hover: #58aaff;
+    --color-btn-text: #ececec;
+    /* icons */
+    --icon-stroke-width: 1.6;
+    --icon-transition: 120ms;
+    --icon-color-base: var(--color-text);
+    --icon-color-accent: var(--color-link);
+    --icon-color-muted: #888b92;
+    --icon-color-danger: #ff7675;
+    --icon-color-warn: #ffe066;
+    --icon-color-success: #2ecc71;
+    /* Brighter Link colors for dark mode */
+    --color-link: #41aaff;          /* Brighter blue */
+    --color-link-hover: #82cfff;    /* Even lighter on hover */
+    --color-link-active: #1a8cff;   /* Slightly deeper blue on active */
+    --color-link-visited: #cabfff;  /* Soft purple for visited */
+    --color-link-focus: #80e1ff;    /* Aqua for focus */
+
+  }
+		
 
 		/* =====================
        Base Body Styling
@@ -212,6 +234,26 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
 			background: var(--color-bg);
 			color: var(--color-text);
 		}
+		/* Link color styles for all modes */
+a {
+  color: var(--color-link);
+  text-decoration: underline;
+  transition: color 120ms;
+}
+a:hover,
+a:focus {
+  color: var(--color-link-hover);
+}
+a:active {
+  color: var(--color-link-active);
+}
+a:visited {
+  color: var(--color-link-visited);
+}
+a:focus-visible {
+  outline: 2px solid var(--color-link-focus);
+  outline-offset: 2px;
+}
 
 		/* =====================
        Header / Top Bar
@@ -428,10 +470,6 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
 			const el = document.querySelector(panel);
 			el.hidden = !el.hidden;
 		}
-
-
-
-
 
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
