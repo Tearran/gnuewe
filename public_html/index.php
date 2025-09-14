@@ -78,14 +78,6 @@ function safeMarkdown($md, &$outline = null) {
         ));
         return "<blockquote>$escaped</blockquote>";
     }, $md);
-    $md = preg_replace_callback('/(?:^> ?.*(?:\r?\n|$))+/m', function($m) {
-        $inner = preg_replace('/^> ?/m', '', rtrim($m[0]));
-        $escaped = implode("<br>\n", array_map(
-            fn($l) => htmlspecialchars($l, ENT_QUOTES, 'UTF-8'),
-            explode("\n", $inner)
-        ));
-        return "<blockquote>$escaped</blockquote>";
-    }, $md);
 
     // Lists
     $md = preg_replace_callback('/^\s*[-*+] (.*)$/m', fn($m) => '<li>' . htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8') . '</li>', $md);
@@ -116,16 +108,16 @@ function safeMarkdown($md, &$outline = null) {
     }, $md);
 
     // Emphasis and strong
-    $md = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $md);
-    $md = preg_replace('/\*(.*?)\*/s', '<em>$1</em>', $md);
-
+    $md = preg_replace_callback('/\*\*(.*?)\*\*/s', fn($m) => '<strong>' . htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8') . '</strong>', $md);
+    $md = preg_replace_callback('/\*(.*?)\*/s', fn($m) => '<em>' . htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8') . '</em>', $md);
+    
     // Images
     $md = preg_replace_callback('/!\[([^\]]*)\]\(([^)]+)\)/', function($m) {
         $alt = htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8');
         $src = trim($m[2]);
         if (!preg_match('#^(https?:)?//|^/|^\./|^\.\./|^data:image/#i', $src)) $src = '#';
-        $src = htmlspecialchars($src, ENT_QUOTES, 'UTF-8');
-        return "<img alt=\"$alt\" src=\"$src\">";
+    $md = preg_replace_callback('/\*\*(.*?)\*\*/s', fn($m) => '<strong>' . htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8') . '</strong>', $md);
+    $md = preg_replace_callback('/\*(.*?)\*/s', fn($m) => '<em>' . htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8') . '</em>', $md);
     }, $md);
     // Horizontal rule: three or more -, *, or _ on a line by itself
 $md = preg_replace('/^(?: {0,3})([-*_])(?: *\1){2,} *$/m', "<hr>", $md);
