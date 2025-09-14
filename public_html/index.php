@@ -1,4 +1,4 @@
-<?php // ==== Helpers: File, Navigation, Outline, Front Matter ==== ?>
+<!-- Helpers: File, Navigation, Outline, Front Matter -->
 <?php
 $docsDir = __DIR__ . '/docs';
 
@@ -44,7 +44,7 @@ function renderOutline($outline) {
 }
 ?>
 
-<?php // ==== Markdown Parsing and Rendering ==== ?>
+<!-- Markdown Parsing and Rendering -->
 <?php
 function safeMarkdown($md, &$outline = null) {
     $outlineItems = [];
@@ -142,7 +142,7 @@ $md = preg_replace('/^(?: {0,3})([-*_])(?: *\1){2,} *$/m', "<hr>", $md);
 }
 ?>
 
-<?php // ==== Navigation Rendering ==== ?>
+<!-- Navigation Rendering -->
 <?php
 function renderNav($files, $cur) {
     echo "<ul>";
@@ -160,7 +160,7 @@ function renderNav($files, $cur) {
 }
 ?>
 
-<?php // ==== State: File Selection, Content, Outline, Metadata ==== ?>
+<!-- State: File Selection, Content, Outline, Metadata-->
 <?php
 $files = listMdFiles($docsDir);
 $currentFile = $_GET['file'] ?? pickFirst($files);
