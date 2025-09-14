@@ -265,8 +265,8 @@ body.dark-mode {
 		justify-content: space-between;
 	}
 	#brand { font-weight: bold; }
-	#actions { display: flex; gap: 0.5rem; }
-	#actions button {
+	.actions { display: flex; gap: 0.5rem; }
+	.actions button {
 		background: var(--color-btn-bg);
 		color: var(--color-btn-text);
 		border: none;
@@ -277,8 +277,8 @@ body.dark-mode {
 		align-items: center;
 		justify-content: center;
 	}
-	#actions button:hover { background: var(--color-btn-hover); }
-	#actions svg { width: 20px; height: 20px; }
+	.actions button:hover { background: var(--color-btn-hover); }
+	.actions svg { width: 20px; height: 20px; }
 	.icon {
 		width: 1em; height: 1em; display: inline-block; vertical-align: middle; flex-shrink: 0;
 		color: var(--icon-color-base); stroke: currentColor; stroke-width: var(--icon-stroke-width);
@@ -460,14 +460,17 @@ body.dark-mode {
 </svg>
 
 	<section class="action-bar" >
-		<div id="actions">
+		<div id="left-bar" class="actions">
 			<button onclick="togglePanel('nav')" title="Toggle Navigation">
 				<svg class="icon icon-md"><use href="#i-list"></use></svg>
 				<span> GNUEWE </span>
 			</button>	
+			<button onclick="togglePanel('nav')" title="Toggle Navigation">
+				<svg class="icon icon-md"><use href="#i-search"></use></svg>
+			</button>	
 
 		</div>
-		<div id="actions">
+		<div id="right-bar" class="actions">
 
 			<button onclick="toggleDarkMode()" title="Toggle Dark Mode" aria-pressed="false">
 				<svg id="darkIcon" class="icon icon-md"><use href="#i-sun"></use></svg>

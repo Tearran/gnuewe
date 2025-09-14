@@ -7,7 +7,8 @@ tags:
 ---
 
 
-# SVG Icon Sprite (`icons.svg`) – Usage Guide
+# SVG Icon Sprite (`icons.svg`) 
+## Usage Guide:
 
 Version: 0.1 (tentative)  
 Status: Draft (adjust sections as needed for your project)
