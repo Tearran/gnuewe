@@ -175,10 +175,10 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
     $frontMatter = extractFrontMatter($markdown);
     if ($frontMatter) {
         $metaHtml = '<div>
-            <div onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden" type="button">
+            <div onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden" type="button" aria-expanded="false" aria-controls="metadata-content">
                 Show Metadata
             </div>
-            <pre hidden style="border:1px solid padding:0.5em;">' .
+            <pre id="metadata-content" hidden style="border:1px solid; padding:0.5em;">' .
             htmlspecialchars($frontMatter, ENT_QUOTES, 'UTF-8') .
             '</pre>
         </div>';
