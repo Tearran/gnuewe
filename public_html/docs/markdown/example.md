@@ -1,5 +1,6 @@
 ---
 title: Example
+contributors: @Tearran    
 tags:
   - docs
   - viewer
