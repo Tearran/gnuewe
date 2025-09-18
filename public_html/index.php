@@ -540,11 +540,6 @@ svg.icon {
 	</div>
 
 	<div class="actions">
-		<button onclick="togglePanel('#search-tags')" title="Toggle Outline">
-			<svg class="icon">
-				<use href="#i-search"></use>
-			</svg>
-		</button>
 		<button onclick="toggleDarkMode()" title="Toggle Dark Mode" aria-pressed="false">
 			<svg id="darkIcon" class="icon icon-md">
 				<use href="#i-sun"></use>
@@ -561,7 +556,7 @@ svg.icon {
 
 <div class="layout">
 
-	<section id="tag-links" class="nav" aria-label="Site Navigation" hidden>
+	<section id="tag-links" class="nav" aria-label="Site Navigation" >
 		<?php echo "TODO"; ?>
 	</section>
 	<!-- Main site navigation -->	
@@ -574,7 +569,7 @@ svg.icon {
 		<article><?= $contentHtml ?></article>
 	</main>
 	<!-- Table of contents / page outline -->
-	<section id="doc-outline" class="nav" aria-label="Page Outline">
+	<section id="doc-outline" class="nav" aria-label="Page Outline" hidden>
 	<?= $outlineHtml ?>
 	</section>
 </div>
