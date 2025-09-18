@@ -574,7 +574,9 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
 	<div class="layout">
 
 		<section id="tag-links" class="nav" aria-label="Site Navigation" hidden>
-			<?php echo "TODO"; ?>
+			<b>json</b>
+			<hr>
+			<?php include "./scan.php"; ?>
 		</section>
 		<!-- Main site navigation -->
 		<section id="doc-links" class="nav" aria-label="Site Navigation" hidden>
