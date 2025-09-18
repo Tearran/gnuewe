@@ -556,7 +556,7 @@ svg.icon {
 
 <div class="layout">
 
-	<section id="tag-links" class="nav" aria-label="Site Navigation" >
+	<section id="tag-links" class="nav" aria-label="Site Navigation" hidden>
 		<?php echo "TODO"; ?>
 	</section>
 	<!-- Main site navigation -->	
