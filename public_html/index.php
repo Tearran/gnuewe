@@ -189,188 +189,205 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
 }
 ?>
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GNU EWE</title>
-<style>
-	:root {
-	--color-bg: #fff;
-	--color-text: #000;
-	--color-header-bg: #222;
-	--color-header-text: #fff;
-	--color-nav-bg: #f3f3f3;
-	--color-main-bg: #fff;
-	--color-aside-bg: #fafafa;
-	--color-border: #ccc;
-	--color-btn-bg: #fff;
-	--color-btn-hover: #0077cc;
-	--color-btn-text: #444;
-	--icon-stroke-width: 1.6;
-	--icon-transition: 120ms;
-	--icon-color-base: var(--text-main);
-	--icon-color-accent: var(--text-link);
-	--icon-color-muted: var(--text-muted);
-	--icon-color-danger: #ff4d4f;
-	--icon-color-warn: #e0a210;
-	--icon-color-success: #31c48d;
-}
-body.dark-mode {
-	--color-bg: #181a1b;
-	--color-text: #ececec;
-	--color-header-bg: #23272e;
-	--color-header-text: #f6f6f6;
-	--color-nav-bg: #23272e;
-	--color-main-bg: #181a1b;
-	--color-aside-bg: #1e2124;
-	--color-border: #333a41;
-	--color-btn-bg: #23272e;
-	--color-btn-hover: #58aaff;
-	--color-btn-text: #ececec;
-	--icon-stroke-width: 1.6;
-	--icon-transition: 120ms;
-	--icon-color-base: var(--color-text);
-	--icon-color-accent: var(--color-link);
-	--icon-color-muted: #888b92;
-	--icon-color-danger: #ff7675;
-	--icon-color-warn: #ffe066;
-	--icon-color-success: #2ecc71;
-	--color-link: #41aaff;
-	--color-link-hover: #82cfff;
-	--color-link-active: #1a8cff;
-	--color-link-visited: #cabfff;
-	--color-link-focus: #80e1ff;
-}
-html,
-body {
-	margin: 0;
- overflow: hidden;
-}
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>GNU EWE</title>
+	<style>
+		:root {
+			--color-bg: #fff;
+			--color-text: #000;
+			--color-header-bg: #222;
+			--color-header-text: #fff;
+			--color-nav-bg: #f3f3f3;
+			--color-main-bg: #fff;
+			--color-aside-bg: #fafafa;
+			--color-border: #ccc;
+			--color-btn-bg: #fff;
+			--color-btn-hover: #0077cc;
+			--color-btn-text: #444;
+			--icon-stroke-width: 1.6;
+			--icon-transition: 120ms;
+			--icon-color-base: var(--text-main);
+			--icon-color-accent: var(--text-link);
+			--icon-color-muted: var(--text-muted);
+			--icon-color-danger: #ff4d4f;
+			--icon-color-warn: #e0a210;
+			--icon-color-success: #31c48d;
+		}
 
-	body{
+		body.dark-mode {
+			--color-bg: #181a1b;
+			--color-text: #ececec;
+			--color-header-bg: #23272e;
+			--color-header-text: #f6f6f6;
+			--color-nav-bg: #23272e;
+			--color-main-bg: #181a1b;
+			--color-aside-bg: #1e2124;
+			--color-border: #333a41;
+			--color-btn-bg: #23272e;
+			--color-btn-hover: #58aaff;
+			--color-btn-text: #ececec;
+			--icon-stroke-width: 1.6;
+			--icon-transition: 120ms;
+			--icon-color-base: var(--color-text);
+			--icon-color-accent: var(--color-link);
+			--icon-color-muted: #888b92;
+			--icon-color-danger: #ff7675;
+			--icon-color-warn: #ffe066;
+			--icon-color-success: #2ecc71;
+			--color-link: #41aaff;
+			--color-link-hover: #82cfff;
+			--color-link-active: #1a8cff;
+			--color-link-visited: #cabfff;
+			--color-link-focus: #80e1ff;
+		}
+
+		html,
+		body {
+			margin: 0;
+			overflow: hidden;
+		}
+
+		body {
 			font-family: sans-serif;
-	background: var(--color-bg);
-	color: var(--color-text);
-	}
-a {
-	color: var(--color-link);
-	text-decoration: underline;
-	transition: color 120ms;
-}
-a:hover,
-a:focus {
-	color: var(--color-link-hover);
-}
-a:active {
-	color: var(--color-link-active);
-}
-a:visited {
-	color: var(--color-link-visited);
-}
-a:focus-visible {
-	outline: 2px solid var(--color-link-focus);
-	outline-offset: 2px;
-}
+			background: var(--color-bg);
+			color: var(--color-text);
+		}
 
-.action-bar {
-	display: flex;
-	justify-content: space-between; /* left & right aligned bars */
-	padding: 0.5rem 1rem;
-	color: var(--color-text);
-}
-.actions {
-	display: flex;
-	gap: 0.5rem; /* spacing between buttons */
-}
-button {
-	display: flex;
-	align-items: center; /* icon and text vertically centered */
-	gap: 0.5rem; /* spacing between icon and text */
-	padding: 0.4rem 0.8rem;
-	background: var(--color-btn-bg, #fff);
-	border: 1px solid var(--color-border, #ccc); /* muted border from variable */
-	border-radius: 0.4rem;
-	color: var(--color-btn-text, #444);
-	cursor: pointer;
-	font-size: 0.9rem;
-	transition: background 0.2s, border-color 0.2s, color 0.2s;
-}
+		a {
+			color: var(--color-link);
+			text-decoration: underline;
+			transition: color 120ms;
+		}
 
-button:hover {
-	background: var(--color-btn-hover, #0077cc);
-	border-color: var(--color-btn-hover, #0077cc);
-	color: #fff; /* ensure text is readable on hover */
-}
+		a:hover,
+		a:focus {
+			color: var(--color-link-hover);
+		}
 
-	.layout {
-		display: flex;
-		flex-direction: row;
-		min-height: 100vh;
-	}
+		a:active {
+			color: var(--color-link-active);
+		}
 
-	section {
-		padding: 1rem;
-		border: 1px solid var(--color-border, #ccc);
-	}
+		a:visited {
+			color: var(--color-link-visited);
+		}
 
-	section {
-		flex: 0 0 250px;
-	}
+		a:focus-visible {
+			outline: 2px solid var(--color-link-focus);
+			outline-offset: 2px;
+		}
 
-	.nav ul {
-		list-style: none;
-		padding: 0;
-		margin: 0;
-	}
+		.action-bar {
+			display: flex;
+			justify-content: space-between;
+			/* left & right aligned bars */
+			padding: 0.5rem 1rem;
+			color: var(--color-text);
+		}
 
-	.nav li {
-		margin: 0.25rem 0;
-	}
+		.actions {
+			display: flex;
+			gap: 0.5rem;
+			/* spacing between buttons */
+		}
 
-	main {
-		flex: 1;
-		border: 1px solid var(--color-border, #ccc);
-		padding: 1rem;
-	}
-svg.icon {
-	width: 1em;
-	height: 1em;
-	display: inline-block;
-	vertical-align: middle;
-	flex-shrink: 0;
-	color: currentColor;
-	stroke: currentColor;
-	stroke-width: var(--icon-stroke-width);
-	stroke-linecap: round;
-	stroke-linejoin: round;
-	fill: none;
-	vector-effect: non-scaling-stroke;
-	transition: color var(--icon-transition), stroke var(--icon-transition),
-		fill var(--icon-transition), transform var(--icon-transition),
-		opacity var(--icon-transition);
-}
-	
-	/* Mobile layout */
-	@media (max-width: 768px) {
+		button {
+			display: flex;
+			align-items: center;
+			/* icon and text vertically centered */
+			gap: 0.5rem;
+			/* spacing between icon and text */
+			padding: 0.4rem 0.8rem;
+			background: var(--color-btn-bg, #fff);
+			border: 1px solid var(--color-border, #ccc);
+			/* muted border from variable */
+			border-radius: 0.4rem;
+			color: var(--color-btn-text, #444);
+			cursor: pointer;
+			font-size: 0.9rem;
+			transition: background 0.2s, border-color 0.2s, color 0.2s;
+		}
+
+		button:hover {
+			background: var(--color-btn-hover, #0077cc);
+			border-color: var(--color-btn-hover, #0077cc);
+			color: #fff;
+			/* ensure text is readable on hover */
+		}
+
 		.layout {
-			flex-direction: column;
+			display: flex;
+			flex-direction: row;
+			min-height: 100vh;
 		}
 
 		section {
-			order: 0;
+			padding: 1rem;
+			border: 1px solid var(--color-border, #ccc);
+		}
+
+		section {
+			flex: 0 0 250px;
+		}
+
+		.nav ul {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+		}
+
+		.nav li {
+			margin: 0.25rem 0;
 		}
 
 		main {
-			order: 2;
+			flex: 1;
+			border: 1px solid var(--color-border, #ccc);
+			padding: 1rem;
 		}
-	}
-</style>
+
+		svg.icon {
+			width: 1em;
+			height: 1em;
+			display: inline-block;
+			vertical-align: middle;
+			flex-shrink: 0;
+			color: currentColor;
+			stroke: currentColor;
+			stroke-width: var(--icon-stroke-width);
+			stroke-linecap: round;
+			stroke-linejoin: round;
+			fill: none;
+			vector-effect: non-scaling-stroke;
+			transition: color var(--icon-transition), stroke var(--icon-transition),
+				fill var(--icon-transition), transform var(--icon-transition),
+				opacity var(--icon-transition);
+		}
+
+		/* Mobile layout */
+		@media (max-width: 768px) {
+			.layout {
+				flex-direction: column;
+			}
+
+			section {
+				order: 0;
+			}
+
+			main {
+				order: 2;
+			}
+		}
+	</style>
 </head>
 
 <body>
-<svg id="svg90" display="none" aria-hidden="true" version="1.1" xmlns="http://www.w3.org/2000/svg">
+	<svg id="svg90" display="none" aria-hidden="true" version="1.1" xmlns="http://www.w3.org/2000/svg">
 		<symbol id="i-home" viewBox="0 0 24 24">
 			<path id="path5" d="M3 11.2 12 4l9 7.2v7.8A1 1 0 0 1 20 20H4a1 1 0 0 1-1-1v-7.8Z" />
 			<path id="path6" d="m9 20v-6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6" />
@@ -525,95 +542,96 @@ svg.icon {
 	</svg>
 	<header>
 	</header>
- <section class="action-bar">
-	<div class="actions">
-	<button onclick="togglePanel('#doc-links')" title="Toggle Outline">
-			<svg class="icon">
-				<use href="#i-book"></use>
-			</svg>
-		</button>
+	<section class="action-bar">
+		<div class="actions">
+			<button onclick="togglePanel('#doc-links')" title="Toggle Outline">
+				<svg class="icon">
+					<use href="#i-book"></use>
+				</svg>
+			</button>
 			<button onclick="togglePanel('#tag-links')" title="Toggle Outline">
-			<svg class="icon icon-md">
-				<use href="#i-tag"></use>
-			</svg>
-		</button>
+				<svg class="icon icon-md">
+					<use href="#i-tag"></use>
+				</svg>
+			</button>
+		</div>
+
+		<div class="actions">
+			<button onclick="toggleDarkMode()" title="Toggle Dark Mode" aria-pressed="false">
+				<svg id="darkIcon" class="icon icon-md">
+					<use href="#i-sun"></use>
+				</svg>
+			</button>
+
+			<button onclick="togglePanel('#doc-outline')" title="Toggle Outline">
+				<svg class="icon">
+					<use href="#i-list"></use>
+				</svg>
+			</button>
+		</div>
+	</section>
+
+	<div class="layout">
+
+		<section id="tag-links" class="nav" aria-label="Site Navigation" hidden>
+			<?php echo "TODO"; ?>
+		</section>
+		<!-- Main site navigation -->
+		<section id="doc-links" class="nav" aria-label="Site Navigation" hidden>
+			<?php renderNav($files, $currentFile); ?>
+		</section>
+
+		<!-- Main content -->
+		<main>
+			<article><?= $contentHtml ?></article>
+		</main>
+		<!-- Table of contents / page outline -->
+		<section id="doc-outline" class="nav" aria-label="Page Outline" hidden>
+			<?= $outlineHtml ?>
+		</section>
 	</div>
+	<footer>
 
-	<div class="actions">
-		<button onclick="toggleDarkMode()" title="Toggle Dark Mode" aria-pressed="false">
-			<svg id="darkIcon" class="icon icon-md">
-				<use href="#i-sun"></use>
-			</svg>
-		</button>
-		
-		<button onclick="togglePanel('#doc-outline')" title="Toggle Outline">
-			<svg class="icon">
-				<use href="#i-list"></use>
-			</svg>
-		</button>
-	</div>
-</section>
+	</footer>
 
-<div class="layout">
-
-	<section id="tag-links" class="nav" aria-label="Site Navigation" hidden>
-		<?php echo "TODO"; ?>
-	</section>
-	<!-- Main site navigation -->	
-	<section id="doc-links" class="nav" aria-label="Site Navigation" hidden>
-		<?php renderNav($files, $currentFile); ?>
-	</section>
-
-	<!-- Main content -->
-	<main>
-		<article><?= $contentHtml ?></article>
-	</main>
-	<!-- Table of contents / page outline -->
-	<section id="doc-outline" class="nav" aria-label="Page Outline" hidden>
-	<?= $outlineHtml ?>
-	</section>
-</div>
-<footer>
- 
-</footer>
-	
-<script>
-	function togglePanel(panel) {
-	const el = document.querySelector(panel);
-	el.hidden = !el.hidden;
-}
-(function () {
-	const darkPref = localStorage.getItem("dark-mode");
-	if (darkPref === "true") {
-		document.body.classList.add("dark-mode");
-		const useEl = document.querySelector("#darkIcon use");
-		if (useEl) {
-			useEl.setAttribute("href", "#i-moon");
-			useEl.setAttributeNS(
-				"http://www.w3.org/1999/xlink",
-				"xlink:href",
-				"#i-moon"
-			);
+	<script>
+		function togglePanel(panel) {
+			const el = document.querySelector(panel);
+			el.hidden = !el.hidden;
 		}
-		document
-			.querySelector('button[title="Toggle Dark Mode"]')
-			.setAttribute("aria-pressed", "true");
-	}
-})();
-function toggleDarkMode() {
-	const isDark = document.body.classList.toggle("dark-mode");
-	localStorage.setItem("dark-mode", isDark ? "true" : "false");
-	const useEl = document.querySelector("#darkIcon use");
-	const hrefVal = isDark ? "#i-moon" : "#i-sun";
-	if (useEl) {
-		useEl.setAttribute("href", hrefVal);
-		useEl.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", hrefVal);
-	}
-	document
-		.querySelector('button[title="Toggle Dark Mode"]')
-		.setAttribute("aria-pressed", String(isDark));
-}
-</script>
+		(function() {
+			const darkPref = localStorage.getItem("dark-mode");
+			if (darkPref === "true") {
+				document.body.classList.add("dark-mode");
+				const useEl = document.querySelector("#darkIcon use");
+				if (useEl) {
+					useEl.setAttribute("href", "#i-moon");
+					useEl.setAttributeNS(
+						"http://www.w3.org/1999/xlink",
+						"xlink:href",
+						"#i-moon"
+					);
+				}
+				document
+					.querySelector('button[title="Toggle Dark Mode"]')
+					.setAttribute("aria-pressed", "true");
+			}
+		})();
+
+		function toggleDarkMode() {
+			const isDark = document.body.classList.toggle("dark-mode");
+			localStorage.setItem("dark-mode", isDark ? "true" : "false");
+			const useEl = document.querySelector("#darkIcon use");
+			const hrefVal = isDark ? "#i-moon" : "#i-sun";
+			if (useEl) {
+				useEl.setAttribute("href", hrefVal);
+				useEl.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", hrefVal);
+			}
+			document
+				.querySelector('button[title="Toggle Dark Mode"]')
+				.setAttribute("aria-pressed", String(isDark));
+		}
+	</script>
 </body>
 
 </html>
