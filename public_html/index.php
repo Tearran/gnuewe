@@ -249,7 +249,7 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
 		html,
 		body {
 			margin: 0;
-			overflow: hidden;
+
 		}
 
 		body {
