@@ -38,7 +38,7 @@ foreach ($rii as $file) {
         // --- Relative URL inside docs ---
         $relPath = str_replace($baseDir, '', $file->getPathname());
         $relPath = str_replace('\\', '/', $relPath); // for Windows paths
-        $relPath = '/' . ltrim($relPath, '/');       // URL-friendly
+        $relPath = '/docs/' . ltrim($relPath, '/');       // URL-friendly
 
         // --- Generic output ---
         $entry = $meta;
