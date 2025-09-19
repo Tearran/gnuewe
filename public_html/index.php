@@ -289,11 +289,11 @@
 
 		<main>
 			<?php
-		$page = $_GET['page'] ?? 'home';
+		$page = $_GET['page'] ?? 'markdown';
 
 		switch ($page) {
 			case 'home':
-				include "./home.html";
+				include "./markdown.html";
 				break;
 			case 'markdown':
 				include "./markdown.php";
