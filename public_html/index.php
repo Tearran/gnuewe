@@ -58,17 +58,19 @@
 
     a {
       color: var(--color-link);
-      text-decoration: underline;
+      text-decoration: none;
       transition: color 120ms;
     }
 
     a:hover,
     a:focus {
       color: var(--color-link-hover);
+
     }
 
     a:active {
       color: var(--color-link-active);
+	  text-decoration: underline;
     }
 
     a:visited {
@@ -84,20 +86,21 @@
       display: flex;
       justify-content: space-between;
       padding: 0.5rem 1rem;
-      background: var(--color-header-bg);
-      color: var(--color-header-text);
+      background: var(--color-bg);
+      color: var(--color-text);
     }
 
     .actions {
       display: flex;
       gap: 0.5rem;
     }
-
+	a.button,
     button {
       display: flex;
       align-items: center;
       gap: 0.5rem;
       padding: 0.4rem 0.8rem;
+	  text-decoration: none;
       background: var(--color-btn-bg);
       border: 1px solid var(--color-border);
       border-radius: 0.4rem;
@@ -106,7 +109,7 @@
       font-size: 0.9rem;
       transition: background 0.2s, border-color 0.2s, color 0.2s;
     }
-
+	a.button:hover,
     button:hover {
       background: var(--color-btn-hover);
       border-color: var(--color-btn-hover);
@@ -123,7 +126,7 @@
       flex: 0 0 250px;
       padding: 1rem;
       border: 1px solid var(--color-border);
-      background: var(--color-nav-bg);
+      background: var(--color-bg);
     }
 
     nav ul {
@@ -152,7 +155,7 @@
       flex: 0 0 250px;
       padding: 1rem;
       border: 1px solid var(--color-border);
-      background: var(--color-aside-bg);
+      background: var(--color-bg);
     }
 
     footer {
@@ -169,7 +172,7 @@
       flex-shrink: 0;
       color: currentColor;
       stroke: currentColor;
-      stroke-width: var(--icon-stroke-width);
+     
       stroke-linecap: round;
       stroke-linejoin: round;
       fill: none;
@@ -178,6 +181,15 @@
         fill var(--icon-transition), transform var(--icon-transition),
         opacity var(--icon-transition);
     }
+
+	svg.icon-md{
+		width: 1.5em;
+		height: 1.5em;
+	}
+	svg.icon-lg{
+		width: 2em;
+		height: 2em;
+	}
 
     /* Mobile layout */
     @media (max-width: 768px) {
@@ -201,68 +213,154 @@
 <body>
   <header>
     <div class="actions">
-      <button onclick="togglePanel('#tag-links')" title="Toggle Outline">
-        <svg class="icon">
+		<a href="javascript:void(0);" class="button" onclick="togglePanel('#tool-links')" title="Toggle Tools">
+			<svg class="icon icon-lg">
+				<use href="/images/icons.svg#i-grid"></use>
+			</svg>
+		</a>
+		<a href="https://github.com/Tearran/gnuewe" class="button" target="_blank" rel="noopener">
+			<svg class="icon icon-lg">
+					<use href="/images/icons.svg#i-github"></use>
+			</svg>
+		</a>
+	</a>
+    </div>
+
+
+    <div class="actions">
+	<a href="javascript:void(0);" class="button" onclick="toggleDarkMode()" title="Dark Mode">
+			<svg class="icon  icon-lg">
+				<use href="/images/icons.svg#i-color"></use>
+			</svg>
+		</a>
+
+		<a href="javascript:void(0);" class="button" onclick="togglePanel('#tag-links')" title="Toggle Outline">
+        <svg class="icon  icon-lg">
           <use href="/images/icons.svg#i-tag"></use>
         </svg>
-      </button>
-    </div>
-    <div class="actions">
-      <button onclick="toggleDarkMode()" title="Toggle Dark Mode" aria-pressed="false">
-        <svg id="darkIcon" class="icon">
-          <path d="M12 3a9 9 0 0 0 0 18 9 9 0 0 1 0-18z" />
-        </svg>
-      </button>
+</a>
     </div>
   </header>
 
   <div class="layout">
-	<nav id="tag-links" aria-label="Site Navigation">
+	<nav id="tool-links" aria-label="Site Navigation">
 		<ul>
-			<li><a href="?page=markdown">HOME</a></li>
-			<!-- Internal link (to a PHP page inside your site)
-			<li><a href="htmlplay.php">Playground (Standalone)</a></li> -->
-			<!-- Internal link with include (loads into main page) 
-			<li><a href="?page=html">Playground (Included)</a></li>-->
-			<!-- External link -->
-			<li><a href="playhtml.php" target="_blank" rel="noopener">Play - HTML (js,css)</a></li>
-			<li><a href="playmd.php" target="_blank" rel="noopener">Play - MarkDown (MD)</a></li>
+			<li>      				
+			<a href="?page=markdown" class="button">
+				<svg class="icon icon-md"><use href="/images/icons.svg#i-book"></use></svg>
+				EWE DOCS
+			</a>
+		</li>
+			<li>
 
+				<a href="?page=cli" class="button">
+				<svg class="icon icon-md"><use href="/images/icons.svg#i-terminal"></use></svg>
+				EWE Command Line</a></li>
+				
+			<li>
+
+				<a href="?page=html" class="button">
+				<svg class="icon icon-md"><use href="/images/icons.svg#i-star"></use></svg>
+				EWE HTML, CSS, JS</a></li>
+				
+
+			<!-- External link -->
+			<li>
+				
+				<a href="?page=md" class="button">
+				<svg class="icon icon-md"><use href="/images/icons.svg#i-star"></use></svg>
+				Editor MarkDown (MD)</a></li>
+			<li>
+				
+				<a href="playmd.html" class="button" target="_blank" rel="noopener">
+				<svg class="icon icon-md"><use href="/images/icons.svg#i-star"></use></svg>
+				Editor MarkDown (MD)</a></li>           
 		</ul>
 	</nav>
 
 
-    <main>
-  <?php
-  $page = $_GET['page'] ?? 'markdown';
+	<main>
+		<?php
+		$page = $_GET['page'] ?? 'markdown';
 
-switch ($page) {
-	case 'markdown':
-		include "./markdown.php";
-		break;
-	case 'html':
-		include "./htmlplay.php";
-		break;
-	case 'scan':
-		include "./scan.php";
-		break;
-    	default:
-      		echo "<p>Page not found.</p>";
-  }
-  ?>
-</main>
+		switch ($page) {
+			case 'markdown':
+				include "./markdown.php";
+				break;
+			case 'html':
+				include "./playhtml.html";
+				break;
+			case 'scan':
+				include "./scan.php";
+				break;
+		case 'cli':
+			include "./playcli.html";
+			break;
+			case 'md':
+				include "./playmd.html";
+				break;
+				default:
+					echo "<h1>404<h1><p>Page not found.</p>";
+		}
+		?>
+	</main>
+	<!-- Optional sidebar -->
+	<aside id="tag-links" hidden>
+		json metadata
+		<?php include "./scan.php"; ?>
+		</aside>
+	</div>
+
+	<footer id="site-footer" class="site-footer" role="contentinfo">
+		<div id="footer-about" class="footer-loading">
+			<p>Powered by boredom, caffeine, and questionable time management</p>
+			<p>© 2025 Joey Turner</p>
+		</div>
+		<div id="footer-legal" class="footer-loading">
+			All trademarks are the property of their respective owners. All rights reserved.
+			Content is provided "as is" and is for informational purposes only. Use at your own risk.</div>
+	</footer>
 
 
-    <!-- Optional sidebar -->
-    <aside hidden>
-      json metadata
-      <?php include "./scan.php"; ?>
-    </aside>
-  </div>
+<script>
+        function togglePanel(panel) {
+                const el = document.querySelector(panel);
+                el.hidden = !el.hidden;
+        }
+        (function() {
+                const darkPref = localStorage.getItem("dark-mode");
+                if (darkPref === "true") {
+                        document.body.classList.add("dark-mode");
+                        const useEl = document.querySelector("#darkIcon use");
+                        if (useEl) {
+                                useEl.setAttribute("href", "#i-moon");
+                                useEl.setAttributeNS(
+                                        "http://www.w3.org/1999/xlink",
+                                        "xlink:href",
+                                        "#i-moon"
+                                );
+                        }
+                        document
+                                .querySelector('button[title="Toggle Dark Mode"]')
+                                .setAttribute("aria-pressed", "true");
+                }
+        })();
 
-  <footer>
-    Footer text or links
-  </footer>
+        function toggleDarkMode() {
+                const isDark = document.body.classList.toggle("dark-mode");
+                localStorage.setItem("dark-mode", isDark ? "true" : "false");
+                const useEl = document.querySelector("#darkIcon use");
+                const hrefVal = isDark ? "#i-moon" : "#i-sun";
+                if (useEl) {
+                        useEl.setAttribute("href", hrefVal);
+                        useEl.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", hrefVal);
+                }
+                document
+                        .querySelector('button[title="Toggle Dark Mode"]')
+                        .setAttribute("aria-pressed", String(isDark));
+        }
+</script>
+
 </body>
 
 </html>

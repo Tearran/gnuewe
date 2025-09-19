@@ -175,10 +175,6 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
     $frontMatter = extractFrontMatter($markdown);
     if ($frontMatter) {
         $metaHtml = '<div>
-            <button onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden" type="button" aria-expanded="false" aria-controls="metadata-content">
-        	<svg class="icon icon-md"><use href="#i-list"></use></svg>
-		<span class="brand"> Metadata </span>
-            </button>
             <pre id="metadata-content" hidden style="border:1px solid; padding:0.5em;">' .
             htmlspecialchars($frontMatter, ENT_QUOTES, 'UTF-8') .
             '</pre>
@@ -194,6 +190,10 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
     <button onclick="togglePanel('#doc-links')" title="Toggle Navigation">
       <svg class="icon"><use href="/images/icons.svg#i-book"></use></svg>
     </button>
+    <a href="javascript:void(0);" class="button" onclick="togglePanel('#metadata-content')" title="Toggle metadata-content">
+    <span>&lt;/&gt;</span>
+
+		</a>
   </div>
 
   <div class="actions">
@@ -221,47 +221,3 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
     <?= $outlineHtml ?>
   </aside>
 </div>
-
-<footer>
-  <!-- footer content or leave for parent include -->
-</footer>
-
-
-<script>
-        function togglePanel(panel) {
-                const el = document.querySelector(panel);
-                el.hidden = !el.hidden;
-        }
-        (function() {
-                const darkPref = localStorage.getItem("dark-mode");
-                if (darkPref === "true") {
-                        document.body.classList.add("dark-mode");
-                        const useEl = document.querySelector("#darkIcon use");
-                        if (useEl) {
-                                useEl.setAttribute("href", "#i-moon");
-                                useEl.setAttributeNS(
-                                        "http://www.w3.org/1999/xlink",
-                                        "xlink:href",
-                                        "#i-moon"
-                                );
-                        }
-                        document
-                                .querySelector('button[title="Toggle Dark Mode"]')
-                                .setAttribute("aria-pressed", "true");
-                }
-        })();
-
-        function toggleDarkMode() {
-                const isDark = document.body.classList.toggle("dark-mode");
-                localStorage.setItem("dark-mode", isDark ? "true" : "false");
-                const useEl = document.querySelector("#darkIcon use");
-                const hrefVal = isDark ? "#i-moon" : "#i-sun";
-                if (useEl) {
-                        useEl.setAttribute("href", hrefVal);
-                        useEl.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", hrefVal);
-                }
-                document
-                        .querySelector('button[title="Toggle Dark Mode"]')
-                        .setAttribute("aria-pressed", String(isDark));
-        }
-</script>
