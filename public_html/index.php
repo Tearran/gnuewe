@@ -226,6 +226,16 @@
 					<use href="#i-github"></use>
 				</svg>
 			</a>
+			<a href="https://codepen.io/Tearran" class="button" target="_blank" rel="noopener">
+				<svg class="icon icon-lg">
+					<use href="#i-codepen"></use>
+				</svg>
+			</a>
+			<a href="https://codepen.io/Tearran" class="button" target="_blank" rel="noopener">
+				<svg class="icon icon-lg">
+					<use href="#i-tearran"></use>
+				</svg>
+			</a>
 		</div>
 
 		<div class="actions">
