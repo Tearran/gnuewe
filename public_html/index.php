@@ -330,37 +330,31 @@
 	</footer>
 
 	<script>
-		function togglePanel(panel) {
-			const el = document.querySelector(panel);
-			el.hidden = !el.hidden;
-		}
-		(function() {
-			const darkPref = localStorage.getItem("dark-mode");
-			if (darkPref === "true") {
-				document.body.classList.add("dark-mode");
-				const useEl = document.querySelector("#darkIcon use");
-				if (useEl) {
-					useEl.setAttribute("href", "#i-moon");
-					useEl.setAttributeNS(
-						"http://www.w3.org/1999/xlink",
-						"xlink:href",
-						"#i-moon"
-					);
-				}
-				document
-					.querySelector('button[title="Toggle Dark Mode"]')
-					.setAttribute("aria-pressed", "true");
-			}
-		})();
+/* -----------------------------
+   PANEL TOGGLE
+   ----------------------------- */
+function togglePanel(selector) {
+    const el = document.querySelector(selector);
+    if (!el) return;
+    el.hidden = !el.hidden;
+}
 
-		function toggleDarkMode() {
-				document.body.classList.toggle("dark-mode");
-				const icon = document.getElementById("darkIcon");
-				icon.setAttribute("href", 
-				document.body.classList.contains("dark-mode") ? "#i-moon" : "#i-light"
-				);
-			}
-	</script>
+/* -----------------------------
+   DARK MODE TOGGLE
+   ----------------------------- */
+(function initDarkMode() {
+    const darkPref = localStorage.getItem("dark-mode");
+    if (darkPref === "true") {
+        document.body.classList.add("dark-mode");
+    }
+
+    window.toggleDarkMode = function() {
+        const isDark = document.body.classList.toggle("dark-mode");
+        localStorage.setItem("dark-mode", isDark ? "true" : "false");
+    };
+})();
+</script>
+
 
 </body>
 
