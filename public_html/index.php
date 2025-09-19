@@ -276,8 +276,6 @@
 							<use href="#i-md"></use>
 						</svg>
 						Editor MarkDown (MD)</a>
-				</li>
-			</ul>
 		</nav>
 
 		<main>
