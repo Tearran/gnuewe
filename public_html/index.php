@@ -253,11 +253,11 @@
 	<div class="layout">
 		<nav id="tool-links" aria-label="Site Navigation">
 
-			<a href="?page=home" class="button">
+			<a href="?page=markdown" class="button">
 				<svg class="icon icon-md">
 					<use href="#i-home"></use>
 				</svg>
-				home
+				Home
 			</a>
 			<a href="?page=markdown" class="button">
 				<svg class="icon icon-md">
@@ -289,12 +289,9 @@
 
 		<main>
 			<?php
-		$page = $_GET['page'] ?? 'home';
+		$page = $_GET['page'] ?? 'markdown';
 
 		switch ($page) {
-			case 'home':
-				include "./home.html";
-				break;
 			case 'markdown':
 				include "./markdown.php";
 				break;
