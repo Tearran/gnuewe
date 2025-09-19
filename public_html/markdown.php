@@ -205,7 +205,7 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
 
 <div class="layout">
   <!-- Site navigation -->
-  <nav id="doc-links" aria-label="Site Navigation" hidden>
+  <nav id="doc-links" aria-label="Site Navigation">
     <?php renderNav($files, $currentFile); ?>
   </nav>
 
