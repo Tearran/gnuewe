@@ -153,6 +153,11 @@
 		<circle cx="12" cy="10" r="1" />
 		<path d="M11 13h2v5h-2z" />
 	</symbol>
+	<symbol id="i-md" viewBox="0 0 24 24">
+		<path id="path84" d="M7 3h6l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />
+		<path id="path85" d="m13 3v5h5" />
+		<path d="M7 17V9h2l2 3 2-3h2v8h-2v-5l-2 3-2-3v5H7z" />
+	</symbol>
 
 	<symbol id="i-color" viewBox="0 0 24 24">
 		<path id="path88" d="M12 3a9 9 0 0 0-9 9 9 9 0 0 0 9 9h.5a2.5 2.5 0 0 0 2.45-2.02c.07-.34.37-.63.72-.71.7-.15 1.43-.24 2.2-.24 1.78 0 3.13-1.57 2.96-3.33C20.97 8.59 16.95 3 12 3Z" />

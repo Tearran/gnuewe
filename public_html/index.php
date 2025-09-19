@@ -213,16 +213,17 @@
 </head>
 
 <body>
+<?php include "./images/icons.svg"; ?>
 	<header>
 		<div class="actions">
 			<a href="javascript:void(0);" class="button" onclick="togglePanel('#tool-links')" title="Toggle Tools">
 				<svg class="icon icon-lg">
-					<use href="/images/icons.svg#i-grid"></use>
+					<use href="#i-grid"></use>
 				</svg>
 			</a>
 			<a href="https://github.com/Tearran/gnuewe" class="button" target="_blank" rel="noopener">
 				<svg class="icon icon-lg">
-					<use href="/images/icons.svg#i-github"></use>
+					<use href="#i-github"></use>
 				</svg>
 			</a>
 		</div>
@@ -230,13 +231,13 @@
 		<div class="actions">
 			<a href="javascript:void(0);" class="button" onclick="toggleDarkMode()" title="Dark Mode">
 				<svg class="icon  icon-lg">
-					<use href="/images/icons.svg#i-light"></use>
+					<use href="#i-light"></use>
 				</svg>
 			</a>
 
 			<a href="javascript:void(0);" class="button" onclick="togglePanel('#tag-links')" title="Toggle Outline">
 				<svg class="icon  icon-lg">
-					<use href="/images/icons.svg#i-tag"></use>
+					<use href="#i-tag"></use>
 				</svg>
 			</a>
 		</div>
@@ -248,7 +249,7 @@
 				<li>
 					<a href="?page=markdown" class="button">
 						<svg class="icon icon-md">
-							<use href="/images/icons.svg#i-book"></use>
+							<use href="#i-book"></use>
 						</svg>
 						EWE DOCS
 					</a>
@@ -257,7 +258,7 @@
 
 					<a href="?page=cli" class="button">
 						<svg class="icon icon-md">
-							<use href="/images/icons.svg#i-terminal"></use>
+							<use href="#i-terminal"></use>
 						</svg>
 						EWE Command Line</a>
 				</li>
@@ -266,7 +267,7 @@
 
 					<a href="?page=html" class="button">
 						<svg class="icon icon-md">
-							<use href="/images/icons.svg#i-html5"></use>
+							<use href="#i-html5"></use>
 						</svg>
 						Editor HTML, CSS, JS</a>
 				</li>
@@ -275,9 +276,7 @@
 				<li>
 					<a href="?page=md" class="button">
 						<svg class="icon icon-md">
-							<path id="path84" d="M7 3h6l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />
-							<path id="path85" d="m13 3v5h5" />
-							<path d="M7 17V9h2l2 3 2-3h2v8h-2v-5l-2 3-2-3v5H7z" />
+							<use href="#i-md"></use>
 						</svg>
 						Editor MarkDown (MD)</a>
 				</li>
