@@ -225,7 +225,6 @@
 					<use href="/images/icons.svg#i-github"></use>
 				</svg>
 			</a>
-			</a>
 		</div>
 
 		<div class="actions">
@@ -355,18 +354,12 @@
 		})();
 
 		function toggleDarkMode() {
-			const isDark = document.body.classList.toggle("dark-mode");
-			localStorage.setItem("dark-mode", isDark ? "true" : "false");
-			const useEl = document.querySelector("#darkIcon use");
-			const hrefVal = isDark ? "#i-moon" : "#i-sun";
-			if (useEl) {
-				useEl.setAttribute("href", hrefVal);
-				useEl.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", hrefVal);
+				document.body.classList.toggle("dark-mode");
+				const icon = document.getElementById("darkIcon");
+				icon.setAttribute("href", 
+				document.body.classList.contains("dark-mode") ? "#i-moon" : "#i-light"
+				);
 			}
-			document
-				.querySelector('button[title="Toggle Dark Mode"]')
-				.setAttribute("aria-pressed", String(isDark));
-		}
 	</script>
 
 </body>
