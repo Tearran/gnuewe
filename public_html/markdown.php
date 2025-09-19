@@ -186,39 +186,45 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
 ?>
 
 <header class="action-bar">
-  <div class="actions">
-    <a href="javascript:void(0);" class="button" onclick="togglePanel('#doc-links')" title="Toggle Navigation">
-        <svg class="icon"><use href="/images/icons.svg#i-book"></use></svg>
-    </a>
+	<div class="actions">
+		<a href="javascript:void(0);" class="button" onclick="togglePanel('#doc-links')" title="Toggle Navigation">
+			<svg class="icon">
+				<use href="/images/icons.svg#i-book"></use>
+			</svg>
+		</a>
 
-  </div>
+	</div>
 
-  <div class="actions">
-  <a href="javascript:void(0);" class="button" onclick="togglePanel('#metadata-content')" title="Toggle metadata-content">
-        <svg class="icon"><use href="/images/icons.svg#i-meta"></use></svg>
-    </a>
-    <a href="javascript:void(0);" class="button" onclick="togglePanel('#doc-outline')" title="Toggle Outline">
-    
-      <svg class="icon"><use href="/images/icons.svg#i-list"></use></svg>
-</a>
-  </div>
+	<div class="actions">
+		<a href="javascript:void(0);" class="button" onclick="togglePanel('#metadata-content')" title="Toggle metadata-content">
+			<svg class="icon">
+				<use href="/images/icons.svg#i-meta"></use>
+			</svg>
+		</a>
+		<a href="javascript:void(0);" class="button" onclick="togglePanel('#doc-outline')" title="Toggle Outline">
+
+			<svg class="icon">
+				<use href="/images/icons.svg#i-list"></use>
+			</svg>
+		</a>
+	</div>
 </header>
 
 <div class="layout">
-  <!-- Site navigation -->
-  <nav id="doc-links" aria-label="Site Navigation">
-    <?php renderNav($files, $currentFile); ?>
-  </nav>
+	<!-- Site navigation -->
+	<nav id="doc-links" aria-label="Site Navigation">
+		<?php renderNav($files, $currentFile); ?>
+	</nav>
 
-  <!-- Main content -->
-  <main>
-    <article>
-      <?= $contentHtml ?>
-    </article>
-  </main>
+	<!-- Main content -->
+	<main>
+		<article>
+			<?= $contentHtml ?>
+		</article>
+	</main>
 
-  <!-- Page outline -->
-  <aside id="doc-outline" aria-label="Page Outline" hidden>
-    <?= $outlineHtml ?>
-  </aside>
+	<!-- Page outline -->
+	<aside id="doc-outline" aria-label="Page Outline" hidden>
+		<?= $outlineHtml ?>
+	</aside>
 </div>
