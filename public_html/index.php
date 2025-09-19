@@ -243,7 +243,7 @@
   </header>
 
   <div class="layout">
-	<nav id="tool-links" aria-label="Site Navigation">
+	<nav id="tool-links" aria-label="Site Navigation" hidden>
 		<ul>
 			<li>      				
 			<a href="?page=markdown" class="button">
