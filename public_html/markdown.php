@@ -189,7 +189,7 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
 	<div class="actions">
 		<a href="javascript:void(0);" class="button" onclick="togglePanel('#doc-links')" title="Toggle Navigation">
 			<svg class="icon">
-				<use href="/images/icons.svg#i-book"></use>
+				<use href="#i-book"></use>
 			</svg>
 		</a>
 
@@ -198,13 +198,13 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
 	<div class="actions">
 		<a href="javascript:void(0);" class="button" onclick="togglePanel('#metadata-content')" title="Toggle metadata-content">
 			<svg class="icon">
-				<use href="/images/icons.svg#i-meta"></use>
+				<use href="#i-meta"></use>
 			</svg>
 		</a>
 		<a href="javascript:void(0);" class="button" onclick="togglePanel('#doc-outline')" title="Toggle Outline">
 
 			<svg class="icon">
-				<use href="/images/icons.svg#i-list"></use>
+				<use href="#i-list"></use>
 			</svg>
 		</a>
 	</div>

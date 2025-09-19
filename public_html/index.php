@@ -129,7 +129,10 @@
 			border: 1px solid var(--color-border);
 			background: var(--color-bg);
 		}
-
+		
+		#tool-links,
+		#sources-links,
+		aside ul,
 		nav ul {
 			list-style: none;
 			padding: 0;
@@ -221,21 +224,7 @@
 					<use href="#i-grid"></use>
 				</svg>
 			</a>
-			<a href="https://github.com/Tearran/gnuewe" class="button" target="_blank" rel="noopener">
-				<svg class="icon icon-lg">
-					<use href="#i-github"></use>
-				</svg>
-			</a>
-			<a href="https://codepen.io/Tearran" class="button" target="_blank" rel="noopener">
-				<svg class="icon icon-lg">
-					<use href="#i-codepen"></use>
-				</svg>
-			</a>
-			<a href="https://codepen.io/Tearran" class="button" target="_blank" rel="noopener">
-				<svg class="icon icon-lg">
-					<use href="#i-tearran"></use>
-				</svg>
-			</a>
+
 		</div>
 
 		<div class="actions">
@@ -250,48 +239,43 @@
 					<use href="#i-tag"></use>
 				</svg>
 			</a>
+			<a href="javascript:void(0);" class="button" onclick="togglePanel('#sources-links')" title="Toggle sources">
+				<svg class="icon icon-lg">
+					<use href="#i-tearran"></use>
+				</svg>
+			</a>
 		</div>
 	</header>
 
 	<div class="layout">
 		<nav id="tool-links" aria-label="Site Navigation" hidden>
-			<ul>
-				<li>
+
 					<a href="?page=markdown" class="button">
 						<svg class="icon icon-md">
 							<use href="#i-book"></use>
 						</svg>
 						EWE DOCS
 					</a>
-				</li>
-				<li>
+
 
 					<a href="?page=cli" class="button">
 						<svg class="icon icon-md">
 							<use href="#i-terminal"></use>
 						</svg>
 						EWE Command Line</a>
-				</li>
 
-				<li>
 
 					<a href="?page=html" class="button">
 						<svg class="icon icon-md">
 							<use href="#i-html5"></use>
 						</svg>
 						Editor HTML, CSS, JS</a>
-				</li>
 
-				<!-- External link -->
-				<li>
 					<a href="?page=md" class="button">
 						<svg class="icon icon-md">
 							<use href="#i-md"></use>
 						</svg>
 						Editor MarkDown (MD)</a>
-				</li>
-				<li>
-
 				</li>
 			</ul>
 		</nav>
@@ -324,7 +308,23 @@
 		<!-- Optional sidebar -->
 		<aside id="tag-links" hidden>
 			json metadata
+			<hr>
 			<?php include "./scan.php"; ?>
+		</aside>
+		<aside id="sources-links" hidden>
+			<a href="https://github.com/Tearran/gnuewe" class="button" target="_blank" rel="noopener">
+				<svg class="icon icon-lg">
+					<use href="#i-github"></use>
+				</svg>
+				<span>Github</span>
+			</a>
+
+			<a href="https://codepen.io/Tearran" class="button" target="_blank" rel="noopener">
+				<svg class="icon icon-lg">
+					<use href="#i-codepen"></use>
+				</svg>
+				<span>CodePen</span>
+			</a>
 		</aside>
 	</div>
 
