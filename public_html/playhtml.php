@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title></title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: sans-serif;
+    background: #1e1e1e;
+    color: #ddd;
+    overflow: hidden;
+  }
+
+  .toolbar {
+    background: #2d2d2d;
+    padding: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    border-bottom: 1px solid #000;
+  }
+  .toolbar button { padding:0.4rem 0.8rem; border:none; border-radius:4px; background:#007acc; color:white; cursor:pointer; }
+  .toolbar button:hover { background:#005fa3; }
+
+  .workspace {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .top-panel {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  .editors {
+    display: flex;
+    flex-direction: column;
+    width: 35%;
+    min-width: 200px;
+    background: #111;
+    border-right: 2px solid #000;
+    overflow: hidden;
+  }
+
+  .editor {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: flex 0.3s ease, height 0.3s ease;
+  }
+  .hidden { display: none; }
+  .solo { flex: 1 1 auto; }
+
+  .editor label {
+    background: #333;
+    padding: 0.25rem;
+    font-size: 0.85rem;
+    color: #ccc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .editor label button { background: transparent; color: #ccc; border:none; cursor:pointer; font-size:0.8rem; }
+
+  textarea {
+    flex: 1;
+    border: none;
+    resize: none;
+    padding: 0.5rem;
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: #f8f8f2;
+    background: #1e1e1e;
+  }
+
+  iframe { flex: 1; border: none; background: white; }
+
+  .resizer { width:5px; cursor:col-resize; background:#444; }
+  .resizer:hover { background:#666; }
+
+  .console-panel {
+    height: 150px;
+    background: #1b1b1b;
+    color: #fff;
+    font-family: monospace;
+    font-size: 0.85rem;
+    overflow: hidden;
+    border-top: 2px solid #000;
+    display: flex;
+    flex-direction: column;
+    transition: height 0.3s ease;
+  }
+
+  .console-header {
+    background: #222;
+    padding: 0.2rem 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .console-content { flex:1; padding:0.5rem; overflow-y:auto; }
+
+  .collapsed { height: 25px !important; }
+  .console-resizer { height:5px; background:#444; cursor:row-resize; }
+  .console-resizer:hover { background:#666; }
+	
+	.action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: #23272e;
+  border-bottom: 1px solid #000;
+  color: #fff;
+}
+
+.action-bar button {
+  background: #007acc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.4rem 0.8rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.action-bar button:hover { background: #005fa3; }
+
+	
+</style>
+</head>
+<body>
+<div class="action-bar">
+  <div class="action-left">
+    <button onclick="runCode()">▶</button>
+    <button onclick="clearConsole()">Clear Console</button>
+  </div>
+  <div class="action-right">
+<button onclick="savePreview()">Save</button>
+  </div>
+</div>
+
+<div class="workspace">
+  <div class="top-panel">
+    <div class="editors" id="editors">
+      <div class="editor" id="htmlEditor">
+        <label>HTML <button onclick="toggleEditor('htmlEditor')">⇕</button></label>
+        <textarea id="html">&lt;h1&gt;Hello&lt;/h1&gt;</textarea>
+      </div>
+      <div class="editor" id="cssEditor">
+        <label>CSS <button onclick="toggleEditor('cssEditor')">⇕</button></label>
+        <textarea id="css">h1 { color: red; }</textarea>
+      </div>
+      <div class="editor" id="jsEditor">
+        <label>JS <button onclick="toggleEditor('jsEditor')">⇕</button></label>
+        <textarea id="js">console.log("Hello JS");</textarea>
+      </div>
+    </div>
+    <div class="resizer" id="resizer"></div>
+    <iframe id="preview"></iframe>
+  </div>
+
+  <div class="console-resizer" id="consoleResizer"></div>
+  <div class="console-panel" id="consolePanel">
+    <div class="console-header" onclick="toggleConsole()">Console ▼</div>
+    <div class="console-content" id="consoleContent"></div>
+  </div>
+</div>
+	<script>
+
+function savePreview() {
+  // Get editor content
+  const html = document.getElementById("html").value;
+  const css = "<style>" + document.getElementById("css").value + "</style>";
+  const js = "<script>" + document.getElementById("js").value + "<\/script>";
+
+  // Build the same string used for the iframe
+  const fullHTML = "<!DOCTYPE html><html><head>" + css + "</head><body>" + html + js + "</body></html>";
+
+  // Save to file using Blob
+  const blob = new Blob([fullHTML], { type: "text/html" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "preview.html"; // file name
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+</script>
+
+	
+<script>
+const consoleContent = document.getElementById("consoleContent");
+const consolePanel = document.getElementById("consolePanel");
+const consoleHeader = consolePanel.querySelector(".console-header");
+
+let logCount = 0;
+let lastLog = "";
+
+// Run code
+function runCode() {
+  clearConsole();
+  const html = document.getElementById("html").value;
+  const css = "<style>" + document.getElementById("css").value + "</style>";
+  const js = document.getElementById("js").value;
+  const iframe = document.getElementById("preview");
+  const blob = new Blob([
+    html + css + "<script>" +
+    `const log = console.log;
+    console.log = function(...args) { parent.postMessage({type:'log', args}, '*'); log.apply(console,args); };` +
+    js +
+    "<\/script>"
+  ], { type: "text/html" });
+  iframe.src = URL.createObjectURL(blob);
+}
+
+// Clear console
+function clearConsole() { 
+  consoleContent.innerHTML = ""; 
+  logCount = 0;
+  lastLog = "";
+  updateHeader();
+}
+
+// Capture console.log
+window.addEventListener("message", e => {
+  if(e.data.type==='log'){
+    e.data.args.forEach(arg=>{
+      const div=document.createElement("div");
+      div.textContent=arg;
+      consoleContent.appendChild(div);
+      lastLog = arg;
+      logCount++;
+      updateHeader();
+    });
+    consoleContent.scrollTop=consoleContent.scrollHeight;
+  }
+});
+
+function updateHeader(){
+  const minimized = consolePanel.classList.contains("collapsed");
+  if(minimized){
+    consoleHeader.innerHTML = `Console ▼ (${logCount} messages) Last: ${lastLog}`;
+  } else {
+    consoleHeader.innerHTML = `Console ▼`;
+  }
+}
+
+// Toggle one editor / all
+function toggleEditor(id){
+  const editors=document.querySelectorAll(".editor");
+  const clicked=document.getElementById(id);
+  if(clicked.classList.contains("solo")){
+    editors.forEach(ed=>ed.classList.remove("hidden","solo"));
+  } else {
+    editors.forEach(ed=>{
+      if(ed.id===id){ ed.classList.add("solo"); ed.classList.remove("hidden"); }
+      else { ed.classList.add("hidden"); ed.classList.remove("solo"); }
+    });
+  }
+}
+
+// Auto-run on typing
+['html','css','js'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',()=>runCode());
+});
+
+// Left panel resizer
+const resizer = document.getElementById("resizer");
+const editorsPanel = document.getElementById("editors");
+let isResizing=false;
+resizer.addEventListener("mousedown",e=>{isResizing=true; document.body.style.cursor="col-resize";});
+document.addEventListener("mousemove",e=>{
+  if(!isResizing) return;
+  let newWidth=e.clientX;
+  if(newWidth<150)newWidth=150;
+  if(newWidth>window.innerWidth-150)newWidth=window.innerWidth-150;
+  editorsPanel.style.width=newWidth+"px";
+});
+document.addEventListener("mouseup",e=>{if(isResizing){isResizing=false; document.body.style.cursor="default";}});
+
+// Minimize / expand console
+function toggleConsole(){
+  consolePanel.classList.toggle("collapsed");
+  updateHeader();
+}
+
+// Bottom console resizer
+const consoleResizer = document.getElementById("consoleResizer");
+let isResizingConsole=false;
+consoleResizer.addEventListener("mousedown",e=>{isResizingConsole=true; document.body.style.cursor="row-resize";});
+document.addEventListener("mousemove",e=>{
+  if(!isResizingConsole) return;
+  const workspace=document.querySelector(".workspace");
+  const rect=workspace.getBoundingClientRect();
+  let newHeight=rect.bottom-e.clientY;
+  if(newHeight<50) newHeight=50;
+  if(newHeight>rect.height-50)newHeight=rect.height-50;
+  consolePanel.style.height=newHeight+"px";
+});
+document.addEventListener("mouseup",e=>{if(isResizingConsole){isResizingConsole=false;document.body.style.cursor="default";}});
+
+// Initial run
+runCode();
+</script>
+
+</body>
+</html>

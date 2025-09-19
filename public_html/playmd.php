@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Wysiwy Markdown</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="description" content="Split-pane Markdown editor with live preview and optional GitHub commit." />
+<style>
+:root {
+  --bg:#1e1f22;
+  --bg-alt:#161718;
+  --panel:#0f1011;
+  --border:#33373d;
+  --fg:#e6e6e6;
+  --fg-dim:#9aa0ab;
+  --accent:#3d7cff;
+  --accent-alt:#5294ff;
+  --danger:#c62828;
+  --warn:#d98e00;
+  --ok:#2e7d32;
+  --radius:6px;
+  color-scheme: dark;
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;
+  font-size:15px;
+}
+.light {
+  --bg:#f5f7fa;
+  --bg-alt:#eef1f5;
+  --panel:#ffffff;
+  --border:#ccd2da;
+  --fg:#1d242b;
+  --fg-dim:#5d6b7a;
+  --accent:#175fe6;
+  --accent-alt:#2e7dff;
+  --danger:#c62828;
+  --warn:#b27400;
+  --ok:#217a2a;
+  color-scheme: light;
+}
+html, body {
+  height:100%;
+  margin:0;
+  background:var(--bg);
+  color:var(--fg);
+}
+body {
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+#topbar {
+  display:flex;
+  gap:0.4rem;
+  align-items:center;
+  padding:0.4rem 0.75rem;
+  background:var(--bg-alt);
+  border-bottom:1px solid var(--border);
+  flex-wrap:wrap;
+}
+#topbar .group {
+  display:flex;
+  gap:0.25rem;
+  align-items:center;
+  flex-wrap:wrap;
+  background:transparent;
+  padding:0;
+}
+button, input, select, textarea {
+  font:inherit;
+}
+button {
+  cursor:pointer;
+  background:var(--panel);
+  border:1px solid var(--border);
+  color:var(--fg);
+  padding:0.4rem 0.6rem;
+  border-radius:4px;
+  display:inline-flex;
+  align-items:center;
+  gap:0.25rem;
+  font-size:0.8rem;
+  line-height:1;
+  min-height:32px;
+}
+button:hover {
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+}
+button.primary {
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+}
+button.primary:hover {
+  background:var(--accent-alt);
+}
+button.danger {
+  background:var(--danger);
+  border-color:var(--danger);
+  color:#fff;
+}
+button.danger:hover {
+  filter:brightness(1.1);
+}
+.sep {
+  width:1px;
+  background:var(--border);
+  height:26px;
+  margin:0 0.35rem;
+}
+#container {
+  flex:1;
+  display:flex;
+  min-height:0;
+  position:relative;
+}
+.pane {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  position:relative;
+}
+#editor-pane {
+  border-right:1px solid var(--border);
+}
+#editor {
+  flex:1;
+  width:100%;
+  resize:none;
+  border:0;
+  background:var(--panel);
+  color:var(--fg);
+  font-family: ui-monospace, SFMono-Regular, JetBrains Mono, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size:14px;
+  line-height:1.45;
+  padding:1rem;
+  box-sizing:border-box;
+  tab-size:2;
+  outline:none;
+}
+#preview {
+  flex:1;
+  overflow:auto;
+  padding:1rem 1.2rem 4rem;
+  background:var(--panel);
+  font-size:15px;
+  line-height:1.5;
+  box-sizing:border-box;
+}
+#preview:focus {
+  outline:1px dashed var(--accent);
+  outline-offset:-2px;
+}
+h1,h2,h3,h4,h5,h6 {
+  font-weight:600;
+  line-height:1.2;
+  margin-top:1.4em;
+  margin-bottom:0.6em;
+}
+h1 { font-size:1.9rem; }
+h2 { font-size:1.55rem; }
+h3 { font-size:1.3rem; }
+h4 { font-size:1.15rem; }
+h5 { font-size:1.0rem; }
+h6 { font-size:0.9rem; }
+p, ul, ol, pre, blockquote, table {
+  margin:0 0 1em;
+}
+code, pre code {
+  font-family: ui-monospace, SFMono-Regular, JetBrains Mono, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size:0.9em;
+}
+pre {
+  background:#111317;
+  padding:0.8em 1em;
+  border-radius:4px;
+  overflow:auto;
+  border:1px solid #272b33;
+}
+.light pre {
+  background:#f1f3f6;
+  border-color:#dadddf;
+}
+code {
+  background:#2b3036;
+  padding:0.15em 0.4em;
+  border-radius:4px;
+  border:1px solid #3a4149;
+}
+.light code {
+  background:#eceff2;
+  border-color:#d2d7dd;
+}
+blockquote {
+  border-left:4px solid var(--accent);
+  background:rgba(100,140,255,0.07);
+  padding:0.6em 0.9em;
+  border-radius:4px;
+  margin-left:0;
+  margin-right:0;
+}
+.light blockquote {
+  background:rgba(23,95,230,0.08);
+}
+table {
+  border-collapse:collapse;
+  width:100%;
+  font-size:0.9rem;
+}
+table th, table td {
+  border:1px solid var(--border);
+  padding:0.5em 0.6em;
+  text-align:left;
+  vertical-align:top;
+}
+table th {
+  background:var(--bg-alt);
+  font-weight:600;
+}
+hr {
+  border:0;
+  border-top:1px solid var(--border);
+  margin:2em 0;
+}
+a {
+  color:var(--accent);
+  text-decoration:none;
+}
+a:hover {
+  text-decoration:underline;
+}
+#statusbar {
+  font-size:0.7rem;
+  padding:0.35rem 0.6rem;
+  background:var(--bg-alt);
+  border-top:1px solid var(--border);
+  display:flex;
+  gap:1rem;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.badge {
+  display:inline-flex;
+  align-items:center;
+  gap:0.3ch;
+  background:var(--panel);
+  border:1px solid var(--border);
+  padding:0.2rem 0.5rem;
+  border-radius:1rem;
+  font-size:0.65rem;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  color:var(--fg-dim);
+}
+.toolbar-btn {
+  min-width:28px;
+  padding:0.35rem 0.5rem;
+  font-size:0.75rem;
+  font-weight:500;
+}
+input[type="text"], input[type="url"], input[type="password"], textarea.short {
+  background:var(--panel);
+  border:1px solid var(--border);
+  color:var(--fg);
+  border-radius:4px;
+  padding:0.35rem 0.5rem;
+  font-size:0.75rem;
+  min-width:160px;
+}
+input:focus, textarea.short:focus {
+  outline:1px solid var(--accent);
+  border-color:var(--accent);
+}
+#resizer {
+  position:absolute;
+  left:50%;
+  top:0;
+  bottom:0;
+  width:6px;
+  margin-left:-3px;
+  cursor:col-resize;
+  z-index:10;
+  background:transparent;
+}
+#resizer:after {
+  content:'';
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:2px;
+  height:40px;
+  background:var(--border);
+  transform:translate(-50%,-50%);
+  border-radius:2px;
+}
+.dragging #resizer {
+  background:rgba(120,140,200,0.1);
+}
+#drop-indicator {
+  position:absolute;
+  inset:0;
+  background:rgba(0,128,255,0.18);
+  border:3px dashed var(--accent);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  font-size:1.4rem;
+  font-weight:600;
+  z-index:100;
+  pointer-events:none;
+}
+#drop-indicator.active {
+  display:flex;
+}
+#search-box {
+  width:140px;
+}
+mark.search-hit {
+  background:#39495f;
+  color:inherit;
+  padding:0 2px;
+  border-radius:2px;
+}
+.light mark.search-hit {
+  background:#ffe089;
+}
+.inline-flex { display:inline-flex; align-items:center; gap:0.35rem; }
+.hidden { display:none !important; }
+#gh-panel {
+  display:flex;
+  gap:0.4rem;
+  flex-wrap:wrap;
+  align-items:center;
+  max-width:100%;
+}
+#gh-panel input {
+  width:140px;
+}
+#gh-panel input.long {
+  width:260px;
+}
+small.note {
+  font-size:0.65rem;
+  opacity:0.65;
+}
+@media (max-width: 980px) {
+  #resizer { display:none; }
+  #editor-pane, #preview-pane { width:50% !important; }
+}
+@media (max-width: 760px) {
+  #container { flex-direction:column; }
+  #editor-pane, #preview-pane { width:100% !important; height:50%; }
+  #resizer { display:none; }
+}
+</style>
+</head>
+<body>
+  <div id="topbar">
+    <div class="group" aria-label="File">
+      <button id="btn-new" title="New document (Ctrl+Shift+N)">New</button>
+      <button id="btn-open" title="Open local file">Open</button>
+      <input type="file" id="file-input" accept=".md,.markdown,.txt" style="display:none" />
+      <button id="btn-save" title="Download (Ctrl+S)">Download</button>
+      <button id="btn-copy" title="Copy markdown to clipboard">Copy MD</button>
+      <button id="btn-html-export" title="Export standalone HTML with rendered preview">Export HTML</button>
+    </div>
+    <div class="sep"></div>
+    <div class="group" aria-label="Formatting">
+      <button class="toolbar-btn" data-act="bold" title="Bold (Ctrl+B)">B</button>
+      <button class="toolbar-btn" data-act="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+      <button class="toolbar-btn" data-act="code" title="Inline Code (Ctrl+`)">Code</button>
+      <button class="toolbar-btn" data-act="h2" title="Heading (Ctrl+H)">H2</button>
+      <button class="toolbar-btn" data-act="ul" title="Bulleted list (Ctrl+U)">• List</button>
+      <button class="toolbar-btn" data-act="ol" title="Numbered list (Ctrl+Shift+O)">1. List</button>
+      <button class="toolbar-btn" data-act="quote" title="Blockquote (Ctrl+Q)">"</button>
+      <button class="toolbar-btn" data-act="link" title="Insert link (Ctrl+L)">Link</button>
+      <button class="toolbar-btn" data-act="image" title="Insert image">Img</button>
+      <button class="toolbar-btn" data-act="hr" title="Horizontal rule">HR</button>
+      <button class="toolbar-btn" data-act="table" title="Insert table">Tbl</button>
+      <button class="toolbar-btn" data-act="frontmatter" title="Insert front matter">YML</button>
+    </div>
+    <div class="sep"></div>
+    <div class="group">
+      <input type="text" id="search-box" placeholder="Search" title="Search (Enter cycles)" />
+      <button id="btn-clear-search" title="Clear search">✕</button>
+      <button id="btn-outline" title="Toggle Outline Panel">Outline</button>
+      <button id="btn-wrap" title="Toggle line wrap">Wrap: On</button>
+      <button id="btn-theme" title="Toggle light/dark theme (Ctrl+T)">Theme</button>
+      <button id="btn-sync" title="Force refresh preview (Ctrl+R)">Refresh</button>
+      <label class="inline-flex" title="Autosave to localStorage">
+        <input type="checkbox" id="chk-autosave" checked />
+        <span style="font-size:0.7rem;">Autosave</span>
+      </label>
+    </div>
+    <div class="sep"></div>
+    <div class="group" id="gh-panel">
+      <button id="btn-gh-toggle" title="Toggle GitHub commit panel">GitHub</button>
+      <div id="gh-fields" class="hidden">
+        <input type="text" id="gh-repo" placeholder="owner/repo" />
+        <input type="text" id="gh-branch" placeholder="branch (default: main)" />
+        <input type="text" id="gh-path" class="long" placeholder="path/in/repo/file.md" />
+        <input type="password" id="gh-token" placeholder="token (repo scope)" />
+        <input type="text" id="gh-message" class="long" placeholder="Commit message" />
+        <button id="btn-gh-commit" class="primary" title="Commit to GitHub">Commit</button>
+      </div>
+    </div>
+  </div>
+  <div id="container">
+    <div id="editor-pane" class="pane">
+      <textarea id="editor" spellcheck="false"></textarea>
+    </div>
+    <div id="resizer" title="Drag to resize"></div>
+    <div id="preview-pane" class="pane">
+      <div id="preview" tabindex="0" aria-label="Rendered Markdown Preview"></div>
+      <div id="drop-indicator">Drop File to Open</div>
+    </div>
+  </div>
+  <div id="statusbar">
+    <span class="badge" id="stat-lines">0 lines</span>
+    <span class="badge" id="stat-words">0 words</span>
+    <span class="badge" id="stat-chars">0 chars</span>
+    <span class="badge" id="stat-updated">Updated: --</span>
+    <span class="badge" id="stat-frontmatter">Front Matter: none</span>
+    <span class="badge" id="stat-render-ms">Render: -- ms</span>
+    <span class="badge" id="stat-github">GitHub: idle</span>
+    <span style="flex:1"></span>
+    <span style="opacity:0.55;">Shortcuts: Ctrl+S Save, Ctrl+T Theme, Ctrl+F Search (native), Ctrl+L Link, Ctrl+B/I/Bkqt etc.</span>
+  </div>
+
+<script>
+/* Basic Markdown Parser (lightweight subset) 
+   Strategy: 
+   1. Extract front matter (--- ... ---) if present.
+   2. Split text into lines → block parse: code fences, headings, lists, blockquotes, hr, tables.
+   3. Inline replacements: code spans, bold, italic, links, images, strikethrough, inline code emphasis order.
+   4. Escape HTML where needed. 
+   This is intentionally small; for full spec use an external library (marked, markdown-it). */
+
+const state = {
+  lastValue: '',
+  outlineVisible: false,
+  wrap: true,
+  theme: 'dark',
+  autosave: true,
+  searchTerm: '',
+  searchMatches: [],
+  searchIndex: 0,
+  frontMatter: null
+};
+
+const els = {
+  editor: document.getElementById('editor'),
+  preview: document.getElementById('preview'),
+  lines: document.getElementById('stat-lines'),
+  words: document.getElementById('stat-words'),
+  chars: document.getElementById('stat-chars'),
+  updated: document.getElementById('stat-updated'),
+  frontmatter: document.getElementById('stat-frontmatter'),
+  renderMs: document.getElementById('stat-render-ms'),
+  github: document.getElementById('stat-github'),
+  search: document.getElementById('search-box'),
+  clearSearch: document.getElementById('btn-clear-search'),
+  wrapBtn: document.getElementById('btn-wrap'),
+  themeBtn: document.getElementById('btn-theme'),
+  refreshBtn: document.getElementById('btn-sync'),
+  ghToggle: document.getElementById('btn-gh-toggle'),
+  ghFields: document.getElementById('gh-fields'),
+  ghRepo: document.getElementById('gh-repo'),
+  ghBranch: document.getElementById('gh-branch'),
+  ghPath: document.getElementById('gh-path'),
+  ghToken: document.getElementById('gh-token'),
+  ghMessage: document.getElementById('gh-message'),
+  ghCommit: document.getElementById('btn-gh-commit'),
+  autosave: document.getElementById('chk-autosave'),
+  resizer: document.getElementById('resizer'),
+  dropIndicator: document.getElementById('drop-indicator'),
+  editorPane: document.getElementById('editor-pane'),
+  previewPane: document.getElementById('preview-pane')
+};
+
+const STORAGE_KEY = 'wysigit_doc_v1';
+
+function now() {
+  return new Date().toLocaleTimeString();
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"]/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'
+  }[c]));
+}
+
+function parseFrontMatter(txt) {
+  if (!txt.startsWith('---\n')) return { frontMatter:null, body:txt };
+  const end = txt.indexOf('\n---', 4);
+  if (end === -1) return { frontMatter:null, body:txt };
+  const fmRaw = txt.slice(4, end).trim();
+  const body = txt.slice(end + 4);
+  return { frontMatter: fmRaw, body };
+}
+
+function parseMarkdown(src) {
+  const t0 = performance.now();
+  const {frontMatter, body} = parseFrontMatter(src);
+  state.frontMatter = frontMatter;
+  const lines = body.replace(/\r\n?/g, '\n').split('\n');
+
+  let html = [];
+  let i = 0;
+  let inCode = false;
+  let codeFence = '';
+  let codeBuffer = [];
+  let tableBuffer = [];
+
+  function flushCode() {
+    if (codeBuffer.length) {
+      const lang = codeFence.split(/\s+/)[0];
+      html.push('<pre><code data-lang="'+escapeHtml(lang)+'">'+escapeHtml(codeBuffer.join('\n'))+'</code></pre>');
+      codeBuffer = [];
+    }
+  }
+  function flushTable() {
+    if (!tableBuffer.length) return;
+    // Simple pipe table parsing
+    const rows = tableBuffer.map(r => r.replace(/^\|/, '').replace(/\|$/, '').split('|').map(c=>c.trim()));
+    let headSepIndex = -1;
+    for (let idx=0; idx<rows.length; idx++) {
+      if (rows[idx].every(c=>/^:?-{3,}:?$/.test(c))) {
+        headSepIndex = idx;
+        break;
+      }
+    }
+    const header = headSepIndex > -1 ? rows.slice(0, headSepIndex) : [];
+    const bodyRows = headSepIndex > -1 ? rows.slice(headSepIndex + 1) : rows;
+    const thead = header.length ? ('<thead>' + header.map(r=> '<tr>' + r.map(c=>'<th>'+inline(c)+'</th>').join('') + '</tr>').join('') + '</thead>') : '';
+    const tbody = '<tbody>' + bodyRows.map(r=> '<tr>' + r.map(c=>'<td>'+inline(c)+'</td>').join('') + '</tr>').join('') + '</tbody>';
+    html.push('<table>'+thead+tbody+'</table>');
+    tableBuffer = [];
+  }
+
+  function inline(text) {
+    // Escape first
+    text = text.replace(/`([^`]+)`/g, (m, p1) => '§CODESPAN§'+escapeHtml(p1)+'§ENDCODESPAN§');
+    text = escapeHtml(text);
+    // Bold/Italic combos (strong emphasis)
+    text = text.replace(/\*\*\*([^\*]+)\*\*\*/g,'<strong><em>$1</em></strong>');
+    text = text.replace(/___([^_]+)___/g,'<strong><em>$1</em></strong>');
+    text = text.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+    text = text.replace(/__([^_]+)__/g,'<strong>$1</strong>');
+    text = text.replace(/\*([^*]+)\*/g,'<em>$1</em>');
+    text = text.replace(/_([^_]+)_/g,'<em>$1</em>');
+    text = text.replace(/~~([^~]+)~~/g,'<del>$1</del>');
+    // Images ![alt](url)
+    text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g,(m,alt,url)=>'<img alt="'+alt+'" src="'+encodeURI(url)+'" />');
+    // Links [text](url)
+    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g,(m,txt,url)=>'<a href="'+encodeURI(url)+'" target="_blank" rel="noopener noreferrer">'+txt+'</a>');
+    // Autolinks
+    text = text.replace(/(^|[\s(])https?:\/\/[^\s)]+/g,(m)=> {
+      const prefix = m.match(/^[\s(]/) ? m[0] : '';
+      const link = prefix ? m.slice(1) : m;
+      return prefix + '<a href="'+link+'" target="_blank" rel="noopener noreferrer">'+link+'</a>';
+    });
+    // Code spans restore
+    text = text.replace(/§CODESPAN§([^§]+)§ENDCODESPAN§/g,(m,p1)=>'<code>'+p1+'</code>');
+    return text;
+  }
+
+  while (i < lines.length) {
+    let line = lines[i];
+
+    // Code fences
+    if (!inCode && /^```/.test(line)) {
+      inCode = true;
+      codeFence = line.replace(/^```+/, '').trim();
+      i++; continue;
+    } else if (inCode && /^```/.test(line)) {
+      flushCode();
+      inCode = false;
+      codeFence = '';
+      i++; continue;
+    }
+    if (inCode) {
+      codeBuffer.push(line);
+      i++; continue;
+    }
+
+    // Table detection (collect consecutive lines containing pipes)
+    if (/\|/.test(line) && !/^#{1,6}\s/.test(line) && !/^\s*([-*+]|\d+\.)\s/.test(line)) {
+      tableBuffer.push(line);
+      // Look ahead; if next line not a table, flush
+      const next = lines[i+1];
+      if (!next || !/\|/.test(next)) {
+        flushTable();
+      }
+      i++; continue;
+    } else {
+      flushTable();
+    }
+
+    // Horizontal rule
+    if (/^(\s*)(-{3,}|\*{3,}|_{3,})\s*$/.test(line)) {
+      html.push('<hr />'); i++; continue;
+    }
+    // Heading
+    if (/^#{1,6}\s/.test(line)) {
+      const m = line.match(/^(#{1,6})\s+(.*)$/);
+      if (m) {
+        const level = m[1].length;
+        html.push('<h'+level+'>' + inline(m[2].trim()) + '</h'+level+'>');
+        i++; continue;
+      }
+    }
+    // Blockquote
+    if (/^>\s?/.test(line)) {
+      const block = [];
+      while (i < lines.length && /^>\s?/.test(lines[i])) {
+        block.push(lines[i].replace(/^>\s?/, ''));
+        i++;
+      }
+      const inner = parseMarkdown(block.join('\n')).html; // recursive parse
+      html.push('<blockquote>'+inner+'</blockquote>');
+      continue;
+    }
+    // Lists
+    if (/^(\s*)([-*+])\s+/.test(line) || /^(\s*)\d+\.\s+/.test(line)) {
+      const ordered = /^\s*\d+\.\s+/.test(line);
+      const tag = ordered ? 'ol' : 'ul';
+      const items = [];
+      while (i < lines.length && (ordered ? /^\s*\d+\.\s+/.test(lines[i]) : /^(\s*)[-*+]\s+/.test(lines[i]))) {
+        let itemLine = lines[i].replace(/^(\s*)([-*+]|\d+\.)\s+/, '');
+        // Collect following indented lines as part of item (basic)
+        const sub = [itemLine];
+        let j = i + 1;
+        while (j < lines.length && /^\s{4,}\S/.test(lines[j])) {
+          sub.push(lines[j].replace(/^\s{4}/,''));
+          j++;
+        }
+        items.push('<li>'+parseMarkdown(sub.join('\n')).html+'</li>');
+        i = j;
+      }
+      html.push('<'+tag+'>'+items.join('')+'</'+tag+'>');
+      continue;
+    }
+    // Empty line
+    if (/^\s*$/.test(line)) { html.push(''); i++; continue; }
+
+    // Paragraph (combine consecutive non-blank lines)
+    const para = [line];
+    let j = i + 1;
+    while (j < lines.length && !/^\s*$/.test(lines[j]) &&
+      !/^#{1,6}\s/.test(lines[j]) &&
+      !/^>\s?/.test(lines[j]) &&
+      !/^(\s*)([-*+])\s+/.test(lines[j]) &&
+      !/^(\s*)\d+\.\s+/.test(lines[j]) &&
+      !/^```/.test(lines[j]) &&
+      !/^(\s*)(-{3,}|\*{3,}|_{3,})\s*$/.test(lines[j]) &&
+      !/\|/.test(lines[j])
+    ) {
+      para.push(lines[j]);
+      j++;
+    }
+    i = j;
+    html.push('<p>'+inline(para.join(' '))+'</p>');
+  }
+  flushCode();
+  flushTable();
+
+  const outHtml = html.join('\n').replace(/\n{3,}/g,'\n\n');
+  const totalMs = (performance.now() - t0).toFixed(1);
+  return { html: outHtml, ms: totalMs, frontMatter };
+}
+
+function render() {
+  const value = els.editor.value;
+  const parsed = parseMarkdown(value);
+  els.preview.innerHTML = parsed.html;
+  els.renderMs.textContent = 'Render: '+parsed.ms+' ms';
+  els.frontmatter.textContent = 'Front Matter: ' + (parsed.frontMatter ? 'yes' : 'none');
+  updateStats(value);
+  highlightSearchInPreview();
+}
+
+function updateStats(txt) {
+  const lines = txt.split(/\r\n?|\n/).length;
+  const words = (txt.match(/\b\S+\b/g) || []).length;
+  els.lines.textContent = lines + ' lines';
+  els.words.textContent = words + ' words';
+  els.chars.textContent = txt.length + ' chars';
+  els.updated.textContent = 'Updated: ' + now();
+}
+
+function saveLocal() {
+  if (!state.autosave) return;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    content: els.editor.value,
+    theme: state.theme
+  }));
+}
+
+function loadLocal() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const obj = JSON.parse(raw);
+    if (obj.content) {
+      els.editor.value = obj.content;
+      render();
+    }
+    if (obj.theme) {
+      setTheme(obj.theme);
+    }
+  } catch(e){}
+}
+
+function setTheme(t) {
+  state.theme = t;
+  if (t === 'light') {
+    document.documentElement.classList.add('light');
+  } else {
+    document.documentElement.classList.remove('light');
+  }
+  saveLocal();
+}
+
+function toggleTheme() {
+  setTheme(state.theme === 'dark' ? 'light' : 'dark');
+}
+
+function toggleWrap() {
+  state.wrap = !state.wrap;
+  els.editor.style.whiteSpace = state.wrap ? 'pre-wrap' : 'pre';
+  els.wrapBtn.textContent = 'Wrap: ' + (state.wrap ? 'On' : 'Off');
+}
+
+function applyFormat(action) {
+  const el = els.editor;
+  const start = el.selectionStart;
+  const end = el.selectionEnd;
+  let value = el.value;
+  const selected = value.slice(start, end);
+  let replacement = '';
+  let newStart = start;
+  let newEnd = end;
+
+  const surround = (pre, post = pre) => {
+    replacement = pre + selected + post;
+    el.value = value.slice(0, start) + replacement + value.slice(end);
+    newStart = start + pre.length;
+    newEnd = newStart + selected.length;
+  };
+
+  switch(action) {
+    case 'bold': surround('**'); break;
+    case 'italic': surround('*'); break;
+    case 'code': surround('`'); break;
+    case 'h2':
+      // Insert heading at start of line
+      const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+      el.value = value.slice(0, lineStart) + '## ' + value.slice(lineStart);
+      newStart = start + 3;
+      newEnd = end + 3;
+      break;
+    case 'ul':
+      replaceLines(value, start, end, l => l.trim() ? '- ' + l : l); break;
+    case 'ol':
+      let counter = 1;
+      replaceLines(value, start, end, l => l.trim() ? (counter++) + '. ' + l : l); break;
+    case 'quote':
+      replaceLines(value, start, end, l => l.trim() ? '> ' + l : l); break;
+    case 'link':
+      replacement = '[' + (selected || 'text') + '](https://example.com)';
+      el.value = value.slice(0,start) + replacement + value.slice(end);
+      newStart = start + 1;
+      newEnd = start + (selected || 'text').length + 1;
+      break;
+    case 'image':
+      replacement = '![' + (selected || 'alt') + '](https://example.com/image.png)';
+      el.value = value.slice(0,start) + replacement + value.slice(end);
+      newStart = start + 2;
+      newEnd = start + (selected || 'alt').length + 2;
+      break;
+    case 'hr':
+      replacement = (value.slice(0,start).endsWith('\n') ? '' : '\n') + '---\n';
+      el.value = value.slice(0,start) + replacement + value.slice(end);
+      newStart = newEnd = start + replacement.length;
+      break;
+    case 'table':
+      replacement = '\n| Col A | Col B | Col C |\n|-------|-------|-------|\n| Val 1 | Val 2 | Val 3 |\n';
+      el.value = value.slice(0,start) + replacement + value.slice(end);
+      newStart = newEnd = start + 1;
+      break;
+    case 'frontmatter':
+      if (!value.startsWith('---\n')) {
+        const fm = '---\ntitle: Document Title\ndate: '+ new Date().toISOString() +'\n---\n\n';
+        el.value = fm + value;
+        newStart = newEnd = fm.length;
+      }
+      break;
+  }
+  el.focus();
+  el.selectionStart = newStart;
+  el.selectionEnd = newEnd;
+  render();
+  saveLocal();
+}
+
+function replaceLines(value, start, end, fn) {
+  const before = value.slice(0,start);
+  const sel = value.slice(start,end);
+  const after = value.slice(end);
+  const lines = sel.split(/\r?\n/);
+  const out = lines.map(fn).join('\n');
+  els.editor.value = before + out + after;
+}
+
+function handleKey(e) {
+  if (e.ctrlKey || e.metaKey) {
+    switch(e.key.toLowerCase()) {
+      case 's':
+        e.preventDefault();
+        downloadMarkdown();
+        break;
+      case 'b':
+        e.preventDefault(); applyFormat('bold'); break;
+      case 'i':
+        e.preventDefault(); applyFormat('italic'); break;
+      case 'l':
+        e.preventDefault(); applyFormat('link'); break;
+      case 'h':
+        e.preventDefault(); applyFormat('h2'); break;
+      case 'u':
+        e.preventDefault(); applyFormat('ul'); break;
+      case 't':
+        e.preventDefault(); toggleTheme(); break;
+      case 'r':
+        e.preventDefault(); render(); break;
+      default: break;
+    }
+  }
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'o') {
+    e.preventDefault(); applyFormat('ol');
+  }
+  if (e.ctrlKey && e.key === '`') {
+    e.preventDefault(); applyFormat('code');
+  }
+  if (e.ctrlKey && e.key.toLowerCase() === 'q') {
+    e.preventDefault(); applyFormat('quote');
+  }
+}
+
+function downloadMarkdown() {
+  const blob = new Blob([els.editor.value], {type:'text/markdown'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = deriveFilename();
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function deriveFilename() {
+  const fmTitle = state.frontMatter && state.frontMatter.match(/title:\s*(.+)/);
+  if (fmTitle) return fmTitle[1].trim().replace(/[^\w.-]+/g,'_') + '.md';
+  // else first heading
+  const m = els.editor.value.match(/^#\s+(.+)/m);
+  if (m) return m[1].trim().replace(/[^\w.-]+/g,'_') + '.md';
+  return 'document.md';
+}
+
+function copyMarkdown() {
+  navigator.clipboard.writeText(els.editor.value).catch(()=>{});
+}
+
+function exportHTML() {
+  const rendered = els.preview.innerHTML;
+  const template = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escapeHtml(deriveFilename())}</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+body{font-family:system-ui,Segoe UI,Roboto,sans-serif;max-width:860px;margin:40px auto;padding:0 1.2rem;line-height:1.55;}
+pre{background:#111317;color:#eee;padding:0.7em 1em;border-radius:6px;overflow:auto;}
+code{background:#2b3036;color:#fff;padding:0.15em 0.4em;border-radius:4px;}
+h1,h2,h3,h4,h5,h6{line-height:1.2;font-weight:600;margin-top:1.4em;}
+blockquote{border-left:4px solid #3d7cff;background:#e8f0ff;padding:0.6em 0.9em;border-radius:4px;}
+table{border-collapse:collapse;width:100%;margin:1em 0;font-size:0.9rem;}
+table th, table td{border:1px solid #d0d4db;padding:0.5em 0.6em;text-align:left;vertical-align:top;}
+hr{border:0;border-top:1px solid #ccc;margin:2em 0;}
+a{color:#175fe6;text-decoration:none;} a:hover{text-decoration:underline;}
+</style></head><body>${rendered}</body></html>`;
+  const blob = new Blob([template], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = deriveFilename().replace(/\.md$/i,'') + '.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function performSearch(term) {
+  state.searchTerm = term;
+  state.searchMatches = [];
+  state.searchIndex = 0;
+  if (!term) {
+    render();
+    return;
+  }
+  highlightSearchInPreview();
+}
+
+function highlightSearchInPreview() {
+  if (!state.searchTerm) return;
+  // Basic approach: wrap matches in preview innerHTML (avoid breaking tags using regex carefully)
+  // To minimize risk of breaking, we traverse text nodes.
+  const term = state.searchTerm;
+  const walker = document.createTreeWalker(els.preview, NodeFilter.SHOW_TEXT, null);
+  const toWrap = [];
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    const idx = node.data.toLowerCase().indexOf(term.toLowerCase());
+    if (idx > -1) toWrap.push({node, idx});
+  }
+  toWrap.forEach(({node, idx}) => {
+    const span = document.createElement('mark');
+    span.className = 'search-hit';
+    const termLen = term.length;
+    const before = node.data.slice(0, idx);
+    const middle = node.data.slice(idx, idx + termLen);
+    const after = node.data.slice(idx + termLen);
+    const afterNode = document.createTextNode(after);
+    span.textContent = middle;
+    const parent = node.parentNode;
+    parent.insertBefore(document.createTextNode(before), node);
+    parent.insertBefore(span, node);
+    parent.insertBefore(afterNode, node);
+    parent.removeChild(node);
+    state.searchMatches.push(span);
+  });
+  if (state.searchMatches.length) {
+    focusSearchResult(0);
+  }
+}
+
+function focusSearchResult(i) {
+  if (!state.searchMatches.length) return;
+  state.searchIndex = (i + state.searchMatches.length) % state.searchMatches.length;
+  state.searchMatches.forEach(el => el.style.outline='none');
+  const el = state.searchMatches[state.searchIndex];
+  el.style.outline='2px solid var(--accent)';
+  el.scrollIntoView({block:'center'});
+}
+
+function cycleSearch() {
+  if (!state.searchMatches.length) return;
+  focusSearchResult(state.searchIndex + 1);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.activeElement === els.search) {
+    e.preventDefault();
+    cycleSearch();
+  }
+});
+
+els.clearSearch.addEventListener('click', () => {
+  els.search.value = '';
+  state.searchTerm = '';
+  render();
+});
+
+els.search.addEventListener('input', () => {
+  render();
+  performSearch(els.search.value.trim());
+});
+
+/* Toolbar actions */
+document.querySelectorAll('[data-act]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    applyFormat(btn.dataset.act);
+  });
+});
+
+/* File handling */
+document.getElementById('btn-open').addEventListener('click', () => {
+  document.getElementById('file-input').click();
+});
+document.getElementById('file-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  file.text().then(t => {
+    els.editor.value = t;
+    render();
+    saveLocal();
+  });
+  e.target.value = '';
+});
+
+/* Drag & Drop */
+['dragenter','dragover'].forEach(ev => {
+  document.addEventListener(ev, e => {
+    e.preventDefault();
+    els.dropIndicator.classList.add('active');
+  });
+});
+['dragleave','drop'].forEach(ev => {
+  document.addEventListener(ev, e => {
+    if (e.target === document || e.target === els.previewPane || e.target === els.dropIndicator) {
+      e.preventDefault();
+      if (ev === 'drop') {
+        const file = e.dataTransfer.files[0];
+        if (file) file.text().then(t => {
+          els.editor.value = t;
+          render();
+          saveLocal();
+        });
+      }
+      els.dropIndicator.classList.remove('active');
+    }
+  });
+});
+
+/* New document */
+document.getElementById('btn-new').addEventListener('click', () => {
+  if (els.editor.value.trim() && !confirm('Discard current content?')) return;
+  els.editor.value = '';
+  render();
+  saveLocal();
+});
+
+/* Save / Copy / Export */
+document.getElementById('btn-save').addEventListener('click', downloadMarkdown);
+document.getElementById('btn-copy').addEventListener('click', copyMarkdown);
+document.getElementById('btn-html-export').addEventListener('click', exportHTML);
+
+/* Theme & Wrap & Refresh */
+els.themeBtn.addEventListener('click', toggleTheme);
+els.wrapBtn.addEventListener('click', toggleWrap);
+els.refreshBtn.addEventListener('click', render);
+
+/* Autosave toggle */
+els.autosave.addEventListener('change', () => {
+  state.autosave = els.autosave.checked;
+  saveLocal();
+});
+
+/* Editor events */
+els.editor.addEventListener('input', () => {
+  render();
+  saveLocal();
+});
+els.editor.addEventListener('keydown', handleKey);
+
+/* Outline (basic extraction of headings) */
+const outlineBtn = document.getElementById('btn-outline');
+outlineBtn.addEventListener('click', () => {
+  state.outlineVisible = !state.outlineVisible;
+  toggleOutline();
+});
+let outlineEl = null;
+function toggleOutline() {
+  if (state.outlineVisible) {
+    if (!outlineEl) {
+      outlineEl = document.createElement('div');
+      outlineEl.style.position = 'absolute';
+      outlineEl.style.right = '8px';
+      outlineEl.style.top = '8px';
+      outlineEl.style.bottom = '8px';
+      outlineEl.style.width = '220px';
+      outlineEl.style.overflow = 'auto';
+      outlineEl.style.background = 'var(--bg-alt)';
+      outlineEl.style.border = '1px solid var(--border)';
+      outlineEl.style.borderRadius = '6px';
+      outlineEl.style.padding = '0.5rem 0.6rem';
+      outlineEl.style.fontSize = '0.75rem';
+      outlineEl.style.boxShadow = '0 4px 16px rgba(0,0,0,0.3)';
+      outlineEl.style.zIndex = 50;
+      outlineEl.id = 'outline-panel';
+      document.body.appendChild(outlineEl);
+    }
+    buildOutline();
+    outlineEl.style.display = 'block';
+  } else if (outlineEl) {
+    outlineEl.style.display = 'none';
+  }
+}
+function buildOutline() {
+  if (!outlineEl) return;
+  const value = els.editor.value;
+  const lines = value.split(/\r?\n/);
+  const items = [];
+  for (const line of lines) {
+    const m = line.match(/^(#{1,6})\s+(.*)$/);
+    if (m) {
+      const level = m[1].length;
+      const text = m[2].trim();
+      items.push({level, text});
+    }
+  }
+  outlineEl.innerHTML = '<div style="font-weight:600;margin-bottom:4px;">Outline</div>' +
+    (items.length ? items.map(it => {
+      const indent = (it.level - 1) * 8;
+      return '<div data-text="'+escapeHtml(it.text)+'" style="margin:2px 0; cursor:pointer; padding:2px 4px; border-radius:4px; margin-left:'+indent+'px;">'+
+        '<span style="opacity:.65;">H'+it.level+':</span> '+escapeHtml(it.text)+'</div>';
+    }).join('') : '<div style="opacity:.6;">(none)</div>');
+  outlineEl.querySelectorAll('div[data-text]').forEach(el => {
+    el.addEventListener('click', () => {
+      const t = el.getAttribute('data-text');
+      const idx = els.editor.value.indexOf('# ' + t);
+      if (idx > -1) {
+        els.editor.focus();
+        els.editor.selectionStart = idx;
+        els.editor.selectionEnd = idx;
+        els.editor.scrollTop = els.editor.scrollHeight * (idx / els.editor.value.length);
+      }
+    });
+  });
+}
+
+/* GitHub commit */
+els.ghToggle.addEventListener('click', () => {
+  els.ghFields.classList.toggle('hidden');
+});
+
+async function commitToGitHub() {
+  const repo = els.ghRepo.value.trim();
+  const branch = els.ghBranch.value.trim() || 'main';
+  const path = els.ghPath.value.trim();
+  const token = els.ghToken.value.trim();
+  const message = els.ghMessage.value.trim() || 'Update ' + path;
+  if (!repo || !path || !token) {
+    updateGitHubStatus('missing fields', true);
+    return;
+  }
+  updateGitHubStatus('checking file...');
+  try {
+    const apiBase = 'https://api.github.com';
+    const headers = {
+      'Authorization': 'Bearer ' + token,
+      'Accept': 'application/vnd.github+json'
+    };
+    // Get file (to fetch SHA if exists)
+    let sha = undefined;
+    let getRes = await fetch(`${apiBase}/repos/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`, { headers });
+    if (getRes.status === 200) {
+      const json = await getRes.json();
+      sha = json.sha;
+      updateGitHubStatus('existing file sha found');
+    } else if (getRes.status === 404) {
+      updateGitHubStatus('creating new file');
+    } else {
+      const text = await getRes.text();
+      throw new Error('Fetch file failed: ' + getRes.status + ' ' + text);
+    }
+    // Put file
+    updateGitHubStatus('uploading...');
+    const putBody = {
+      message,
+      content: btoa(unescape(encodeURIComponent(els.editor.value))),
+      branch
+    };
+    if (sha) putBody.sha = sha;
+    const putRes = await fetch(`${apiBase}/repos/${repo}/contents/${encodeURIComponent(path)}`, {
+      method:'PUT',
+      headers: {
+        ...headers,
+        'Content-Type':'application/json'
+      },
+      body: JSON.stringify(putBody)
+    });
+    if (!putRes.ok) {
+      const text = await putRes.text();
+      throw new Error('Upload failed: ' + putRes.status + ' ' + text);
+    }
+    updateGitHubStatus('success');
+  } catch(e) {
+    updateGitHubStatus('error: ' + e.message, true);
+  }
+}
+
+function updateGitHubStatus(msg, error) {
+  els.github.textContent = 'GitHub: ' + msg;
+  els.github.style.background = error ? 'var(--danger)' : '';
+  els.github.style.color = error ? '#fff' : '';
+}
+
+els.ghCommit.addEventListener('click', commitToGitHub);
+
+/* Resizer */
+(function initResizer(){
+  let dragging = false;
+  let startX = 0;
+  let startLeftWidth = 0;
+  els.resizer.addEventListener('mousedown', e => {
+    e.preventDefault();
+    dragging = true;
+    startX = e.clientX;
+    startLeftWidth = els.editorPane.getBoundingClientRect().width;
+    document.body.classList.add('dragging');
+  });
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const total = els.container ? els.container.getBoundingClientRect().width : window.innerWidth;
+    const newLeft = Math.min(Math.max(200, startLeftWidth + dx), total - 200);
+    els.editorPane.style.width = newLeft + 'px';
+    els.previewPane.style.width = 'calc(100% - ' + newLeft + 'px)';
+  });
+  window.addEventListener('mouseup', () => {
+    if (dragging) {
+      dragging = false;
+      document.body.classList.remove('dragging');
+    }
+  });
+})();
+
+/* Initialize */
+function init() {
+  loadLocal();
+  if (!els.editor.value) {
+    els.editor.value = '# WysiGit Markdown Editor\n\n- Left: source\n- Right: live preview\n\n**Features**:\n- Formatting toolbar\n- Local autosave\n- Drag & drop open\n- Front matter detection\n- Basic table + lists\n- GitHub commit (token-based)\n- Search highlighting\n- Resizable panes\n\n```js\nconsole.log(\"Hello Markdown\");\n```\n';
+  }
+  render();
+  setTheme(state.theme);
+  state.wrap = true;
+  els.editor.style.whiteSpace = 'pre-wrap';
+}
+
+init();
+
+/* Mutation / update events to rebuild outline on heading changes */
+let outlineTimer = null;
+els.editor.addEventListener('input', () => {
+  if (state.outlineVisible) {
+    clearTimeout(outlineTimer);
+    outlineTimer = setTimeout(buildOutline, 400);
+  }
+});
+
+/* Utility for safe base64 (already used). */
+
+/* Expose some functions for console debugging */
+window.WysiGit = { parseMarkdown, render, state };
+</script>
+</body>
+</html>
