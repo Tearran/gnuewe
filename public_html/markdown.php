@@ -187,19 +187,20 @@ if ($fullPath && strpos($fullPath, realpath($docsDir)) === 0 && is_file($fullPat
 
 <header class="action-bar">
   <div class="actions">
-    <button onclick="togglePanel('#doc-links')" title="Toggle Navigation">
-      <svg class="icon"><use href="/images/icons.svg#i-book"></use></svg>
-    </button>
-    <a href="javascript:void(0);" class="button" onclick="togglePanel('#metadata-content')" title="Toggle metadata-content">
-    <span>&lt;/&gt;</span>
+    <a href="javascript:void(0);" class="button" onclick="togglePanel('#doc-links')" title="Toggle Navigation">
+        <svg class="icon"><use href="/images/icons.svg#i-book"></use></svg>
+    </a>
 
-		</a>
   </div>
 
   <div class="actions">
-    <button onclick="togglePanel('#doc-outline')" title="Toggle Outline">
+  <a href="javascript:void(0);" class="button" onclick="togglePanel('#metadata-content')" title="Toggle metadata-content">
+        <svg class="icon"><use href="/images/icons.svg#i-meta"></use></svg>
+    </a>
+    <a href="javascript:void(0);" class="button" onclick="togglePanel('#doc-outline')" title="Toggle Outline">
+    
       <svg class="icon"><use href="/images/icons.svg#i-list"></use></svg>
-    </button>
+</a>
   </div>
 </header>
 

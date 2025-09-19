@@ -65,12 +65,11 @@
 		a:hover,
 		a:focus {
 			color: var(--color-link-hover);
-
 		}
 
 		a:active {
 			color: var(--color-link-active);
-		text-decoration: underline;
+			text-decoration: underline;
 		}
 
 		a:visited {
@@ -94,13 +93,14 @@
 			display: flex;
 			gap: 0.5rem;
 		}
-	a.button,
+
+		a.button,
 		button {
 			display: flex;
 			align-items: center;
 			gap: 0.5rem;
 			padding: 0.4rem 0.8rem;
-		text-decoration: none;
+			text-decoration: none;
 			background: var(--color-btn-bg);
 			border: 1px solid var(--color-border);
 			border-radius: 0.4rem;
@@ -109,7 +109,8 @@
 			font-size: 0.9rem;
 			transition: background 0.2s, border-color 0.2s, color 0.2s;
 		}
-	a.button:hover,
+
+		a.button:hover,
 		button:hover {
 			background: var(--color-btn-hover);
 			border-color: var(--color-btn-hover);
@@ -145,10 +146,11 @@
 			background: var(--color-main-bg);
 			padding: 0;
 		}
+
 		.container,
 		.page,
-		article{
-	padding: 1rem;
+		article {
+			padding: 1rem;
 		}
 
 		aside {
@@ -172,7 +174,6 @@
 			flex-shrink: 0;
 			color: currentColor;
 			stroke: currentColor;
-		 
 			stroke-linecap: round;
 			stroke-linejoin: round;
 			fill: none;
@@ -182,14 +183,15 @@
 				opacity var(--icon-transition);
 		}
 
-	svg.icon-md{
-		width: 1.5em;
-		height: 1.5em;
-	}
-	svg.icon-lg{
-		width: 2em;
-		height: 2em;
-	}
+		svg.icon-md {
+			width: 1.5em;
+			height: 1.5em;
+		}
+
+		svg.icon-lg {
+			width: 2em;
+			height: 2em;
+		}
 
 		/* Mobile layout */
 		@media (max-width: 768px) {
@@ -213,69 +215,81 @@
 <body>
 	<header>
 		<div class="actions">
-		<a href="javascript:void(0);" class="button" onclick="togglePanel('#tool-links')" title="Toggle Tools">
-			<svg class="icon icon-lg">
-				<use href="/images/icons.svg#i-grid"></use>
-			</svg>
-		</a>
-		<a href="https://github.com/Tearran/gnuewe" class="button" target="_blank" rel="noopener">
-			<svg class="icon icon-lg">
+			<a href="javascript:void(0);" class="button" onclick="togglePanel('#tool-links')" title="Toggle Tools">
+				<svg class="icon icon-lg">
+					<use href="/images/icons.svg#i-grid"></use>
+				</svg>
+			</a>
+			<a href="https://github.com/Tearran/gnuewe" class="button" target="_blank" rel="noopener">
+				<svg class="icon icon-lg">
 					<use href="/images/icons.svg#i-github"></use>
-			</svg>
-		</a>
-	</a>
+				</svg>
+			</a>
+			</a>
 		</div>
 
-
 		<div class="actions">
-	<a href="javascript:void(0);" class="button" onclick="toggleDarkMode()" title="Dark Mode">
-			<svg class="icon  icon-lg">
-				<use href="/images/icons.svg#i-color"></use>
-			</svg>
-		</a>
+			<a href="javascript:void(0);" class="button" onclick="toggleDarkMode()" title="Dark Mode">
+				<svg class="icon  icon-lg">
+					<use href="/images/icons.svg#i-light"></use>
+				</svg>
+			</a>
 
-		<a href="javascript:void(0);" class="button" onclick="togglePanel('#tag-links')" title="Toggle Outline">
+			<a href="javascript:void(0);" class="button" onclick="togglePanel('#tag-links')" title="Toggle Outline">
 				<svg class="icon  icon-lg">
 					<use href="/images/icons.svg#i-tag"></use>
 				</svg>
-</a>
+			</a>
 		</div>
 	</header>
 
 	<div class="layout">
-	<nav id="tool-links" aria-label="Site Navigation" hidden>
-		<ul>
-			<li>      				
-			<a href="?page=markdown" class="button">
-				<svg class="icon icon-md"><use href="/images/icons.svg#i-book"></use></svg>
-				EWE DOCS
-			</a>
-		</li>
-			<li>
+		<nav id="tool-links" aria-label="Site Navigation" hidden>
+			<ul>
+				<li>
+					<a href="?page=markdown" class="button">
+						<svg class="icon icon-md">
+							<use href="/images/icons.svg#i-book"></use>
+						</svg>
+						EWE DOCS
+					</a>
+				</li>
+				<li>
 
-				<a href="?page=cli" class="button">
-				<svg class="icon icon-md"><use href="/images/icons.svg#i-terminal"></use></svg>
-				EWE Command Line</a></li>
-				
-			<li>
+					<a href="?page=cli" class="button">
+						<svg class="icon icon-md">
+							<use href="/images/icons.svg#i-terminal"></use>
+						</svg>
+						EWE Command Line</a>
+				</li>
 
-				<a href="?page=html" class="button">
-				<svg class="icon icon-md"><use href="/images/icons.svg#i-star"></use></svg>
-				Editor HTML, CSS, JS</a></li>
-				
+				<li>
 
-			<!-- External link -->
-			<li>
-				<a href="?page=md" class="button">
-				<svg class="icon icon-md"><use href="/images/icons.svg#i-download"></use></svg>
-				Editor MarkDown (MD)</a></li>
-			<li>           
-		</ul>
-	</nav>
+					<a href="?page=html" class="button">
+						<svg class="icon icon-md">
+							<use href="/images/icons.svg#i-html5"></use>
+						</svg>
+						Editor HTML, CSS, JS</a>
+				</li>
 
+				<!-- External link -->
+				<li>
+					<a href="?page=md" class="button">
+						<svg class="icon icon-md">
+							<path id="path84" d="M7 3h6l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />
+							<path id="path85" d="m13 3v5h5" />
+							<path d="M7 17V9h2l2 3 2-3h2v8h-2v-5l-2 3-2-3v5H7z" />
+						</svg>
+						Editor MarkDown (MD)</a>
+				</li>
+				<li>
 
-	<main>
-		<?php
+				</li>
+			</ul>
+		</nav>
+
+		<main>
+			<?php
 		$page = $_GET['page'] ?? 'markdown';
 
 		switch ($page) {
@@ -298,11 +312,11 @@
 					echo "<h1>404<h1><p>Page not found.</p>";
 		}
 		?>
-	</main>
-	<!-- Optional sidebar -->
-	<aside id="tag-links" hidden>
-		json metadata
-		<?php include "./scan.php"; ?>
+		</main>
+		<!-- Optional sidebar -->
+		<aside id="tag-links" hidden>
+			json metadata
+			<?php include "./scan.php"; ?>
 		</aside>
 	</div>
 
@@ -316,45 +330,44 @@
 			Content is provided "as is" and is for informational purposes only. Use at your own risk.</div>
 	</footer>
 
-
-<script>
-	function togglePanel(panel) {
-		const el = document.querySelector(panel);
-		el.hidden = !el.hidden;
-	}
-	(function() {
-		const darkPref = localStorage.getItem("dark-mode");
-		if (darkPref === "true") {
-						document.body.classList.add("dark-mode");
-						const useEl = document.querySelector("#darkIcon use");
-						if (useEl) {
-										useEl.setAttribute("href", "#i-moon");
-										useEl.setAttributeNS(
-														"http://www.w3.org/1999/xlink",
-														"xlink:href",
-														"#i-moon"
-										);
-						}
-						document
-										.querySelector('button[title="Toggle Dark Mode"]')
-										.setAttribute("aria-pressed", "true");
+	<script>
+		function togglePanel(panel) {
+			const el = document.querySelector(panel);
+			el.hidden = !el.hidden;
 		}
-	})();
+		(function() {
+			const darkPref = localStorage.getItem("dark-mode");
+			if (darkPref === "true") {
+				document.body.classList.add("dark-mode");
+				const useEl = document.querySelector("#darkIcon use");
+				if (useEl) {
+					useEl.setAttribute("href", "#i-moon");
+					useEl.setAttributeNS(
+						"http://www.w3.org/1999/xlink",
+						"xlink:href",
+						"#i-moon"
+					);
+				}
+				document
+					.querySelector('button[title="Toggle Dark Mode"]')
+					.setAttribute("aria-pressed", "true");
+			}
+		})();
 
-	function toggleDarkMode() {
-					const isDark = document.body.classList.toggle("dark-mode");
-					localStorage.setItem("dark-mode", isDark ? "true" : "false");
-					const useEl = document.querySelector("#darkIcon use");
-					const hrefVal = isDark ? "#i-moon" : "#i-sun";
-					if (useEl) {
-									useEl.setAttribute("href", hrefVal);
-									useEl.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", hrefVal);
-					}
-					document
-									.querySelector('button[title="Toggle Dark Mode"]')
-									.setAttribute("aria-pressed", String(isDark));
-	}
-</script>
+		function toggleDarkMode() {
+			const isDark = document.body.classList.toggle("dark-mode");
+			localStorage.setItem("dark-mode", isDark ? "true" : "false");
+			const useEl = document.querySelector("#darkIcon use");
+			const hrefVal = isDark ? "#i-moon" : "#i-sun";
+			if (useEl) {
+				useEl.setAttribute("href", hrefVal);
+				useEl.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", hrefVal);
+			}
+			document
+				.querySelector('button[title="Toggle Dark Mode"]')
+				.setAttribute("aria-pressed", String(isDark));
+		}
+	</script>
 
 </body>
 

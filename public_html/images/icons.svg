@@ -33,6 +33,17 @@
 		<symbol id="i-minus" viewBox="0 0 24 24">
 			<path id="path17" d="m4 12h16" />
 		</symbol>
+<symbol id="i-light" viewBox="0 0 24 24">
+  <path d="M9 21h6v-1H9v1zm3-19a7 7 0 0 0-4 12.9V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.1A7 7 0 0 0 12 2zm0 2a5 5 0 0 1 5 5c0 1.7-.9 3.2-2.3 4.1a1 1 0 0 0-.4.8V16h-5v-2.1a1 1 0 0 0-.4-.8A5 5 0 0 1 12 4z"/>
+</symbol>
+<symbol id="i-html5" viewBox="0 0 24 24">
+  <!-- shield background -->
+  <path d="M12 0l-9.6 2.7L3.2 19.1 12 24l8.8-4.9.8-16.4L12 0z"/>
+
+  <!-- stylized "5" -->
+  <path d="M16.1 7.1H7.9l.2 2.1h6.6l-.5 5.2L12 16.6l-1.8-.5-.2-2.1 1.4.4.4-.1.4-3.6H7.2l.6 6.6 4.2 1.9 4.1-1.9.8-8.6z" fill="#fff"/>
+</symbol>
+
 
 		<symbol id="i-download" viewBox="0 0 24 24">
 			<path id="path24" d="m5 20h14" />
@@ -135,7 +146,18 @@
 		<symbol id="i-file" viewBox="0 0 24 24">
 			<path id="path84" d="M7 3h6l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />
 			<path id="path85" d="m13 3v5h5" />
+			<path d="M7 17V9h2l2 3 2-3h2v8h-2v-5l-2 3-2-3v5H7z"/>
 		</symbol>
+		<symbol id="i-meta" viewBox="0 0 24 24">
+			<!-- file/document shape -->
+			<path d="M7 3h6l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/>
+			<path d="m13 3v5h5"/>
+
+			<!-- metadata "i" icon -->
+			<circle cx="12" cy="10" r="1"/>
+			<path d="M11 13h2v5h-2z"/>
+		</symbol>
+
 
 		<symbol id="i-color" viewBox="0 0 24 24">
 			<path id="path88" d="M12 3a9 9 0 0 0-9 9 9 9 0 0 0 9 9h.5a2.5 2.5 0 0 0 2.45-2.02c.07-.34.37-.63.72-.71.7-.15 1.43-.24 2.2-.24 1.78 0 3.13-1.57 2.96-3.33C20.97 8.59 16.95 3 12 3Z" />
