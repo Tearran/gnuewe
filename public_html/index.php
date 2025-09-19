@@ -220,11 +220,13 @@
 	<header>
 		<div class="actions">
 			<a href="javascript:void(0);" class="button" onclick="togglePanel('#tool-links')" title="Toggle Tools">
-				<svg class="icon icon-lg">
+			<svg class="icon icon-lg">
 					<use href="#i-grid"></use>
 				</svg>
 			</a>
-
+			<div class=button>
+				<img src="images/ewe_hat.svg" width="48" height="48" alt="GNU EWE logo" loading="lazy" decoding="async">
+			</div>
 		</div>
 
 		<div class="actions">
@@ -241,48 +243,58 @@
 			</a>
 			<a href="javascript:void(0);" class="button" onclick="togglePanel('#sources-links')" title="Toggle sources">
 				<svg class="icon icon-lg">
-					<use href="#i-tearran"></use>
+					<use href="#i-download-box"></use>
 				</svg>
+
 			</a>
 		</div>
 	</header>
 
 	<div class="layout">
-		<nav id="tool-links" aria-label="Site Navigation" hidden>
+		<nav id="tool-links" aria-label="Site Navigation">
 
-					<a href="?page=markdown" class="button">
-						<svg class="icon icon-md">
-							<use href="#i-book"></use>
-						</svg>
-						EWE DOCS
-					</a>
+			<a href="?page=home" class="button">
+				<svg class="icon icon-md">
+					<use href="#i-home"></use>
+				</svg>
+				home
+			</a>
+			<a href="?page=markdown" class="button">
+				<svg class="icon icon-md">
+					<use href="#i-book"></use>
+				</svg>
+				EWE DOCS
+			</a>
 
 
-					<a href="?page=cli" class="button">
-						<svg class="icon icon-md">
-							<use href="#i-terminal"></use>
-						</svg>
-						EWE Command Line</a>
+			<a href="?page=cli" class="button">
+				<svg class="icon icon-md">
+					<use href="#i-terminal"></use>
+				</svg>
+				EWE Command Line</a>
 
 
-					<a href="?page=html" class="button">
-						<svg class="icon icon-md">
-							<use href="#i-html5"></use>
-						</svg>
-						Editor HTML, CSS, JS</a>
+			<a href="?page=html" class="button">
+				<svg class="icon icon-md">
+					<use href="#i-html5"></use>
+				</svg>
+				Editor HTML, CSS, JS</a>
 
-					<a href="?page=md" class="button">
-						<svg class="icon icon-md">
-							<use href="#i-md"></use>
-						</svg>
-						Editor MarkDown (MD)</a>
+			<a href="?page=md" class="button">
+				<svg class="icon icon-md">
+					<use href="#i-md"></use>
+				</svg>
+				Editor MarkDown (MD)</a>
 		</nav>
 
 		<main>
 			<?php
-		$page = $_GET['page'] ?? 'markdown';
+		$page = $_GET['page'] ?? 'home';
 
 		switch ($page) {
+			case 'home':
+				include "./home.html";
+				break;
 			case 'markdown':
 				include "./markdown.php";
 				break;
