@@ -347,9 +347,11 @@
 	</footer>
 	<script>
   // Example: load a markdown doc on page load
-  window.addEventListener("DOMContentLoaded", () => {
-    loadMarkdownFromURL("docs/README.md"); // path to your .md file
-  });
+	window.addEventListener("DOMContentLoaded", () => {
+		if (typeof loadMarkdownFromURL === 'function') {
+		l	oadMarkdownFromURL("docs/README.md");
+		}
+	});
 
   // Or bind links in your nav
   document.querySelectorAll("nav a[data-md]").forEach(a => {
