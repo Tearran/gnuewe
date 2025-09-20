@@ -238,7 +238,7 @@
 
 			<a href="javascript:void(0);" class="button" onclick="togglePanel('#tag-links')" title="Toggle Outline">
 				<svg class="icon  icon-lg">
-					<use href="#hash"></use>
+					<use href="#i-book"></use>
 				</svg>
 			</a>
 			<a href="javascript:void(0);" class="button" onclick="togglePanel('#sources-links')" title="Toggle sources">
@@ -247,6 +247,22 @@
 				</svg>
 
 			</a>
+			<a href="javascript:void(0);" class="button" onclick="togglePanel('#doc-links')" title="Toggle Navigation">
+			<svg class="icon">
+				<use href="#i-book"></use>
+			</svg>
+		</a>
+		<a href="javascript:void(0);" class="button" onclick="togglePanel('#metadata-content')" title="Toggle metadata-content">
+			<svg class="icon">
+				<use href="#i-meta"></use>
+			</svg>
+		</a>
+		<a href="javascript:void(0);" class="button" onclick="togglePanel('#doc-outline')" title="Toggle Outline">
+
+			<svg class="icon">
+				<use href="#i-list"></use>
+			</svg>
+		</a>
 		</div>
 	</header>
 
@@ -259,32 +275,36 @@
 				</svg>
 				Home
 			</a>
+			<!--
 			<a href="?page=markdown" class="button">
 				<svg class="icon icon-md">
 					<use href="#i-book"></use>
 				</svg>
 				EWE DOCS
 			</a>
+	-->
 
-
-			<a href="?page=cli" class="button">
+			<a href="?page=PseudoShell" class="button">
 				<svg class="icon icon-md">
 					<use href="#i-terminal"></use>
 				</svg>
-				EWE Command Line</a>
+				PseudoShell - Bash Sim</a>
 
-
-			<a href="?page=html" class="button">
+			<a href="?page=MiniPen" class="button">
 				<svg class="icon icon-md">
 					<use href="#i-html5"></use>
 				</svg>
-				Editor HTML, CSS, JS</a>
-
-			<a href="?page=md" class="button">
+				MiniPen - HTML Sadbox</a>
+			<a href="?page=MiniMD" class="button">
 				<svg class="icon icon-md">
 					<use href="#i-md"></use>
 				</svg>
-				Editor MarkDown (MD)</a>
+				MiniMD - MarkDown Editor</a>
+			<a href="?page=MiniSVG" class="button">
+				<svg class="icon icon-md">
+					<use href="#i-info"></use>
+				</svg>
+				MiniSVC - SVG Icon Paths</a>
 		</nav>
 
 		<main>
@@ -304,9 +324,18 @@
 			case 'scan':
 				include "./scan.php";
 				break;
-			case 'cli':
-				include "./playcli.html";
+			case 'PseudoShell':
+				include "./PseudoShell.html";
 				break;
+			case 'MiniMD':
+				include "./MiniMD.html";
+				break;
+			case 'MiniPen':
+				include "./MiniPen.html";
+				break;
+			case 'MiniSVG':
+				include "./MiniSVG.html";
+				break;				
 			case 'md':
 				include "./playmd.html";
 				break;
@@ -317,9 +346,13 @@
 		</main>
 		<!-- Optional sidebar -->
 		<aside id="tag-links" hidden>
-			json metadata
-			<hr>
-			<?php include "./scan.php"; ?>
+<!-- Filter input -->
+<input id="tag-filter" type="text" placeholder="Filter by tag or keyword" autocomplete="off"
+        style="margin:1rem 0; padding:0.5rem; width:calc(100% - 2rem);" />
+
+<!-- Navigation list -->
+<ul id="nav-list" style="list-style:none; padding:0; display:flex; flex-wrap:wrap; gap:0.5rem;"></ul>
+
 		</aside>
 		<aside id="sources-links" hidden>
 			<a href="https://github.com/Tearran/gnuewe" class="button" target="_blank" rel="noopener">

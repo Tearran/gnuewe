@@ -1,0 +1,481 @@
+<section class="icon-wrap" aria-label="SVG Icon Manager">
+        <style>
+                /* Root section fills <main>; internal layout owns padding/scrolling */
+                .icon-wrap {
+                        display: flex;
+                        flex-direction: column;
+                        inline-size: 100%;
+                        block-size: 100%;
+                        flex: 1 1 auto;
+                        min-height: 0;
+                        /* allow nested flex children to scroll */
+                        margin: 0;
+                        padding: 0;
+                        color: inherit;
+                        font-family: sans-serif;
+                }
+
+                .icon-toolbar {
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                        padding: 0.5rem 0.75rem;
+                        background: #2d2d2d;
+                        border-bottom: 1px solid #000;
+                }
+
+                .icon-toolbar button {
+                        padding: 0.4rem 0.8rem;
+                        border: none;
+                        border-radius: 4px;
+                        background: #007acc;
+                        color: #fff;
+                        cursor: pointer;
+                }
+
+                .icon-toolbar button:hover {
+                        background: #005fa3;
+                }
+
+                .icon-content {
+                        flex: 1 1 auto;
+                        /* fills remaining height */
+                        min-height: 0;
+                        display: grid;
+                        grid-template-columns: 1fr 0;
+                        /* editor closed by default */
+                        grid-template-rows: 1fr;
+                        gap: 0;
+                        background: #1e1e1e;
+                        color: #ddd;
+                        border-top: 1px solid #000;
+                        overflow: hidden;
+                        /* scroll inside children */
+                }
+
+                .icon-content.panel-open {
+                        grid-template-columns: 1fr 400px;
+                        /* reveal editor column */
+                }
+
+                .icon-grid {
+                        overflow: auto;
+                        padding: 8px;
+                        display: grid;
+                        grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+                        gap: 8px;
+                }
+
+                .icon-item {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 6px;
+                        padding: 8px 6px;
+                        cursor: pointer;
+                        border: 1px solid #555;
+                        border-radius: 6px;
+                        transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+                        background: #161616;
+                }
+
+                .icon-item:hover {
+                        background: #2a2a2a;
+                        border-color: #007acc;
+                }
+
+                .icon-item:active {
+                        transform: scale(0.98);
+                }
+
+                .icon-item svg {
+                        width: 32px;
+                        height: 32px;
+                        fill: none;
+                        stroke: currentColor;
+                }
+
+                .icon-name {
+                        font-size: 0.75rem;
+                        text-align: center;
+                        word-break: break-word;
+                        color: #cfcfcf;
+                }
+
+                .icon-editor {
+                        display: flex;
+                        flex-direction: column;
+                        min-height: 0;
+                        border-left: 2px solid #000;
+                        background: #111;
+                        padding: 8px;
+                }
+
+                .icon-editor .row {
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        margin-bottom: 8px;
+                }
+
+                .icon-editor label {
+                        font-size: 0.85rem;
+                        color: #bbb;
+                        min-width: 72px;
+                }
+
+                .icon-editor input[type="text"] {
+                        flex: 1 1 auto;
+                        min-width: 0;
+                        background: #1e1e1e;
+                        color: #fff;
+                        border: 1px solid #333;
+                        border-radius: 4px;
+                        padding: 6px 8px;
+                        outline: none;
+                }
+
+                .icon-editor .preview-row {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        margin: 4px 0 8px;
+                        color: #ddd;
+                }
+
+                .icon-editor .preview {
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 48px;
+                        height: 48px;
+                        border: 1px solid #333;
+                        border-radius: 6px;
+                        background: #0f0f0f;
+                }
+
+                .icon-editor .preview svg {
+                        width: 32px;
+                        height: 32px;
+                        stroke: currentColor;
+                        fill: none;
+                }
+
+                .icon-editor textarea {
+                        flex: 1 1 auto;
+                        width: 100%;
+                        min-height: 0;
+                        background: #1e1e1e;
+                        color: #fff;
+                        border: 1px solid #333;
+                        border-radius: 4px;
+                        resize: none;
+                        padding: 8px;
+                        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+                        line-height: 1.35;
+                        outline: none;
+                        margin-bottom: 8px;
+                }
+
+                .icon-editor .buttons {
+                        display: flex;
+                        gap: 8px;
+                        flex-wrap: wrap;
+                }
+
+                .icon-editor .buttons button {
+                        padding: 0.4rem 0.8rem;
+                        border: none;
+                        border-radius: 4px;
+                        background: #007acc;
+                        color: white;
+                        cursor: pointer;
+                }
+
+                .icon-editor .buttons button:hover {
+                        background: #005fa3;
+                }
+
+                .icon-editor .buttons .danger {
+                        background: #b64646;
+                }
+
+                .icon-editor .buttons .danger:hover {
+                        background: #933636;
+                }
+
+                /* Hidden sprite lives inside section, not global DOM */
+                .icon-sprite {
+                        position: absolute;
+                        width: 0;
+                        height: 0;
+                        overflow: hidden;
+                        pointer-events: none;
+                }
+
+                @media (max-width: 768px) {
+                        .icon-content.panel-open {
+                                grid-template-columns: 1fr 320px;
+                        }
+                }
+        </style>
+
+        <div class="icon-toolbar">
+                <button type="button" data-action="add">+ Add Icon</button>
+                <button type="button" data-action="import">Import SVG</button>
+                <input type="file" accept=".svg" hidden data-role="file">
+                <button type="button" data-action="download">Download All</button>
+        </div>
+
+        <div class="icon-content" data-role="content">
+                <div class="icon-grid" data-role="grid" aria-live="polite"></div>
+
+                <aside class="icon-editor" data-role="editor" aria-label="Icon Editor">
+                        <div class="row">
+                                <label for="icon-id">ID</label>
+                                <input id="icon-id" type="text" data-role="id" placeholder="icon-id">
+                        </div>
+
+                        <div class="preview-row">
+                                <div class="preview" title="Current (saved)">
+                                        <svg aria-hidden="true">
+                                                <use data-role="preview-use" href=""></use>
+                                        </svg>
+                                </div>
+                                <div class="preview" title="Draft (textarea)">
+                                        <svg aria-hidden="true" data-role="draft-preview"></svg>
+                                </div>
+                        </div>
+
+                        <label for="icon-svg">SVG content</label>
+                        <textarea id="icon-svg" data-role="svg" placeholder='Paths/shapes, e.g.:
+      <path d="M3 11.2L12 4l9 7.2v7.8A1 1 0 0 1 20 20H4a1 1 0 0 1-1-1v-7.8Z"/>
+      <path d="M9 20v-6h6v6"/>'></textarea>
+
+                        <div class="buttons">
+                                <button type="button" data-action="save">Save</button>
+                                <button type="button" class="danger" data-action="delete">Delete</button>
+                                <button type="button" data-action="close">Close</button>
+                        </div>
+                </aside>
+        </div>
+
+        <!-- Local symbol sprite -->
+        <svg class="icon-sprite" data-role="sprite" xmlns="http://www.w3.org/2000/svg">
+                <defs data-role="defs"></defs>
+        </svg>
+
+        <script>
+                (function () {
+                        const root = document.currentScript.closest('.icon-wrap');
+                        const content = root.querySelector('[data-role="content"]');
+                        const grid = root.querySelector('[data-role="grid"]');
+                        const editor = root.querySelector('[data-role="editor"]');
+                        const idInput = root.querySelector('[data-role="id"]');
+                        const svgTextarea = root.querySelector('[data-role="svg"]');
+                        const previewUse = root.querySelector('[data-role="preview-use"]');
+                        const draftPreview = root.querySelector('[data-role="draft-preview"]');
+                        const fileInput = root.querySelector('[data-role="file"]');
+                        const sprite = root.querySelector('[data-role="sprite"]');
+                        const defs = root.querySelector('[data-role="defs"]');
+
+                        let selectedId = null;
+
+                        // Data
+                        const icons = [
+                                { id: 'home', svg: '<path d="M3 11.2L12 4l9 7.2v7.8A1 1 0 0 1 20 20H4a1 1 0 0 1-1-1v-7.8Z"/><path d="M9 20v-6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6"/>' },
+                                { id: 'star', svg: '<path d="M12 4 14.2 8.5l5 .7-3.6 3.6.9 5.1-4.5-2.4-4.5 2.4.9-5.1-3.6-3.6 5-.7L12 4Z"/>' },
+                        ];
+
+                        // Utilities
+                        const exists = id => icons.some(x => x.id === id);
+                        function uniqueId(base) {
+                                let i = 1, id = base;
+                                while (exists(id)) id = `${base}-${i++}`;
+                                return id;
+                        }
+
+                        function clearSprite() { while (defs.firstChild) defs.firstChild.remove(); }
+                        function rebuildSprite() {
+                                clearSprite();
+                                icons.forEach(({ id, svg }) => {
+                                        const symbol = document.createElementNS('http://www.w3.org/2000/svg', 'symbol');
+                                        symbol.setAttribute('id', id);
+                                        // Inject raw paths; editor is trusted user input within app context
+                                        symbol.innerHTML = svg;
+                                        defs.appendChild(symbol);
+                                });
+                        }
+
+                        function renderGrid() {
+                                grid.innerHTML = '';
+                                rebuildSprite();
+
+                                icons.forEach(({ id }) => {
+                                        const tile = document.createElement('button');
+                                        tile.type = 'button';
+                                        tile.className = 'icon-item';
+                                        tile.setAttribute('aria-label', `Edit icon ${id}`);
+                                        tile.innerHTML = `
+                  <svg aria-hidden="true"><use href="#${id}"></use></svg>
+                  <div class="icon-name">${id}</div>
+                `;
+                                        tile.addEventListener('click', () => openEditor(id));
+                                        grid.appendChild(tile);
+                                });
+                        }
+
+                        function openEditor(id) {
+                                selectedId = id;
+                                const obj = icons.find(x => x.id === id);
+                                if (!obj) return;
+
+                                // Show panel
+                                content.classList.add('panel-open');
+                                idInput.value = obj.id;
+                                svgTextarea.value = obj.svg;
+
+                                // Current/saved preview via sprite
+                                previewUse.setAttribute('href', `#${obj.id}`);
+
+                                // Draft preview from textarea content
+                                updateDraftPreview();
+                                svgTextarea.focus();
+                        }
+
+                        function closeEditor() {
+                                selectedId = null;
+                                content.classList.remove('panel-open');
+                        }
+
+                        function updateDraftPreview() {
+                                // Render draft content inside an <svg> container
+                                draftPreview.innerHTML = svgTextarea.value || '';
+                        }
+
+                        function saveIcon() {
+                                if (!selectedId) return;
+                                const current = icons.find(x => x.id === selectedId);
+                                if (!current) return;
+
+                                const newId = (idInput.value || '').trim();
+                                const newSVG = (svgTextarea.value || '').trim();
+
+                                if (!newId) return alert('Icon ID is required.');
+                                if (!newSVG) return alert('SVG content is required.');
+
+                                // If renaming, ensure uniqueness
+                                if (newId !== selectedId && exists(newId)) {
+                                        return alert(`Icon ID "${newId}" already exists.`);
+                                }
+
+                                current.id = newId;
+                                current.svg = newSVG;
+
+                                // If ID changed, update selection and preview
+                                selectedId = newId;
+                                renderGrid();
+                                openEditor(newId);
+                        }
+
+                        function deleteIcon() {
+                                if (!selectedId) return;
+                                const idx = icons.findIndex(x => x.id === selectedId);
+                                if (idx === -1) return;
+                                icons.splice(idx, 1);
+                                closeEditor();
+                                renderGrid();
+                        }
+
+                        function addIcon() {
+                                const base = prompt('Enter new icon ID:')?.trim();
+                                if (!base) return;
+                                const id = exists(base) ? uniqueId(base) : base;
+                                icons.push({ id, svg: '<path d="M5 5h14v14H5z"/>' });
+                                renderGrid();
+                                openEditor(id);
+                        }
+
+                        function downloadAll() {
+                                // Build a standalone SVG sprite file
+                                const content = [
+                                        '<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>',
+                                        ...icons.map(i => `<symbol id="${escapeHtml(i.id)}">${i.svg}</symbol>`),
+                                        '</defs></svg>'
+                                ].join('');
+                                const blob = new Blob([content], { type: 'image/svg+xml' });
+                                const a = document.createElement('a');
+                                const url = URL.createObjectURL(blob);
+                                a.href = url;
+                                a.download = 'icons.svg';
+                                document.body.appendChild(a);
+                                a.click();
+                                a.remove();
+                                URL.revokeObjectURL(url);
+                        }
+
+                        function importSVGFile(file) {
+                                const reader = new FileReader();
+                                reader.onload = e => {
+                                        try {
+                                                const parser = new DOMParser();
+                                                const doc = parser.parseFromString(String(e.target.result || ''), 'image/svg+xml');
+
+                                                // If it contains <symbol> entries, import each
+                                                const syms = [...doc.querySelectorAll('symbol')];
+                                                if (syms.length) {
+                                                        syms.forEach(sym => {
+                                                                const rawId = (sym.getAttribute('id') || 'icon').trim();
+                                                                const id = exists(rawId) ? uniqueId(rawId) : rawId;
+                                                                const svg = sym.innerHTML.trim();
+                                                                if (svg) icons.push({ id, svg });
+                                                        });
+                                                        renderGrid();
+                                                        return;
+                                                }
+
+                                                // Otherwise, take top-level shapes (exclude defs/title/desc)
+                                                const svgRoot = doc.querySelector('svg') || doc.documentElement;
+                                                const shapes = [...svgRoot.children].filter(n => !/^(defs|title|desc)$/i.test(n.tagName));
+                                                if (shapes.length) {
+                                                        const id = uniqueId('icon');
+                                                        const combined = shapes.map(n => n.outerHTML).join('');
+                                                        icons.push({ id, svg: combined });
+                                                        renderGrid();
+                                                        return;
+                                                }
+
+                                                alert('No importable SVG content found.');
+                                        } catch (err) {
+                                                alert('Failed to import SVG.');
+                                        }
+                                };
+                                reader.readAsText(file);
+                        }
+
+                        function escapeHtml(s) {
+                                return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+                        }
+
+                        // Toolbar events
+                        root.querySelector('[data-action="add"]').addEventListener('click', addIcon);
+                        root.querySelector('[data-action="import"]').addEventListener('click', () => fileInput.click());
+                        root.querySelector('[data-action="download"]').addEventListener('click', downloadAll);
+
+                        fileInput.addEventListener('change', () => {
+                                const file = fileInput.files?.[0];
+                                if (file) importSVGFile(file);
+                                fileInput.value = '';
+                        });
+
+                        // Editor events
+                        root.querySelector('[data-action="save"]').addEventListener('click', saveIcon);
+                        root.querySelector('[data-action="delete"]').addEventListener('click', deleteIcon);
+                        root.querySelector('[data-action="close"]').addEventListener('click', closeEditor);
+                        svgTextarea.addEventListener('input', updateDraftPreview);
+
+                        // Initial render
+                        renderGrid();
+                })();
+        </script>
+</section>

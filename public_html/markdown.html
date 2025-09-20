@@ -1,11 +1,3 @@
-<!-- Filter input -->
-<input id="tag-filter" type="text" placeholder="Filter by tag or keyword" autocomplete="off"
-        style="margin:1rem 0; padding:0.5rem; width:calc(100% - 2rem);" />
-
-<!-- Navigation list -->
-<ul id="nav-list" style="list-style:none; padding:0; display:flex; flex-wrap:wrap; gap:0.5rem;"></ul>
-
-<!-- Markdown content -->
 <div id="content" style="box-sizing:border-box; max-width:980px; margin:0 auto; padding:45px;">
         Loading...
 </div>
@@ -106,17 +98,17 @@
         });
 
         // Production: fetch dynamic JSON from scan.php and overwrite navLinks
-        /*
+
         fetch('scan.php')
-          .then(res => res.json())
-          .then(data => {
-            navLinks = data.map(item => ({
-              title: item.title,
-              url: item.url,
-              tags: item.tags || []
-            }));
-            renderMenuLinks();
-            attachNavHandlers();
-          });
-        */
+                .then(res => res.json())
+                .then(data => {
+                        navLinks = data.map(item => ({
+                                title: item.title,
+                                url: item.url,
+                                tags: item.tags || []
+                        }));
+                        renderMenuLinks();
+                        attachNavHandlers();
+                });
+
 </script>

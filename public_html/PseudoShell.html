@@ -1,0 +1,318 @@
+<section class="pshell-wrap">
+        <style>
+                /* Scoped styles so they don't affect the rest of the site */
+                .pshell-wrap {
+                        padding: 0;
+                        background: var(--color-main-bg, #222);
+                        width: 100%;
+                        height: 100%;
+                        color: var(--color-text, #e0e0e0);
+                        margin-bottom: 2em;
+                }
+
+                .pshell-terminal {
+                        box-sizing: border-box;
+                        width: 100%;
+                        height: 100%;
+                        /* nested: fits inside main; can be resized */
+                        min-height: 300px;
+                        resize: vertical;
+                        padding: 12px;
+
+                        border: 1px solid var(--color-border, #333);
+                        border-radius: 6px;
+                        overflow-y: auto;
+                        outline: none;
+                        font-size: 0.95rem;
+                        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+                        overscroll-behavior: contain;
+                }
+
+                .pshell-prompt {
+                        color: #33ff33;
+                }
+
+                .pshell-output {
+                        white-space: pre-wrap;
+                }
+
+                .pshell-input-line {
+                        display: flex;
+                        align-items: center;
+                        gap: 0.25rem;
+                }
+
+                .pshell-input {
+                        background: transparent;
+                        border: none;
+                        color: inherit;
+                        font: inherit;
+                        outline: none;
+                        width: 100%;
+                        caret-color: #33ff33;
+                }
+        </style>
+
+        <div id="pshell-terminal" class="pshell-terminal" tabindex="0" role="region" aria-label="PseudoShell Terminal">
+        </div>
+
+        <script>
+                (function () {
+                        const terminal = document.getElementById('pshell-terminal');
+                        const HOME = '/home/user';
+
+                        // Command history
+                        const history = [];
+                        let historyIndex = 0;
+
+                        // Fake filesystem (directories -> entry names)
+                        let cwd = HOME;
+                        const files = {
+                                '/': ['home', 'bin', 'etc'],
+                                '/home': ['user'],
+                                '/home/user': ['file.txt', 'notes.md'],
+                                '/bin': ['ls', 'echo', 'cat'],
+                                '/etc': ['config'],
+                        };
+
+                        // Fake file contents (absolute paths)
+                        const fileContents = {
+                                '/home/user/file.txt': 'This is a sample file.\nHello, world!',
+                                '/home/user/notes.md': '# Notes\n- HTML5 terminal demo',
+                        };
+
+                        // Path helpers
+                        function normalizePath(path) {
+                                if (!path) return '/';
+                                const parts = path.split('/').filter(Boolean);
+                                const stack = [];
+                                for (const part of parts) {
+                                        if (part === '.' || part === '') continue;
+                                        if (part === '..') {
+                                                if (stack.length) stack.pop();
+                                        } else {
+                                                stack.push(part);
+                                        }
+                                }
+                                return '/' + stack.join('/');
+                        }
+
+                        function resolvePath(path) {
+                                if (!path) return cwd;              // default to current dir
+                                if (path === '~') return HOME;
+                                const abs = path.startsWith('/')
+                                        ? path
+                                        : (cwd === '/' ? `/${path}` : `${cwd}/${path}`);
+                                return normalizePath(abs);
+                        }
+
+                        const isDir = (p) => Object.prototype.hasOwnProperty.call(files, p);
+                        const isFile = (p) => Object.prototype.hasOwnProperty.call(fileContents, p);
+
+                        // Rendering helpers
+                        function renderPrompt() {
+                                const line = document.createElement('div');
+                                line.className = 'pshell-input-line';
+
+                                const promptSpan = document.createElement('span');
+                                promptSpan.className = 'pshell-prompt';
+                                promptSpan.textContent = `user@web:${cwd}$ `;
+
+                                const input = document.createElement('input');
+                                input.className = 'pshell-input';
+                                input.spellcheck = false;
+                                input.autocomplete = 'off';
+
+                                line.appendChild(promptSpan);
+                                line.appendChild(input);
+                                terminal.appendChild(line);
+                                input.focus();
+
+                                input.addEventListener('keydown', (e) => {
+                                        // Ctrl+L -> clear
+                                        if (e.ctrlKey && e.key.toLowerCase() === 'l') {
+                                                e.preventDefault();
+                                                terminal.innerHTML = '';
+                                                renderPrompt();
+                                                scrollToBottom();
+                                                return;
+                                        }
+                                        // Ctrl+C -> cancel current line
+                                        if (e.ctrlKey && e.key.toLowerCase() === 'c') {
+                                                e.preventDefault();
+                                                printOutput('^C');
+                                                renderPrompt();
+                                                scrollToBottom();
+                                                return;
+                                        }
+                                        if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                handleCommand(input.value);
+                                                input.disabled = true; // freeze submitted line
+                                        } else if (e.key === 'ArrowUp') {
+                                                if (history.length > 0 && historyIndex > 0) {
+                                                        historyIndex--;
+                                                        input.value = history[historyIndex];
+                                                        placeCaretEnd(input);
+                                                }
+                                        } else if (e.key === 'ArrowDown') {
+                                                if (history.length > 0 && historyIndex < history.length - 1) {
+                                                        historyIndex++;
+                                                        input.value = history[historyIndex];
+                                                        placeCaretEnd(input);
+                                                } else if (historyIndex === history.length - 1) {
+                                                        historyIndex++;
+                                                        input.value = '';
+                                                }
+                                        }
+                                });
+                        }
+
+                        function echoCommandLine(cmdText) {
+                                const line = document.createElement('div');
+                                const promptSpan = document.createElement('span');
+                                promptSpan.className = 'pshell-prompt';
+                                promptSpan.textContent = `user@web:${cwd}$ `;
+                                const cmdSpan = document.createElement('span');
+                                cmdSpan.textContent = cmdText;
+                                line.append(promptSpan, cmdSpan);
+                                terminal.appendChild(line);
+                        }
+
+                        function printOutput(text) {
+                                const outDiv = document.createElement('div');
+                                outDiv.className = 'pshell-output';
+                                outDiv.textContent = text;
+                                terminal.appendChild(outDiv);
+                        }
+
+                        function scrollToBottom() {
+                                // Use rAF to ensure layout updated before scrolling
+                                requestAnimationFrame(() => {
+                                        terminal.scrollTop = terminal.scrollHeight;
+                                });
+                        }
+
+                        function placeCaretEnd(input) {
+                                const len = input.value.length;
+                                setTimeout(() => input.setSelectionRange(len, len), 0);
+                        }
+
+                        // Command handling
+                        function handleCommand(raw) {
+                                const cmd = (raw ?? '').trim();
+
+                                // Echo command safely (avoid innerHTML)
+                                echoCommandLine(raw ?? '');
+
+                                // Ignore empty for history
+                                if (cmd === '') {
+                                        renderPrompt();
+                                        scrollToBottom();
+                                        return;
+                                }
+
+                                // Add to history (non-empty)
+                                history.push(cmd);
+                                historyIndex = history.length;
+
+                                const args = cmd.split(' ').filter(Boolean);
+                                const mainCmd = args[0];
+
+                                switch (mainCmd) {
+                                        case 'help': {
+                                                printOutput([
+                                                        'Commands:',
+                                                        '  ls [path]          - list directory or file',
+                                                        '  cd [path]          - change directory (supports ., .., ~). No arg -> home',
+                                                        '  pwd                - print working directory',
+                                                        '  echo [text]        - print text',
+                                                        '  cat <file>         - show file contents',
+                                                        '  clear              - clear the screen (Ctrl+L)',
+                                                        '  exit               - end the session',
+                                                        '',
+                                                        'Tips: Up/Down for history, Ctrl+C to cancel line.'
+                                                ].join('\n'));
+                                                break;
+                                        }
+
+                                        case 'ls': {
+                                                const target = args[1] ? resolvePath(args[1]) : cwd;
+                                                if (isDir(target)) {
+                                                        printOutput(files[target].join('\n'));
+                                                } else if (isFile(target)) {
+                                                        printOutput(target.split('/').pop());
+                                                } else {
+                                                        printOutput('No such file or directory');
+                                                }
+                                                break;
+                                        }
+
+                                        case 'pwd': {
+                                                printOutput(cwd);
+                                                break;
+                                        }
+
+                                        case 'cd': {
+                                                const target = args[1] ? resolvePath(args[1]) : HOME;
+                                                if (isDir(target)) {
+                                                        cwd = target;
+                                                } else {
+                                                        printOutput('No such directory');
+                                                }
+                                                break;
+                                        }
+
+                                        case 'echo': {
+                                                printOutput(args.slice(1).join(' '));
+                                                break;
+                                        }
+
+                                        case 'cat': {
+                                                if (!args[1]) {
+                                                        printOutput('cat: missing operand');
+                                                        break;
+                                                }
+                                                const target = resolvePath(args[1]);
+                                                if (isFile(target)) {
+                                                        printOutput(fileContents[target]);
+                                                } else {
+                                                        printOutput('No such file');
+                                                }
+                                                break;
+                                        }
+
+                                        case 'clear': {
+                                                terminal.innerHTML = '';
+                                                renderPrompt();
+                                                scrollToBottom();
+                                                return;
+                                        }
+
+                                        case 'exit': {
+                                                printOutput('Session ended. (Reload the page to restart)');
+                                                scrollToBottom();
+                                                return; // do not render a new prompt
+                                        }
+
+                                        default: {
+                                                printOutput(`${mainCmd}: command not found`);
+                                        }
+                                }
+
+                                renderPrompt();
+                                scrollToBottom();
+                        }
+
+                        // Initial output and prompt
+                        printOutput('Welcome to the Bash Terminal Simulator!\nType "help" for available commands.');
+                        renderPrompt();
+
+                        // Click to focus most recent input
+                        terminal.addEventListener('click', () => {
+                                const inputs = terminal.querySelectorAll('.pshell-input');
+                                if (inputs.length) inputs[inputs.length - 1].focus();
+                        });
+                })();
+        </script>
+</section>

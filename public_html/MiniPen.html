@@ -1,0 +1,495 @@
+<section class="pg-wrap" aria-label="Editor Playground">
+        <style>
+                /* Root section fills <main>; avoid viewport units to prevent overflow inside containers */
+                .pg-wrap {
+                        display: flex;
+                        flex-direction: column;
+                        inline-size: 100%;
+                        block-size: 100%;
+                        flex: 1 1 auto;
+                        min-height: 0;
+                        margin: 0;
+                        padding: 0;
+                        color: inherit;
+                        font-family: sans-serif;
+                }
+
+                .pg-action-bar {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 0.5rem 1rem;
+                        background: #23272e;
+                        border-bottom: 1px solid #000;
+                        color: #fff;
+                }
+
+                .pg-action-bar .pg-actions-left,
+                .pg-action-bar .pg-actions-right {
+                        display: flex;
+                        gap: 0.5rem;
+                        align-items: center;
+                }
+
+                .pg-action-bar button {
+                        background: #007acc;
+                        color: white;
+                        border: none;
+                        border-radius: 4px;
+                        padding: 0.4rem 0.8rem;
+                        cursor: pointer;
+                }
+
+                .pg-action-bar button:hover {
+                        background: #005fa3;
+                }
+
+                .pg-workspace {
+                        flex: 1 1 auto;
+                        /* fill remaining height */
+                        display: flex;
+                        flex-direction: column;
+                        overflow: hidden;
+                        /* keep internal scroll areas */
+                        min-height: 0;
+                        /* critical for nested flex scrolling */
+                        background: #1e1e1e;
+                        color: #ddd;
+                        border: 1px solid #000;
+                        border-top: none;
+                }
+
+                .pg-top-panel {
+                        flex: 1 1 auto;
+                        display: flex;
+                        overflow: hidden;
+                        min-height: 0;
+                }
+
+                .pg-editers,
+                .pg-editors {
+                        display: flex;
+                        flex-direction: column;
+                        width: 35%;
+                        min-width: 200px;
+                        max-width: 80%;
+                        background: #111;
+                        border-right: 2px solid #000;
+                        overflow: hidden;
+                }
+
+                .pg-editor {
+                        flex: 1 1 0;
+                        display: flex;
+                        flex-direction: column;
+                        overflow: hidden;
+                        transition: flex 0.3s ease, height 0.3s ease;
+                }
+
+                .pg-hidden {
+                        display: none !important;
+                }
+
+                .pg-solo {
+                        flex: 1 1 auto;
+                }
+
+                .pg-editor label {
+                        background: #333;
+                        padding: 0.25rem;
+                        font-size: 0.85rem;
+                        color: #ccc;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                }
+
+                .pg-editor label button {
+                        background: transparent;
+                        color: #ccc;
+                        border: none;
+                        cursor: pointer;
+                        font-size: 0.8rem;
+                }
+
+                .pg-wrap textarea {
+                        flex: 1 1 auto;
+                        border: none;
+                        resize: none;
+                        padding: 0.5rem;
+                        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+                        font-size: 0.9rem;
+                        color: #f8f8f2;
+                        background: #1e1e1e;
+                        outline: none;
+                        min-height: 0;
+                        /* allows textarea to shrink in flex */
+                }
+
+                .pg-preview {
+                        flex: 1 1 auto;
+                        border: none;
+                        background: white;
+                        min-width: 0;
+                        min-height: 0;
+                }
+
+                .pg-resizer {
+                        width: 5px;
+                        cursor: col-resize;
+                        background: #444;
+                        flex: 0 0 5px;
+                }
+
+                .pg-resizer:hover {
+                        background: #666;
+                }
+
+                .pg-console-resizer {
+                        height: 5px;
+                        background: #444;
+                        cursor: row-resize;
+                }
+
+                .pg-console-resizer:hover {
+                        background: #666;
+                }
+
+                .pg-console-panel {
+                        height: 150px;
+                        background: #1b1b1b;
+                        color: #fff;
+                        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+                        font-size: 0.85rem;
+                        overflow: hidden;
+                        border-top: 2px solid #000;
+                        display: flex;
+                        flex-direction: column;
+                        transition: height 0.3s ease;
+                        min-height: 25px;
+                }
+
+                .pg-console-header {
+                        background: #222;
+                        padding: 0.2rem 0.5rem;
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                        cursor: pointer;
+                        user-select: none;
+                        color: #ddd;
+                }
+
+                .pg-console-header:focus {
+                        outline: 2px solid #58aaff;
+                        outline-offset: 2px;
+                }
+
+                .pg-console-header .pg-icon svg {
+                        width: 14px;
+                        height: 14px;
+                        display: inline-block;
+                        stroke: currentColor;
+                        fill: none;
+                        stroke-width: 2;
+                        transition: transform 160ms ease;
+                        transform-origin: 50% 50%;
+                }
+
+                /* Rotate chevron when collapsed (down -> right) */
+                .pg-collapsed .pg-console-header .pg-icon svg {
+                        transform: rotate(-90deg);
+                }
+
+                .pg-console-header .pg-title {
+                        font-weight: 600;
+                        margin-right: auto;
+                }
+
+                .pg-console-header .pg-meta {
+                        opacity: 0.85;
+                        font-size: 0.85em;
+                }
+
+                .pg-console-content {
+                        flex: 1 1 auto;
+                        padding: 0.5rem;
+                        overflow-y: auto;
+                        min-height: 0;
+                }
+
+                .pg-collapsed {
+                        height: 25px !important;
+                }
+
+                @media (max-width: 768px) {
+                        .pg-editors {
+                                width: 50%;
+                                min-width: 160px;
+                        }
+                }
+        </style>
+
+        <div class="pg-action-bar">
+                <div class="pg-actions-left">
+                        <button type="button" data-action="run">▶</button>
+                        <button type="button" data-action="clear-console">Clear Console</button>
+                </div>
+                <div class="pg-actions-right">
+                        <button type="button" data-action="save">Save</button>
+                </div>
+        </div>
+
+        <div class="pg-workspace">
+                <div class="pg-top-panel" data-role="top-panel">
+                        <div class="pg-editors" data-role="editors">
+                                <div class="pg-editor" data-editor="html">
+                                        <label>
+                                                <span>HTML</span>
+                                                <button type="button" data-toggle="html">⇕</button>
+                                        </label>
+                                        <textarea data-role="html">&lt;h1&gt;Hello&lt;/h1&gt;</textarea>
+                                </div>
+
+                                <div class="pg-editor" data-editor="css">
+                                        <label>
+                                                <span>CSS</span>
+                                                <button type="button" data-toggle="css">⇕</button>
+                                        </label>
+                                        <textarea data-role="css">h1 { color: red; }</textarea>
+                                </div>
+
+                                <div class="pg-editor" data-editor="js">
+                                        <label>
+                                                <span>JS</span>
+                                                <button type="button" data-toggle="js">⇕</button>
+                                        </label>
+                                        <textarea data-role="js">console.log("Hello JS");</textarea>
+                                </div>
+                        </div>
+
+                        <div class="pg-resizer" data-role="resizer" title="Drag to resize editor panel"></div>
+                        <iframe class="pg-preview" data-role="preview" sandbox="allow-scripts"></iframe>
+                </div>
+
+                <div class="pg-console-resizer" data-role="console-resizer" title="Drag to resize console"></div>
+
+                <div class="pg-console-panel" data-role="console-panel">
+                        <div class="pg-console-header" data-role="console-header" role="button" tabindex="0"
+                                aria-expanded="true" aria-controls="console-content">
+                                <span class="pg-icon" aria-hidden="true">
+                                        <!-- Down chevron (rotates to right when collapsed) -->
+                                        <svg viewBox="0 0 24 24">
+                                                <path d="M6 9l6 6 6-6" />
+                                        </svg>
+                                </span>
+                                <span class="pg-title">Console</span>
+                                <span class="pg-meta"></span>
+                        </div>
+                        <div class="pg-console-content" id="console-content" data-role="console-content"></div>
+                </div>
+        </div>
+
+        <script>
+                (function () {
+                        const root = document.currentScript.closest('.pg-wrap');
+
+                        const editorsPanel = root.querySelector('[data-role="editors"]');
+                        const topPanel = root.querySelector('[data-role="top-panel"]');
+                        const resizer = root.querySelector('[data-role="resizer"]');
+                        const preview = root.querySelector('[data-role="preview"]');
+
+                        const htmlTA = root.querySelector('textarea[data-role="html"]');
+                        const cssTA = root.querySelector('textarea[data-role="css"]');
+                        const jsTA = root.querySelector('textarea[data-role="js"]');
+
+                        const consolePanel = root.querySelector('[data-role="console-panel"]');
+                        const consoleHeader = root.querySelector('[data-role="console-header"]');
+                        const consoleMeta = root.querySelector('.pg-console-header .pg-meta');
+                        const consoleContent = root.querySelector('[data-role="console-content"]');
+                        const consoleResizer = root.querySelector('[data-role="console-resizer"]');
+                        const workspace = root.querySelector('.pg-workspace');
+
+                        let logCount = 0;
+                        let lastLog = '';
+                        let isResizingLeft = false;
+                        let isResizingConsole = false;
+
+                        function runCode() {
+                                clearConsole();
+                                const html = htmlTA.value || '';
+                                const css = '<style>' + (cssTA.value || '') + '</style>';
+                                const js = jsTA.value || '';
+
+                                const hook =
+                                        "const _origLog = console.log;" +
+                                        "console.log = function(...args) { parent.postMessage({type:'log', args}, '*'); _origLog.apply(console, args); };";
+
+                                const blob = new Blob([
+                                        html + css + '<script>' + hook + js + '<\/script>'
+                                ], { type: 'text/html' });
+
+                                if (preview.dataset.url) URL.revokeObjectURL(preview.dataset.url);
+                                const url = URL.createObjectURL(blob);
+                                preview.dataset.url = url;
+                                preview.src = url;
+                        }
+
+                        function clearConsole() {
+                                consoleContent.innerHTML = '';
+                                logCount = 0;
+                                lastLog = '';
+                                updateHeaderMeta();
+                        }
+
+                        function savePreview() {
+                                const html = htmlTA.value || '';
+                                const css = '<style>' + (cssTA.value || '') + '</style>';
+                                const js = '<script>' + (jsTA.value || '') + '<\/script>';
+                                const fullHTML =
+                                        '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+                                        css +
+                                        '</head><body>' +
+                                        html +
+                                        js +
+                                        '</body></html>';
+
+                                const blob = new Blob([fullHTML], { type: 'text/html' });
+                                const a = document.createElement('a');
+                                const url = URL.createObjectURL(blob);
+                                a.href = url;
+                                a.download = 'preview.html';
+                                document.body.appendChild(a);
+                                a.click();
+                                a.remove();
+                                URL.revokeObjectURL(url);
+                        }
+
+                        function updateHeaderMeta() {
+                                const minimized = consolePanel.classList.contains('pg-collapsed');
+                                consoleHeader.setAttribute('aria-expanded', minimized ? 'false' : 'true');
+                                if (minimized) {
+                                        const last = String(lastLog ?? '').slice(0, 80);
+                                        consoleMeta.textContent = `(${logCount} messages) Last: ${last}`;
+                                } else {
+                                        consoleMeta.textContent = '';
+                                }
+                        }
+
+                        function toggleEditor(which) {
+                                const all = Array.from(root.querySelectorAll('.pg-editor'));
+                                const clicked = all.find(ed => ed.getAttribute('data-editor') === which);
+                                if (!clicked) return;
+
+                                if (clicked.classList.contains('pg-solo')) {
+                                        all.forEach(ed => ed.classList.remove('pg-hidden', 'pg-solo'));
+                                } else {
+                                        all.forEach(ed => {
+                                                if (ed === clicked) { ed.classList.add('pg-solo'); ed.classList.remove('pg-hidden'); }
+                                                else { ed.classList.add('pg-hidden'); ed.classList.remove('pg-solo'); }
+                                        });
+                                }
+                        }
+
+                        function toggleConsole() {
+                                consolePanel.classList.toggle('pg-collapsed');
+                                updateHeaderMeta();
+                        }
+
+                        // Toolbar
+                        root.querySelector('[data-action="run"]').addEventListener('click', runCode);
+                        root.querySelector('[data-action="clear-console"]').addEventListener('click', clearConsole);
+                        root.querySelector('[data-action="save"]').addEventListener('click', savePreview);
+
+                        // Editor toggles
+                        root.querySelectorAll('[data-toggle]').forEach(btn => {
+                                btn.addEventListener('click', () => toggleEditor(btn.getAttribute('data-toggle')));
+                        });
+
+                        // Auto-run on typing (debounced)
+                        let debounceTimer = null;
+                        [htmlTA, cssTA, jsTA].forEach(el => {
+                                el.addEventListener('input', () => {
+                                        clearTimeout(debounceTimer);
+                                        debounceTimer = setTimeout(runCode, 200);
+                                });
+                        });
+
+                        // Left panel resizer
+                        const onMouseMoveLeft = (e) => {
+                                if (!isResizingLeft) return;
+                                const rect = topPanel.getBoundingClientRect();
+                                let newWidth = e.clientX - rect.left;
+                                const min = 150;
+                                const max = rect.width - 150;
+                                if (newWidth < min) newWidth = min;
+                                if (newWidth > max) newWidth = max;
+                                editorsPanel.style.width = newWidth + 'px';
+                        };
+                        resizer.addEventListener('mousedown', () => {
+                                isResizingLeft = true;
+                                document.body.style.cursor = 'col-resize';
+                        });
+                        document.addEventListener('mousemove', onMouseMoveLeft);
+                        document.addEventListener('mouseup', () => {
+                                if (isResizingLeft) {
+                                        isResizingLeft = false;
+                                        document.body.style.cursor = 'default';
+                                }
+                        });
+
+                        // Console collapse (click + keyboard)
+                        consoleHeader.addEventListener('click', toggleConsole);
+                        consoleHeader.addEventListener('keydown', (e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        toggleConsole();
+                                }
+                        });
+
+                        // Bottom console resizer
+                        const onMouseMoveConsole = (e) => {
+                                if (!isResizingConsole) return;
+                                const rect = workspace.getBoundingClientRect();
+                                let newHeight = rect.bottom - e.clientY;
+                                const min = 50;
+                                const max = Math.max(min, rect.height - 50);
+                                if (newHeight < min) newHeight = min;
+                                if (newHeight > max) newHeight = max;
+                                consolePanel.style.height = newHeight + 'px';
+                        };
+                        consoleResizer.addEventListener('mousedown', () => {
+                                isResizingConsole = true;
+                                document.body.style.cursor = 'row-resize';
+                        });
+                        document.addEventListener('mousemove', onMouseMoveConsole);
+                        document.addEventListener('mouseup', () => {
+                                if (isResizingConsole) {
+                                        isResizingConsole = false;
+                                        document.body.style.cursor = 'default';
+                                }
+                        });
+
+                        // Capture console.log from iframe
+                        window.addEventListener('message', (e) => {
+                                if (!e || !e.data || e.data.type !== 'log') return;
+                                e.data.args.forEach(arg => {
+                                        const div = document.createElement('div');
+                                        try {
+                                                if (typeof arg === 'object') div.textContent = JSON.stringify(arg, null, 2);
+                                                else div.textContent = String(arg);
+                                        } catch { div.textContent = String(arg); }
+                                        consoleContent.appendChild(div);
+                                        lastLog = div.textContent;
+                                        logCount++;
+                                });
+                                consoleContent.scrollTop = consoleContent.scrollHeight;
+                                updateHeaderMeta();
+                        });
+
+                        // Initial render
+                        runCode();
+                        updateHeaderMeta();
+                })();
+        </script>
+</section>
