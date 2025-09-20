@@ -222,9 +222,9 @@
 					<use href="#i-grid"></use>
 				</svg>
 			</a>
-			<div class=button>
+			<a href="/" class="button"  title="Home">
 				<img src="images/ewe_hat.svg" width="48" height="48" alt="GNU EWE logo" loading="lazy" decoding="async">
-			</div>
+			</a>
 		</div>
 
 		<div class="actions">
@@ -249,14 +249,7 @@
 	</header>
 
 	<div class="layout">
-		<nav id="tool-links" aria-label="Site Navigation">
-
-			<a href="?app=MiniMD&type=md&src=docs/README.md" class="button">
-				<svg class="icon icon-md">
-					<use href="#i-home"></use>
-				</svg>
-				Home
-			</a>
+		<nav id="tool-links" aria-label="Site Navigation" hidden>
 			<a href="?app=PseudoShell" class="button">
 				<svg class="icon icon-md">
 					<use href="#i-terminal"></use>
