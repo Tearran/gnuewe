@@ -238,7 +238,7 @@
 
 			<a href="javascript:void(0);" class="button" onclick="togglePanel('#tag-links')" title="Toggle Outline">
 				<svg class="icon  icon-lg">
-					<use href="#i-tag"></use>
+					<use href="#hash"></use>
 				</svg>
 			</a>
 			<a href="javascript:void(0);" class="button" onclick="togglePanel('#sources-links')" title="Toggle sources">
@@ -253,7 +253,7 @@
 	<div class="layout">
 		<nav id="tool-links" aria-label="Site Navigation">
 
-			<a href="?page=markdown" class="button">
+			<a href="?page=home" class="button">
 				<svg class="icon icon-md">
 					<use href="#i-home"></use>
 				</svg>
@@ -292,6 +292,9 @@
 		$page = $_GET['page'] ?? 'markdown';
 
 		switch ($page) {
+			case 'home':
+				include "./markdown.html";
+				break;
 			case 'markdown':
 				include "./markdown.php";
 				break;
