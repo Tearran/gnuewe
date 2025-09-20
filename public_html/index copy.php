@@ -247,23 +247,46 @@
 				</svg>
 
 			</a>
+			<a href="javascript:void(0);" class="button" onclick="togglePanel('#doc-links')" title="Toggle Navigation">
+			<svg class="icon">
+				<use href="#i-book"></use>
+			</svg>
+		</a>
+		<a href="javascript:void(0);" class="button" onclick="togglePanel('#metadata-content')" title="Toggle metadata-content">
+			<svg class="icon">
+				<use href="#i-meta"></use>
+			</svg>
+		</a>
+		<a href="javascript:void(0);" class="button" onclick="togglePanel('#doc-outline')" title="Toggle Outline">
+
+			<svg class="icon">
+				<use href="#i-list"></use>
+			</svg>
+		</a>
 		</div>
 	</header>
 
 	<div class="layout">
 		<nav id="tool-links" aria-label="Site Navigation">
 
-			<a href="?app=MiniMD&type=md&src=docs/README.md" class="button">
+			<a href="?app=home" class="button">
 				<svg class="icon icon-md">
 					<use href="#i-home"></use>
 				</svg>
 				Home
+			</a>
+			<a href="?app=markdown" class="button">
+				<svg class="icon icon-md">
+					<use href="#i-book"></use>
+				</svg>
+				EWE DOCS
 			</a>
 			<a href="?app=PseudoShell" class="button">
 				<svg class="icon icon-md">
 					<use href="#i-terminal"></use>
 				</svg>
 				PseudoShell - Bash Sim</a>
+
 			<a href="?app=MiniPen" class="button">
 				<svg class="icon icon-md">
 					<use href="#i-html5"></use>
@@ -283,11 +306,11 @@
 
 		<main>
 			<?php
-		$page = $_GET['app'] ?? 'MiniMD';
+		$page = $_GET['app'] ?? 'markdown';
 
 		switch ($page) {
 			case 'home':
-				include "./MiniMD.html";
+				include "./markdown.html";
 				break;
 			case 'markdown':
 				include "./markdown.php";
@@ -357,7 +380,7 @@
 	<script>
   // Example: load a markdown doc on page load
   window.addEventListener("DOMContentLoaded", () => {
-    loadMarkdownFromURL("docs/README.md"); // path to your .md file
+    loadMarkdownFromURL("docs/intro.md"); // path to your .md file
   });
 
   // Or bind links in your nav

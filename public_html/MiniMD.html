@@ -1,6 +1,5 @@
-<section class="md-wrap" aria-label="WYSIWYG Markdown Editor">
+<section class="md-wrap" aria-label="WYSIWYG Markdown Editor" data-base="./docs">
         <style>
-                /* Root section fills <main>; internal layout manages padding/scrolling */
                 .md-wrap {
                         display: flex;
                         flex-direction: column;
@@ -8,7 +7,6 @@
                         block-size: 100%;
                         flex: 1 1 auto;
                         min-height: 0;
-                        /* allow inner flex children to scroll */
                         margin: 0;
                         padding: 0;
                         color: inherit;
@@ -62,7 +60,6 @@
 
                 .md-workspace {
                         flex: 1 1 auto;
-                        /* fill remaining height */
                         display: flex;
                         flex-direction: column;
                         min-height: 0;
@@ -190,7 +187,7 @@
                         color: #58aaff;
                 }
 
-                /* Preview-only mode */
+                /* Preview-only mode hides editor pane and resizer */
                 .md-preview-only .md-editor {
                         display: none;
                 }
@@ -199,7 +196,6 @@
                         display: none;
                 }
 
-                /* Mobile */
                 @media (max-width: 768px) {
                         .md-editor {
                                 width: 55%;
@@ -218,8 +214,9 @@
 
         <div class="md-action-bar">
                 <div class="md-actions-left">
-                        <button type="button" data-action="toggle-preview" class="secondary"
-                                title="Toggle Preview-only">Preview-only</button>
+                        <!-- "Edit" and editor hidden by default -->
+                        <button type="button" data-action="toggle-preview" class="secondary" aria-pressed="false"
+                                title="Show editor">Edit</button>
                         <button type="button" data-action="download">Save</button>
                         <button type="button" data-action="upload" class="secondary">Open</button>
                         <input type="file" data-role="file" accept=".md,.markdown,.txt" hidden>
@@ -229,7 +226,7 @@
                 </div>
         </div>
 
-        <div class="md-workspace" data-role="workspace">
+        <div class="md-workspace md-preview-only" data-role="workspace">
                 <div class="md-top" data-role="top">
                         <div class="md-editor" data-role="editor">
                                 <div class="md-toolbar" role="toolbar" aria-label="Formatting">
@@ -303,9 +300,11 @@
                         const editorPane = root.querySelector('[data-role="editor"]');
                         const fileInput = root.querySelector('[data-role="file"]');
                         const workspace = root.querySelector('[data-role="workspace"]');
+                        const toggleBtn = root.querySelector('[data-action="toggle-preview"]');
 
-                        // Local storage key
-                        const STORAGE_KEY = 'md-editor-content';
+                        // Derived at runtime (key is per-source)
+                        let STORAGE_KEY = 'md-editor-content:local';
+                        let currentDocUrl = null;
 
                         // Ensure marked is available (load lazily if needed)
                         function ensureMarked(cb) {
@@ -316,7 +315,7 @@
                                 document.head.appendChild(s);
                         }
 
-                        // Simple sanitizer: removes script/style, event handlers, javascript: URLs, and iframes
+                        // Simple sanitizer
                         function sanitize(html) {
                                 const tpl = document.createElement('template');
                                 tpl.innerHTML = html;
@@ -325,53 +324,60 @@
                                 const toRemove = [];
                                 while (walker.nextNode()) {
                                         const el = walker.currentNode;
-                                        if (dangerous.includes(el.tagName)) {
-                                                toRemove.push(el);
-                                                continue;
-                                        }
-                                        // Remove on* attributes
+                                        if (dangerous.includes(el.tagName)) { toRemove.push(el); continue; }
                                         [...el.attributes].forEach(attr => {
                                                 const n = attr.name.toLowerCase();
                                                 if (n.startsWith('on')) el.removeAttribute(attr.name);
-                                                if ((n === 'href' || n === 'src') && /^\s*javascript:/i.test(attr.value)) {
-                                                        el.removeAttribute(attr.name);
-                                                }
+                                                if ((n === 'href' || n === 'src') && /^\s*javascript:/i.test(attr.value)) el.removeAttribute(attr.name);
                                         });
-                                        // Drop iframes by default
                                         if (el.tagName === 'IFRAME') toRemove.push(el);
                                 }
                                 toRemove.forEach(n => n.remove());
                                 return tpl.innerHTML;
                         }
 
+                        function rewriteRelativeLinks(container, pageUrl) {
+                                if (!pageUrl) return;
+                                try {
+                                        const url = new URL(pageUrl, location.href);
+                                        const basePath = url.href.substring(0, url.href.lastIndexOf('/') + 1);
+                                        container.querySelectorAll('a[href]').forEach(a => {
+                                                const href = a.getAttribute('href') || '';
+                                                if (!href || href.startsWith('#') || /^[a-z]+:/i.test(href) || href.startsWith('/')) return;
+                                                a.setAttribute('href', new URL(href, basePath).href);
+                                        });
+                                        container.querySelectorAll('img[src]').forEach(img => {
+                                                const src = img.getAttribute('src') || '';
+                                                if (!src || /^[a-z]+:/i.test(src) || src.startsWith('/')) return;
+                                                img.setAttribute('src', new URL(src, basePath).href);
+                                        });
+                                } catch { }
+                        }
+
                         function render() {
                                 ensureMarked(() => {
-                                        // Configure marked (once)
                                         if (!render._configured) {
-                                                marked.setOptions({
-                                                        gfm: true,
-                                                        breaks: true,
-                                                });
+                                                marked.setOptions({ gfm: true, breaks: true });
                                                 render._configured = true;
                                         }
                                         const md = textarea.value || '';
                                         try {
                                                 const html = marked.parse(md);
                                                 preview.innerHTML = sanitize(html);
+                                                rewriteRelativeLinks(preview, currentDocUrl);
                                         } catch (e) {
                                                 preview.textContent = String(e);
                                         }
                                 });
                         }
 
-                        // Debounced rendering
                         let debounceTimer = null;
                         function scheduleRender() {
                                 clearTimeout(debounceTimer);
                                 debounceTimer = setTimeout(render, 150);
                         }
 
-                        // Helpers: selection operations in textarea
+                        // Selection helpers
                         function surroundSelection(before, after, placeholder = 'text') {
                                 const el = textarea;
                                 const start = el.selectionStart ?? 0;
@@ -403,7 +409,6 @@
                                 const replaced = value.slice(0, lineStart) + newLines.join('\n') + value.slice(sliceEnd);
                                 el.value = replaced;
 
-                                // Maintain selection around changed block
                                 const deltaPerLine = prefix.length * (allHave ? -1 : 1);
                                 const delta = deltaPerLine * lines.length;
                                 el.focus();
@@ -421,7 +426,6 @@
                                 const sliceEnd = lineEnd === -1 ? value.length : lineEnd;
 
                                 const line = value.slice(lineStart, sliceEnd);
-                                // Toggle: if same heading exists, remove it; if different level exists, replace
                                 const m = /^(#{1,6}\s+)/.exec(line);
                                 let newLine;
                                 if (m && m[1] === hashes) newLine = line.replace(/^(#{1,6}\s+)/, '');
@@ -436,23 +440,17 @@
                                 scheduleRender();
                         }
 
-                        function insertLink() {
-                                surroundSelection('[', '](https://example.com)', 'text');
-                        }
-                        function insertImage() {
-                                surroundSelection('![', '](https://placehold.co/600x400)', 'alt');
-                        }
-                        function insertInlineCode() {
-                                surroundSelection('`', '`', 'code');
-                        }
+                        function insertLink() { surroundSelection('[', '](https://example.com)', 'text'); }
+                        function insertImage() { surroundSelection('![', '](https://placehold.co/600x400)', 'alt'); }
+                        function insertInlineCode() { surroundSelection('`', '`', 'code'); }
                         function insertFence() {
                                 const el = textarea;
                                 const start = el.selectionStart ?? 0;
-                                const end = el.selectionEnd ?? 0;
-                                const sel = el.value.slice(start, end) || 'console.log("Hello");';
+                                theEnd = el.selectionEnd ?? 0;
+                                const sel = el.value.slice(start, theEnd) || 'console.log("Hello");';
                                 const lang = 'js';
                                 const block = '```' + lang + '\n' + sel + '\n```\n';
-                                el.setRangeText(block, start, end, 'end');
+                                el.setRangeText(block, start, theEnd, 'end');
                                 scheduleRender();
                         }
                         function insertTable() {
@@ -465,11 +463,8 @@
                                 ].join('\n');
                                 surroundSelection('', '', tmpl);
                         }
-                        function insertHR() {
-                                surroundSelection('\n\n---\n\n', '', '');
-                        }
+                        function insertHR() { surroundSelection('\n\n---\n\n', '', ''); }
                         function toggleTasks() {
-                                // Convert selected lines to task list, or toggle [ ] <-> [x]
                                 const el = textarea;
                                 const start = el.selectionStart ?? 0;
                                 const end = el.selectionEnd ?? 0;
@@ -513,15 +508,24 @@
                                         case 'fence': insertFence(); break;
                                         case 'table': insertTable(); break;
                                         case 'hr': insertHR(); break;
-                                        case 'undo': document.execCommand?.('undo'); break; // best-effort
-                                        case 'redo': document.execCommand?.('redo'); break; // best-effort
+                                        case 'undo': document.execCommand?.('undo'); break;
+                                        case 'redo': document.execCommand?.('redo'); break;
                                 }
                         });
 
                         // Action bar
-                        root.querySelector('[data-action="toggle-preview"]').addEventListener('click', () => {
+                        function updateToggleButtonLabel() {
+                                const previewOnly = workspace.classList.contains('md-preview-only');
+                                toggleBtn.textContent = previewOnly ? 'Edit' : 'Preview-only';
+                                toggleBtn.setAttribute('title', previewOnly ? 'Show editor' : 'Hide editor');
+                                toggleBtn.setAttribute('aria-pressed', previewOnly ? 'false' : 'true');
+                        }
+
+                        toggleBtn.addEventListener('click', () => {
                                 workspace.classList.toggle('md-preview-only');
+                                updateToggleButtonLabel();
                         });
+
                         root.querySelector('[data-action="download"]').addEventListener('click', () => {
                                 const blob = new Blob([textarea.value || ''], { type: 'text/markdown' });
                                 const a = document.createElement('a');
@@ -538,12 +542,15 @@
                                 const file = fileInput.files?.[0];
                                 if (!file) return;
                                 const text = await file.text();
+                                currentDocUrl = null; // local file, no base for relative links
+                                STORAGE_KEY = 'md-editor-content:local';
                                 textarea.value = text;
                                 scheduleRender();
                         });
                         root.querySelector('[data-action="clear"]').addEventListener('click', () => {
                                 textarea.value = '';
                                 scheduleRender();
+                                try { localStorage.removeItem(STORAGE_KEY); } catch { }
                         });
 
                         // Editor resizing
@@ -569,23 +576,79 @@
                                 }
                         });
 
-                        // Input -> preview
+                        // Input -> preview + persist
                         textarea.addEventListener('input', () => {
                                 scheduleRender();
                                 try { localStorage.setItem(STORAGE_KEY, textarea.value); } catch { }
                         });
 
-                        // Load previous content if any
-                        try {
-                                const saved = localStorage.getItem(STORAGE_KEY);
-                                if (saved) textarea.value = saved;
-                                else textarea.value = '# Hello, Markdown!\n\nStart typing on the left...';
-                        } catch {
-                                textarea.value = '# Hello, Markdown!\n\nStart typing on the left...';
+                        // URL param helpers
+                        function getParams() {
+                                const q = new URLSearchParams(location.search);
+                                let src = q.get('src') || '';
+                                let page = q.get('page') || '';
+                                let path = q.get('path') || q.get('base') || '';
+                                const safe = s => (s || '').replace(/[^\w./-]+/g, '');
+                                src = (src || '').trim();
+                                page = safe((page || '').trim());
+                                path = safe((path || '').trim().replace(/^\/+|\/+$/g, ''));
+                                return { src, page, path };
+                        }
+                        function isAbsoluteUrl(u) { try { new URL(u); return true; } catch { return false; } }
+
+                        function buildTargetUrl({ src, page, path }) {
+                                const defaultBase = root.getAttribute('data-base') || './docs';
+                                // Absolute src
+                                if (src && isAbsoluteUrl(src)) return src;
+                                // Relative src -> resolve against current document
+                                if (src) {
+                                        const cleaned = src.replace(/^\.\//, '');
+                                        return new URL(cleaned, location.origin + location.pathname).href;
+                                }
+                                // page + optional path -> resolve under defaultBase
+                                const baseURL = new URL(defaultBase.replace(/\/?$/, '/'), location.origin + location.pathname);
+                                let name = page || 'README';
+                                if (!/\.md$/i.test(name)) name += '.md';
+                                if (name.includes('..')) name = 'README.md';
+                                const rel = (path ? path.replace(/\/?$/, '/') : '') + name;
+                                return new URL(rel, baseURL).href;
                         }
 
-                        // Initial render
-                        scheduleRender();
+                        // Initial load
+                        (async function initLoad() {
+                                const params = getParams();
+                                const hasSource = params.src || params.page;
+                                currentDocUrl = hasSource ? buildTargetUrl(params) : null;
+                                STORAGE_KEY = 'md-editor-content:' + (currentDocUrl || 'local');
+
+                                // Prefer a saved draft for this source if present
+                                let restored = null;
+                                try { restored = localStorage.getItem(STORAGE_KEY); } catch { }
+
+                                if (restored) {
+                                        textarea.value = restored;
+                                        scheduleRender();
+                                        updateToggleButtonLabel();
+                                        return;
+                                }
+
+                                if (currentDocUrl) {
+                                        try {
+                                                const res = await fetch(currentDocUrl, { cache: 'no-cache' });
+                                                if (!res.ok) throw new Error('HTTP ' + res.status);
+                                                const md = await res.text();
+                                                textarea.value = md;
+                                                scheduleRender();
+                                        } catch (e) {
+                                                textarea.value = `# Load error\n\nFailed to load markdown from:\n\n- ${currentDocUrl}\n\nError: ${String(e)}`;
+                                                scheduleRender();
+                                        }
+                                } else {
+                                        textarea.value = '# Hello, Markdown!\n\nStart typing on the left...';
+                                        scheduleRender();
+                                }
+                                updateToggleButtonLabel();
+                        })();
                 })();
         </script>
 </section>
