@@ -1,0 +1,771 @@
+<section class="md-wrap" aria-label="WYSIWYG Markdown Editor" data-base="./docs">
+        <style>
+                .md-wrap {
+                        display: flex;
+                        flex-direction: column;
+                        inline-size: 100%;
+                        block-size: 100%;
+                        flex: 1 1 auto;
+                        min-height: 0;
+                        margin: 0;
+                        padding: 0;
+                        color: inherit;
+                        font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+                }
+
+
+                .md-action-bar {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 0.5rem 0.75rem;
+                        background: #23272e;
+                        color: #fff;
+                        border-bottom: 1px solid #000;
+                        gap: 0.5rem;
+                }
+
+                .md-actions-left,
+                .md-actions-right {
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                        flex-wrap: wrap;
+                }
+
+                .md-action-bar button,
+                .md-toolbar button {
+                        background: #007acc;
+                        color: #fff;
+                        border: none;
+                        border-radius: 4px;
+                        padding: 0.35rem 0.6rem;
+                        cursor: pointer;
+                        font-size: 0.9rem;
+                }
+
+                .md-action-bar button:hover,
+                .md-toolbar button:hover {
+                        background: #005fa3;
+                }
+
+                .md-action-bar .secondary,
+                .md-toolbar .secondary {
+                        background: #3a3f45;
+                }
+
+                .md-action-bar .secondary:hover,
+                .md-toolbar .secondary:hover {
+                        background: #2c3136;
+                }
+
+                .md-workspace {
+                        flex: 1 1 auto;
+                        display: flex;
+                        flex-direction: column;
+                        min-height: 0;
+                        background: var(--color-main-bg, #181a1b);
+                        color: var(--color-text, #ececec);
+                        border: 1px solid var(--color-border, #333a41);
+                        border-top: none;
+                }
+
+                .md-top {
+                        display: flex;
+                        flex: 1 1 auto;
+                        min-height: 0;
+                        overflow: hidden;
+                }
+
+                .md-editor {
+                        display: flex;
+                        flex-direction: column;
+                        width: 45%;
+                        min-width: 240px;
+                        max-width: 80%;
+                        background: #111;
+                        border-right: 2px solid #000;
+                        min-height: 0;
+                }
+
+                .md-toolbar {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 0.25rem;
+                        padding: 0.4rem;
+                        background: #2a2f35;
+                        border-bottom: 1px solid #000;
+                }
+
+                .md-toolbar .group {
+                        display: inline-flex;
+                        gap: 0.25rem;
+                        margin-right: 0.35rem;
+                }
+
+                .md-right {
+                        display: flex;
+                        flex-direction: column;
+                        flex: 1 1 auto;
+                        min-width: 0;
+                        min-height: 0;
+                }
+
+                .md-frontmatter {
+                        background: #23272e;
+                        color: #eaeaea;
+                        border-bottom: 1px solid #000;
+                        padding: 0.5rem 0.75rem;
+                }
+
+                .md-frontmatter .fm-header {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        gap: 0.5rem;
+                        margin-bottom: 0.5rem;
+                }
+
+                .md-frontmatter .fm-title {
+                        font-weight: 600;
+                        color: #cfd8e3;
+                }
+
+                .md-frontmatter pre {
+                        margin: 0;
+                        background: #0f1113;
+                        color: #e6e6e6;
+                        border: 1px solid #000;
+                        border-radius: 6px;
+                        padding: 0.5rem 0.75rem;
+                        overflow: auto;
+                        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+                        font-size: 0.9rem;
+                        line-height: 1.4;
+                }
+
+                .md-textarea {
+                        flex: 1 1 auto;
+                        min-height: 0;
+                        border: none;
+                        resize: none;
+                        padding: 0.75rem;
+                        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+                        font-size: 0.95rem;
+                        color: #f8f8f2;
+                        background: #1e1e1e;
+                        outline: none;
+                        line-height: 1.4;
+                        tab-size: 2;
+                }
+
+                .md-resizer {
+                        width: 6px;
+                        background: #444;
+                        cursor: col-resize;
+                        flex: 0 0 6px;
+                }
+
+                .md-resizer:hover {
+                        background: #666;
+                }
+
+                .md-preview {
+                        flex: 1 1 auto;
+                        min-width: 0;
+                        min-height: 0;
+                        overflow: auto;
+                        background: var(--color-bg, #202427);
+                        color: var(--color-text, #ececec);
+                        padding: 1rem;
+                }
+
+                .md-preview :is(h1, h2, h3, h4, h5, h6) {
+                        line-height: 1.25;
+                        margin: 1em 0 0.5em;
+                }
+
+                .md-preview p {
+                        margin: 0.5em 0;
+                }
+
+                .md-preview pre {
+                        background: #0f1113;
+                        color: #e6e6e6;
+                        border: 1px solid #000;
+                        border-radius: 6px;
+                        padding: 0.75rem;
+                        overflow: auto;
+                }
+
+                .md-preview code:not(pre code) {
+                        background: #0f1113;
+                        color: #e6e6e6;
+                        padding: 0.1rem 0.3rem;
+                        border-radius: 4px;
+                }
+
+                .md-preview blockquote {
+                        border-left: 4px solid #4a90e2;
+                        background: #101418;
+                        padding: 0.5rem 0.75rem;
+                        margin: 0.75rem 0;
+                        color: #d9e7ff;
+                }
+
+                .md-preview table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 0.75rem 0;
+                }
+
+                .md-preview th,
+                .md-preview td {
+                        border: 1px solid #333;
+                        padding: 0.5rem;
+                }
+
+                .md-preview a {
+                        color: #58aaff;
+                }
+
+                /* Preview-only mode hides editor pane and resizer */
+                .md-preview-only .md-editor {
+                        display: none;
+                }
+
+                .md-preview-only .md-resizer {
+                        display: none;
+                }
+
+                @media (max-width: 768px) {
+                        .md-editor {
+                                width: 55%;
+                                min-width: 200px;
+                        }
+
+                        .md-toolbar {
+                                gap: 0.2rem;
+                        }
+
+                        .md-action-bar {
+                                gap: 0.4rem;
+                        }
+                }
+        </style>
+
+        <div class="md-action-bar">
+                <div class="md-actions-left">
+                        <span id="edit-md" hidden>
+                                <button type="button" data-action="clear" class="secondary">Clear</button>
+                                <button type="button" data-action="fm-toggle" class="secondary" hidden
+                                        aria-pressed="true" title="Show/Hide front matter">Front matter</button>
+                                <button type="button" data-action="download">Save</button>
+                                <button type="button" data-action="upload" class="secondary">Open</button>
+                                <input type="file" data-role="file" accept=".md,.markdown,.txt" hidden>
+                        </span>
+                </div>
+                <div class="md-actions-right">
+                        <button type="button" data-action="toggle-preview" class="secondary" aria-pressed="false"
+                                title="Show editor">Edit</button>
+                </div>
+        </div>
+
+        <div class="md-workspace md-preview-only" data-role="workspace">
+                <div class="md-top" data-role="top">
+                        <div class="md-editor" data-role="editor">
+                                <div class="md-toolbar" role="toolbar" aria-label="Formatting">
+                                        <span class="group" aria-label="Headings">
+                                                <button type="button" data-md="h1" title="# Heading 1">H1</button>
+                                                <button type="button" data-md="h2" title="## Heading 2">H2</button>
+                                                <button type="button" data-md="h3" title="### Heading 3">H3</button>
+                                        </span>
+                                        <span class="group" aria-label="Inline styles">
+                                                <button type="button" data-md="bold"
+                                                        title="Bold (**text**)"><strong>B</strong></button>
+                                                <button type="button" data-md="italic"
+                                                        title="Italic (*text*)"><em>I</em></button>
+                                                <button type="button" data-md="code"
+                                                        title="Inline code (`code`)"><code>{;}</code></button>
+                                        </span>
+                                        <span class="group" aria-label="Blocks">
+                                                <button type="button" data-md="quote"
+                                                        title="Blockquote (> text)">❝</button>
+                                                <button type="button" data-md="ul" title="Bulleted list (- item)">•
+                                                        List</button>
+                                                <button type="button" data-md="ol" title="Numbered list (1. item)">1.
+                                                        List</button>
+                                                <button type="button" data-md="task" title="- [ ] task">☐ Task</button>
+                                                <button type="button" data-md="hr"
+                                                        title="Horizontal rule (---)">—</button>
+                                        </span>
+                                        <span class="group" aria-label="Links and media">
+                                                <button type="button" data-md="link" title="[text](url)">🔗</button>
+                                                <button type="button" data-md="image" title="![alt](url)">🖼️</button>
+                                        </span>
+                                        <span class="group" aria-label="Code block and table">
+                                                <button type="button" data-md="fence"
+                                                        title="``` code block">```</button>
+                                                <button type="button" data-md="table" title="Insert table">▦</button>
+                                        </span>
+                                        <span class="group" aria-label="Undo/Redo">
+                                                <button type="button" data-md="undo" class="secondary"
+                                                        title="Undo">↶</button>
+                                                <button type="button" data-md="redo" class="secondary"
+                                                        title="Redo">↷</button>
+                                        </span>
+                                </div>
+                                <textarea class="md-textarea" data-role="textarea" placeholder="# Welcome
+      Type Markdown on the left, preview on the right.
+      
+      - Bold: **text**
+      - Italic: *text*
+      - Code: `code`
+      - Block: ```js ... ```"></textarea>
+                        </div>
+
+                        <div class="md-resizer" data-role="resizer" title="Drag to resize editor panel"></div>
+
+                        <div class="md-right" data-role="right">
+                                <div class="md-frontmatter" data-role="fm-panel" hidden>
+                                        <div class="fm-header">
+                                                <div class="fm-title">Front matter</div>
+                                                <div class="fm-actions">
+                                                        <button type="button" class="secondary" data-action="fm-hide"
+                                                                title="Hide front matter">Hide</button>
+                                                </div>
+                                        </div>
+                                        <pre><code data-role="fm-code"></code></pre>
+                                </div>
+                                <div class="md-preview" data-role="preview" aria-live="polite"
+                                        aria-label="Rendered Markdown Preview"></div>
+                        </div>
+                </div>
+        </div>
+
+        <script>
+                (function () {
+                        const root = document.currentScript.closest('.md-wrap');
+
+                        // Elements
+                        const textarea = root.querySelector('[data-role="textarea"]');
+                        const preview = root.querySelector('[data-role="preview"]');
+                        const resizer = root.querySelector('[data-role="resizer"]');
+                        const topPanel = root.querySelector('[data-role="top"]');
+                        const editorPane = root.querySelector('[data-role="editor"]');
+                        const fileInput = root.querySelector('[data-role="file"]');
+                        const workspace = root.querySelector('[data-role="workspace"]');
+                        const toggleBtn = root.querySelector('[data-action="toggle-preview"]');
+
+                        const editBar = root.querySelector('#edit-md');
+                        const fmPanel = root.querySelector('[data-role="fm-panel"]');
+                        const fmCode = root.querySelector('[data-role="fm-code"]');
+                        const fmToggle = root.querySelector('[data-action="fm-toggle"]');
+                        const fmHideBtn = root.querySelector('[data-action="fm-hide"]');
+
+                        // Derived at runtime (key is per-source)
+                        let STORAGE_KEY = 'md-editor-content:local';
+                        let currentDocUrl = null;
+
+                        // Ensure marked exists
+                        function ensureMarked(cb) {
+                                if (window.marked && typeof window.marked.parse === 'function') return cb();
+                                const s = document.createElement('script');
+                                s.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+                                s.onload = cb;
+                                document.head.appendChild(s);
+                        }
+
+                        // Basic sanitization
+                        function sanitize(html) {
+                                const tpl = document.createElement('template');
+                                tpl.innerHTML = html;
+                                const dangerous = ['SCRIPT', 'STYLE'];
+                                const walker = document.createTreeWalker(tpl.content, NodeFilter.SHOW_ELEMENT, null);
+                                const toRemove = [];
+                                while (walker.nextNode()) {
+                                        const el = walker.currentNode;
+                                        if (dangerous.includes(el.tagName)) { toRemove.push(el); continue; }
+                                        [...el.attributes].forEach(attr => {
+                                                const n = attr.name.toLowerCase();
+                                                if (n.startsWith('on')) el.removeAttribute(attr.name);
+                                                if ((n === 'href' || n === 'src') && /^\s*javascript:/i.test(attr.value)) el.removeAttribute(attr.name);
+                                        });
+                                        if (el.tagName === 'IFRAME') toRemove.push(el);
+                                }
+                                toRemove.forEach(n => n.remove());
+                                return tpl.innerHTML;
+                        }
+
+                        // Extract YAML front matter from start of file
+                        function extractFrontMatter(text) {
+                                const re = /^(?:\uFEFF)?---\s*\r?\n([\s\S]*?)\r?\n---\s*(?:\r?\n|$)/;
+                                const m = re.exec(text);
+                                if (!m) return { fm: '', body: text };
+                                const fm = m[1];
+                                const body = text.slice(m[0].length);
+                                return { fm, body };
+                        }
+
+                        function rewriteRelativeLinks(container, pageUrl) {
+                                if (!pageUrl) return;
+                                try {
+                                        const url = new URL(pageUrl, location.href);
+                                        const basePath = url.href.substring(0, url.href.lastIndexOf('/') + 1);
+                                        container.querySelectorAll('a[href]').forEach(a => {
+                                                const href = a.getAttribute('href') || '';
+                                                if (!href || href.startsWith('#') || /^[a-z]+:/i.test(href) || href.startsWith('/')) return;
+                                                a.setAttribute('href', new URL(href, basePath).href);
+                                        });
+                                        container.querySelectorAll('img[src]').forEach(img => {
+                                                const s = img.getAttribute('src') || '';
+                                                if (!s || /^[a-z]+:/i.test(s) || s.startsWith('/')) return;
+                                                img.setAttribute('src', new URL(s, basePath).href);
+                                        });
+                                } catch { }
+                        }
+
+                        function render() {
+                                ensureMarked(() => {
+                                        if (!render._configured) {
+                                                marked.setOptions({ gfm: true, breaks: true });
+                                                render._configured = true;
+                                        }
+                                        const full = textarea.value || '';
+                                        const { fm, body } = extractFrontMatter(full);
+
+                                        // Update FM button/panel according to content and mode
+                                        fmCode.textContent = fm || '';
+                                        setFmToggle(Boolean(fm && fm.trim()));
+
+                                        try {
+                                                const html = marked.parse(body);
+                                                preview.innerHTML = sanitize(html);
+                                                rewriteRelativeLinks(preview, currentDocUrl);
+                                        } catch (e) {
+                                                preview.textContent = String(e);
+                                        }
+                                });
+                        }
+
+                        let debounceTimer = null;
+                        function scheduleRender() {
+                                clearTimeout(debounceTimer);
+                                debounceTimer = setTimeout(render, 150);
+                        }
+
+                        // Formatting helpers
+                        function surroundSelection(before, after, placeholder = 'text') {
+                                const el = textarea;
+                                const start = el.selectionStart ?? 0;
+                                const end = el.selectionEnd ?? 0;
+                                const sel = el.value.slice(start, end) || placeholder;
+                                const next = el.value.slice(0, start) + before + sel + after + el.value.slice(end);
+                                el.value = next;
+                                const pos = start + before.length + sel.length;
+                                el.focus();
+                                el.setSelectionRange(pos, pos);
+                                scheduleRender();
+                        }
+                        function toggleLinePrefix(prefix) {
+                                const el = textarea;
+                                const start = el.selectionStart ?? 0;
+                                const end = el.selectionEnd ?? 0;
+                                const value = el.value;
+                                const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+                                const lineEnd = value.indexOf('\n', end);
+                                const sliceEnd = lineEnd === -1 ? value.length : lineEnd;
+                                const lines = value.slice(lineStart, sliceEnd).split('\n');
+                                const allHave = lines.every(l => l.startsWith(prefix));
+                                const newLines = lines.map(l => {
+                                        if (allHave) return l.replace(new RegExp('^' + prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), '');
+                                        return prefix + l;
+                                });
+                                const replaced = value.slice(0, lineStart) + newLines.join('\n') + value.slice(sliceEnd);
+                                el.value = replaced;
+                                const deltaPerLine = prefix.length * (allHave ? -1 : 1);
+                                const delta = deltaPerLine * lines.length;
+                                el.focus();
+                                el.setSelectionRange(lineStart, sliceEnd + delta);
+                                scheduleRender();
+                        }
+                        function setHeading(level) {
+                                const hashes = '#'.repeat(level) + ' ';
+                                const el = textarea;
+                                const start = el.selectionStart ?? 0;
+                                const value = el.value;
+                                const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+                                const lineEnd = value.indexOf('\n', start);
+                                const sliceEnd = lineEnd === -1 ? value.length : lineEnd;
+                                const line = value.slice(lineStart, sliceEnd);
+                                const m = /^(#{1,6}\s+)/.exec(line);
+                                let newLine;
+                                if (m && m[1] === hashes) newLine = line.replace(/^(#{1,6}\s+)/, '');
+                                else if (m) newLine = line.replace(/^(#{1,6}\s+)/, hashes);
+                                else newLine = hashes + (line || 'Heading');
+                                const replaced = value.slice(0, lineStart) + newLine + value.slice(sliceEnd);
+                                el.value = replaced;
+                                const caret = lineStart + Math.min(newLine.length, replaced.length - lineStart);
+                                el.focus();
+                                el.setSelectionRange(caret, caret);
+                                scheduleRender();
+                        }
+                        function insertLink() { surroundSelection('[', '](https://example.com)', 'text'); }
+                        function insertImage() { surroundSelection('![', '](https://placehold.co/600x400)', 'alt'); }
+                        function insertInlineCode() { surroundSelection('`', '`', 'code'); }
+                        function insertFence() {
+                                const el = textarea;
+                                const start = el.selectionStart ?? 0;
+                                const end = el.selectionEnd ?? 0;
+                                const sel = el.value.slice(start, end) || 'console.log("Hello");';
+                                const lang = 'js';
+                                const block = '```' + lang + '\n' + sel + '\n```\n';
+                                el.setRangeText(block, start, end, 'end');
+                                scheduleRender();
+                        }
+                        function insertTable() {
+                                const tmpl = [
+                                        '| Column A | Column B | Column C |',
+                                        '|----------|----------|----------|',
+                                        '| A1       | B1       | C1       |',
+                                        '| A2       | B2       | C2       |',
+                                        ''
+                                ].join('\n');
+                                surroundSelection('', '', tmpl);
+                        }
+                        function insertHR() { surroundSelection('\n\n---\n\n', '', ''); }
+                        function toggleTasks() {
+                                const el = textarea;
+                                const start = el.selectionStart ?? 0;
+                                const end = el.selectionEnd ?? 0;
+                                const value = el.value;
+                                const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+                                const lineEnd = value.indexOf('\n', end);
+                                const sliceEnd = lineEnd === -1 ? value.length : lineEnd;
+                                const lines = value.slice(lineStart, sliceEnd).split('\n');
+                                const newLines = lines.map(l => {
+                                        if (/^\s*-\s+\[ \]\s/.test(l)) return l.replace('[ ]', '[x]');
+                                        if (/^\s*-\s+\[x\]\s/i.test(l)) return l.replace(/\[x\]/i, '[ ]');
+                                        if (/^\s*-\s+/.test(l)) return l.replace(/^\s*-\s+/, '- [ ] ');
+                                        return '- [ ] ' + l;
+                                });
+                                const replaced = value.slice(0, lineStart) + newLines.join('\n') + value.slice(sliceEnd);
+                                el.value = replaced;
+                                el.focus();
+                                el.setSelectionRange(lineStart, lineStart + newLines.join('\n').length);
+                                scheduleRender();
+                        }
+
+                        // Toolbar wiring
+                        root.querySelector('.md-toolbar').addEventListener('click', (e) => {
+                                const btn = e.target.closest('button[data-md]');
+                                if (!btn) return;
+                                const action = btn.getAttribute('data-md');
+                                switch (action) {
+                                        case 'h1': setHeading(1); break;
+                                        case 'h2': setHeading(2); break;
+                                        case 'h3': setHeading(3); break;
+                                        case 'bold': surroundSelection('**', '**', 'bold'); break;
+                                        case 'italic': surroundSelection('*', '*', 'italic'); break;
+                                        case 'code': insertInlineCode(); break;
+                                        case 'quote': toggleLinePrefix('> '); break;
+                                        case 'ul': toggleLinePrefix('- '); break;
+                                        case 'ol': toggleLinePrefix('1. '); break;
+                                        case 'task': toggleTasks(); break;
+                                        case 'link': insertLink(); break;
+                                        case 'image': insertImage(); break;
+                                        case 'fence': insertFence(); break;
+                                        case 'table': insertTable(); break;
+                                        case 'hr': insertHR(); break;
+                                        case 'undo': document.execCommand?.('undo'); break;
+                                        case 'redo': document.execCommand?.('redo'); break;
+                                }
+                        });
+
+                        // Edit-mode helpers
+                        function isEditing() { return !workspace.classList.contains('md-preview-only'); }
+                        function updateToggleButtonLabel() {
+                                const previewOnly = !isEditing();
+                                toggleBtn.textContent = previewOnly ? 'Edit' : 'Preview-only';
+                                toggleBtn.setAttribute('title', previewOnly ? 'Show editor' : 'Hide editor');
+                                toggleBtn.setAttribute('aria-pressed', previewOnly ? 'false' : 'true');
+                        }
+                        function setFmToggle(hasFm) {
+                                const editing = isEditing();
+                                // Button visible only when editing and FM exists
+                                fmToggle.hidden = !(editing && hasFm);
+                                const pressed = fmToggle.getAttribute('aria-pressed') === 'true';
+                                fmPanel.hidden = !(editing && hasFm && pressed);
+                        }
+                        function setEditing(editing) {
+                                workspace.classList.toggle('md-preview-only', !editing);
+                                editBar.hidden = !editing;
+                                updateToggleButtonLabel();
+                                const hasFm = (fmCode.textContent || '').trim().length > 0;
+                                setFmToggle(hasFm);
+                        }
+
+                        toggleBtn.addEventListener('click', () => {
+                                setEditing(!isEditing());
+                        });
+                        fmToggle.addEventListener('click', () => {
+                                const pressed = fmToggle.getAttribute('aria-pressed') === 'true';
+                                fmToggle.setAttribute('aria-pressed', pressed ? 'false' : 'true');
+                                const hasFm = (fmCode.textContent || '').trim().length > 0;
+                                setFmToggle(hasFm);
+                        });
+                        fmHideBtn.addEventListener('click', () => {
+                                fmToggle.setAttribute('aria-pressed', 'false');
+                                const hasFm = (fmCode.textContent || '').trim().length > 0;
+                                setFmToggle(hasFm);
+                        });
+
+                        // Actions
+                        root.querySelector('[data-action="download"]').addEventListener('click', () => {
+                                const blob = new Blob([textarea.value || ''], { type: 'text/markdown' });
+                                const a = document.createElement('a');
+                                const url = URL.createObjectURL(blob);
+                                a.href = url;
+                                a.download = 'document.md';
+                                document.body.appendChild(a);
+                                a.click();
+                                a.remove();
+                                URL.revokeObjectURL(url);
+                        });
+                        root.querySelector('[data-action="upload"]').addEventListener('click', () => fileInput.click());
+                        fileInput.addEventListener('change', async () => {
+                                const file = fileInput.files?.[0];
+                                if (!file) return;
+                                const text = await file.text();
+                                currentDocUrl = null; // local file, no base for relative links
+                                STORAGE_KEY = 'md-editor-content:local';
+                                textarea.value = text;
+                                const hasFm = /^(\uFEFF)?---\s*\r?\n[\s\S]*?\r?\n---\s*(\r?\n|$)/.test(text);
+                                setFmToggle(hasFm);
+                                scheduleRender();
+                        });
+                        root.querySelector('[data-action="clear"]').addEventListener('click', () => {
+                                textarea.value = '';
+                                try { localStorage.removeItem(STORAGE_KEY); } catch { }
+                                setFmToggle(false);
+                                scheduleRender();
+                        });
+
+                        // Resizer
+                        let resizing = false;
+                        resizer.addEventListener('mousedown', () => {
+                                resizing = true;
+                                document.body.style.cursor = 'col-resize';
+                        });
+                        document.addEventListener('mousemove', (e) => {
+                                if (!resizing) return;
+                                const rect = topPanel.getBoundingClientRect();
+                                let newWidth = e.clientX - rect.left;
+                                const min = 180;
+                                const max = rect.width - 180;
+                                if (newWidth < min) newWidth = min;
+                                if (newWidth > max) newWidth = max;
+                                editorPane.style.width = newWidth + 'px';
+                        });
+                        document.addEventListener('mouseup', () => {
+                                if (resizing) {
+                                        resizing = false;
+                                        document.body.style.cursor = 'default';
+                                }
+                        });
+
+                        // Persist edits
+                        textarea.addEventListener('input', () => {
+                                try { localStorage.setItem(STORAGE_KEY, textarea.value); } catch { }
+                                const txt = textarea.value || '';
+                                const hasFm = /^(\uFEFF)?---\s*\r?\n[\s\S]*?\r?\n---\s*(\r?\n|$)/.test(txt);
+                                setFmToggle(hasFm);
+                                scheduleRender();
+                        });
+
+                        // URL params + URL building
+                        function getParams() {
+                                const q = new URLSearchParams(location.search);
+                                let src = q.get('src') || '';
+                                let page = q.get('page') || '';
+                                let path = q.get('path') || q.get('base') || '';
+                                const safe = s => (s || '').replace(/[^\w./-]+/g, '');
+                                src = (src || '').trim();
+                                page = safe((page || '').trim());
+                                path = safe((path || '').trim().replace(/^\/+|\/+$/g, ''));
+                                return { src, page, path };
+                        }
+                        function isAbsoluteUrl(u) { try { new URL(u); return true; } catch { return false; } }
+                        function buildTargetUrl({ src, page, path }) {
+                                const defaultBase = root.getAttribute('data-base') || './docs';
+                                // Absolute src
+                                if (src && isAbsoluteUrl(src)) return src;
+                                // Relative src -> resolve against current document
+                                if (src) {
+                                        const cleaned = src.replace(/^\.\//, '');
+                                        return new URL(cleaned, location.origin + location.pathname).href;
+                                }
+                                // page + optional path -> resolve under defaultBase
+                                const baseURL = new URL(defaultBase.replace(/\/?$/, '/'), location.origin + location.pathname);
+                                let name = page || 'README';
+                                if (!/\.md$/i.test(name)) name += '.md';
+                                if (name.includes('..')) name = 'README.md';
+                                const rel = (path ? path.replace(/\/?$/, '/') : '') + name;
+                                return new URL(rel, baseURL).href;
+                        }
+
+                        // Initial load
+                        (async function initLoad() {
+                                const params = getParams();
+                                const hasSource = params.src || params.page;
+                                currentDocUrl = hasSource ? buildTargetUrl(params) : null;
+                                STORAGE_KEY = 'md-editor-content:' + (currentDocUrl || 'local');
+
+                                // Prefer saved draft per source
+                                let restored = null;
+                                try { restored = localStorage.getItem(STORAGE_KEY); } catch { }
+
+                                if (restored) {
+                                        textarea.value = restored;
+                                } else if (currentDocUrl) {
+                                        try {
+                                                const res = await fetch(currentDocUrl, { cache: 'no-cache' });
+                                                if (!res.ok) throw new Error('HTTP ' + res.status);
+                                                const md = await res.text();
+                                                textarea.value = md;
+                                        } catch (e) {
+                                                textarea.value = `---\nsource: ${currentDocUrl}\nstatus: error\n---\n\n# Load error\n\nFailed to load markdown from:\n\n- ${currentDocUrl}\n\nError: ${String(e)}`;
+                                        }
+                                } else {
+                                        // Fallback: load ./docs/README.md instead of a blank template
+                                        try {
+                                                // Use data-base when present; default to ./docs
+                                                const base = (root.getAttribute('data-base') || './docs')
+                                                        .replace(/^\.\//, '')         // drop leading "./"
+                                                        .replace(/\/?$/, '/');        // ensure trailing "/"
+                                                const fallbackUrl = new URL(base + 'README.md', location.origin + location.pathname).href;
+
+                                                currentDocUrl = fallbackUrl;
+                                                STORAGE_KEY = 'md-editor-content:' + currentDocUrl;
+
+                                                const res = await fetch(currentDocUrl, { cache: 'no-cache' });
+                                                if (!res.ok) throw new Error('HTTP ' + res.status);
+
+                                                const md = await res.text();
+                                                textarea.value = md;
+                                        } catch (e) {
+                                                // If fallback fetch fails, keep a simple starter
+                                                textarea.value = '# Hello, Markdown!\n\nStart typing on the left...';
+                                                currentDocUrl = null;
+                                                STORAGE_KEY = 'md-editor-content:local';
+                                        }
+                                }
+
+                                // First render
+                                render();
+                                // Start in preview-only; reveal left controls only when editing
+                                setEditing(false);
+                        })();
+                })();
+        </script>
+</section>

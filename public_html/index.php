@@ -94,8 +94,7 @@
 			gap: 0.5rem;
 		}
 
-		a.button,
-		button {
+		a.button {
 			display: flex;
 			align-items: center;
 			gap: 0.5rem;
@@ -110,8 +109,7 @@
 			transition: background 0.2s, border-color 0.2s, color 0.2s;
 		}
 
-		a.button:hover,
-		button:hover {
+		a.button:hover {
 			background: var(--color-btn-hover);
 			border-color: var(--color-btn-hover);
 			color: #fff;
@@ -224,9 +222,9 @@
 					<use href="#i-grid"></use>
 				</svg>
 			</a>
-			<div class=button>
+			<a href="/" class="button"  title="Home">
 				<img src="images/ewe_hat.svg" width="48" height="48" alt="GNU EWE logo" loading="lazy" decoding="async">
-			</div>
+			</a>
 		</div>
 
 		<div class="actions">
@@ -238,7 +236,7 @@
 
 			<a href="javascript:void(0);" class="button" onclick="togglePanel('#tag-links')" title="Toggle Outline">
 				<svg class="icon  icon-lg">
-					<use href="#i-tag"></use>
+					<use href="#i-book"></use>
 				</svg>
 			</a>
 			<a href="javascript:void(0);" class="button" onclick="togglePanel('#sources-links')" title="Toggle sources">
@@ -251,47 +249,37 @@
 	</header>
 
 	<div class="layout">
-		<nav id="tool-links" aria-label="Site Navigation">
-
-			<a href="?page=markdown" class="button">
-				<svg class="icon icon-md">
-					<use href="#i-home"></use>
-				</svg>
-				Home
-			</a>
-			<a href="?page=markdown" class="button">
-				<svg class="icon icon-md">
-					<use href="#i-book"></use>
-				</svg>
-				EWE DOCS
-			</a>
-
-
-			<a href="?page=cli" class="button">
+		<nav id="tool-links" aria-label="Site Navigation" hidden>
+			<a href="?app=PseudoShell" class="button">
 				<svg class="icon icon-md">
 					<use href="#i-terminal"></use>
 				</svg>
-				EWE Command Line</a>
-
-
-			<a href="?page=html" class="button">
+				PseudoShell - Bash Sim</a>
+			<a href="?app=MiniPen" class="button">
 				<svg class="icon icon-md">
 					<use href="#i-html5"></use>
 				</svg>
-				Editor HTML, CSS, JS</a>
-
-			<a href="?page=md" class="button">
+				MiniPen - HTML Sadbox</a>
+			<a href="?app=MiniMD" class="button">
 				<svg class="icon icon-md">
 					<use href="#i-md"></use>
 				</svg>
-				Editor MarkDown (MD)</a>
+				MiniMD - MarkDown Editor</a>
+			<a href="?app=MiniSVG" class="button">
+				<svg class="icon icon-md">
+					<use href="#i-info"></use>
+				</svg>
+				MiniSVC - SVG Icon Paths</a>
 		</nav>
 
 		<main>
 			<?php
-		$page = $_GET['page'] ?? 'markdown';
+		$page = $_GET['app'] ?? 'MiniMD';
 
 		switch ($page) {
+			case 'home':
+				include "./MiniMD.html";
+				break;
 			case 'markdown':
 				include "./markdown.php";
 				break;
@@ -301,9 +289,18 @@
 			case 'scan':
 				include "./scan.php";
 				break;
-			case 'cli':
-				include "./playcli.html";
+			case 'PseudoShell':
+				include "./PseudoShell.html";
 				break;
+			case 'MiniMD':
+				include "./MiniMD.html";
+				break;
+			case 'MiniPen':
+				include "./MiniPen.html";
+				break;
+			case 'MiniSVG':
+				include "./MiniSVG.html";
+				break;				
 			case 'md':
 				include "./playmd.html";
 				break;
@@ -314,9 +311,13 @@
 		</main>
 		<!-- Optional sidebar -->
 		<aside id="tag-links" hidden>
-			json metadata
-			<hr>
-			<?php include "./scan.php"; ?>
+<!-- Filter input -->
+<input id="tag-filter" type="text" placeholder="Filter by tag or keyword" autocomplete="off"
+        style="margin:1rem 0; padding:0.5rem; width:calc(100% - 2rem);" />
+
+<!-- Navigation list -->
+<ul id="nav-list" style="list-style:none; padding:0; display:flex; flex-wrap:wrap; gap:0.5rem;"></ul>
+
 		</aside>
 		<aside id="sources-links" hidden>
 			<a href="https://github.com/Tearran/gnuewe" class="button" target="_blank" rel="noopener">
@@ -344,7 +345,22 @@
 			All trademarks are the property of their respective owners. All rights reserved.
 			Content is provided "as is" and is for informational purposes only. Use at your own risk.</div>
 	</footer>
+	<script>
+  // Example: load a markdown doc on page load
+	window.addEventListener("DOMContentLoaded", () => {
+		if (typeof loadMarkdownFromURL === 'function') {
+		l	oadMarkdownFromURL("docs/README.md");
+		}
+	});
 
+  // Or bind links in your nav
+  document.querySelectorAll("nav a[data-md]").forEach(a => {
+    a.addEventListener("click", e => {
+      e.preventDefault();
+      loadMarkdownFromURL(a.getAttribute("href"));
+    });
+  });
+</script>
 	<script>
 /* -----------------------------
    PANEL TOGGLE
