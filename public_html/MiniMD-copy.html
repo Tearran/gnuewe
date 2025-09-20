@@ -13,7 +13,6 @@
                         font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
                 }
 
-
                 .md-action-bar {
                         display: flex;
                         justify-content: space-between;
@@ -101,47 +100,6 @@
                         display: inline-flex;
                         gap: 0.25rem;
                         margin-right: 0.35rem;
-                }
-
-                .md-right {
-                        display: flex;
-                        flex-direction: column;
-                        flex: 1 1 auto;
-                        min-width: 0;
-                        min-height: 0;
-                }
-
-                .md-frontmatter {
-                        background: #23272e;
-                        color: #eaeaea;
-                        border-bottom: 1px solid #000;
-                        padding: 0.5rem 0.75rem;
-                }
-
-                .md-frontmatter .fm-header {
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        gap: 0.5rem;
-                        margin-bottom: 0.5rem;
-                }
-
-                .md-frontmatter .fm-title {
-                        font-weight: 600;
-                        color: #cfd8e3;
-                }
-
-                .md-frontmatter pre {
-                        margin: 0;
-                        background: #0f1113;
-                        color: #e6e6e6;
-                        border: 1px solid #000;
-                        border-radius: 6px;
-                        padding: 0.5rem 0.75rem;
-                        overflow: auto;
-                        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-                        font-size: 0.9rem;
-                        line-height: 1.4;
                 }
 
                 .md-textarea {
@@ -256,18 +214,15 @@
 
         <div class="md-action-bar">
                 <div class="md-actions-left">
-                        <span id="edit-md" hidden>
-                                <button type="button" data-action="clear" class="secondary">Clear</button>
-                                <button type="button" data-action="fm-toggle" class="secondary" hidden
-                                        aria-pressed="true" title="Show/Hide front matter">Front matter</button>
-                                <button type="button" data-action="download">Save</button>
-                                <button type="button" data-action="upload" class="secondary">Open</button>
-                                <input type="file" data-role="file" accept=".md,.markdown,.txt" hidden>
-                        </span>
-                </div>
-                <div class="md-actions-right">
+                        <!-- "Edit" and editor hidden by default -->
                         <button type="button" data-action="toggle-preview" class="secondary" aria-pressed="false"
                                 title="Show editor">Edit</button>
+                        <button type="button" data-action="download">Save</button>
+                        <button type="button" data-action="upload" class="secondary">Open</button>
+                        <input type="file" data-role="file" accept=".md,.markdown,.txt" hidden>
+                </div>
+                <div class="md-actions-right">
+                        <button type="button" data-action="clear" class="secondary">Clear</button>
                 </div>
         </div>
 
@@ -326,19 +281,9 @@
 
                         <div class="md-resizer" data-role="resizer" title="Drag to resize editor panel"></div>
 
-                        <div class="md-right" data-role="right">
-                                <div class="md-frontmatter" data-role="fm-panel" hidden>
-                                        <div class="fm-header">
-                                                <div class="fm-title">Front matter</div>
-                                                <div class="fm-actions">
-                                                        <button type="button" class="secondary" data-action="fm-hide"
-                                                                title="Hide front matter">Hide</button>
-                                                </div>
-                                        </div>
-                                        <pre><code data-role="fm-code"></code></pre>
-                                </div>
-                                <div class="md-preview" data-role="preview" aria-live="polite"
-                                        aria-label="Rendered Markdown Preview"></div>
+                        <div class="md-preview" data-role="preview" aria-live="polite"
+                                aria-label="Rendered Markdown Preview">
+                                <!-- Rendered HTML appears here -->
                         </div>
                 </div>
         </div>
@@ -357,17 +302,11 @@
                         const workspace = root.querySelector('[data-role="workspace"]');
                         const toggleBtn = root.querySelector('[data-action="toggle-preview"]');
 
-                        const editBar = root.querySelector('#edit-md');
-                        const fmPanel = root.querySelector('[data-role="fm-panel"]');
-                        const fmCode = root.querySelector('[data-role="fm-code"]');
-                        const fmToggle = root.querySelector('[data-action="fm-toggle"]');
-                        const fmHideBtn = root.querySelector('[data-action="fm-hide"]');
-
                         // Derived at runtime (key is per-source)
                         let STORAGE_KEY = 'md-editor-content:local';
                         let currentDocUrl = null;
 
-                        // Ensure marked exists
+                        // Ensure marked is available (load lazily if needed)
                         function ensureMarked(cb) {
                                 if (window.marked && typeof window.marked.parse === 'function') return cb();
                                 const s = document.createElement('script');
@@ -376,7 +315,7 @@
                                 document.head.appendChild(s);
                         }
 
-                        // Basic sanitization
+                        // Simple sanitizer
                         function sanitize(html) {
                                 const tpl = document.createElement('template');
                                 tpl.innerHTML = html;
@@ -397,16 +336,6 @@
                                 return tpl.innerHTML;
                         }
 
-                        // Extract YAML front matter from start of file
-                        function extractFrontMatter(text) {
-                                const re = /^(?:\uFEFF)?---\s*\r?\n([\s\S]*?)\r?\n---\s*(?:\r?\n|$)/;
-                                const m = re.exec(text);
-                                if (!m) return { fm: '', body: text };
-                                const fm = m[1];
-                                const body = text.slice(m[0].length);
-                                return { fm, body };
-                        }
-
                         function rewriteRelativeLinks(container, pageUrl) {
                                 if (!pageUrl) return;
                                 try {
@@ -418,9 +347,9 @@
                                                 a.setAttribute('href', new URL(href, basePath).href);
                                         });
                                         container.querySelectorAll('img[src]').forEach(img => {
-                                                const s = img.getAttribute('src') || '';
-                                                if (!s || /^[a-z]+:/i.test(s) || s.startsWith('/')) return;
-                                                img.setAttribute('src', new URL(s, basePath).href);
+                                                const src = img.getAttribute('src') || '';
+                                                if (!src || /^[a-z]+:/i.test(src) || src.startsWith('/')) return;
+                                                img.setAttribute('src', new URL(src, basePath).href);
                                         });
                                 } catch { }
                         }
@@ -431,15 +360,9 @@
                                                 marked.setOptions({ gfm: true, breaks: true });
                                                 render._configured = true;
                                         }
-                                        const full = textarea.value || '';
-                                        const { fm, body } = extractFrontMatter(full);
-
-                                        // Update FM button/panel according to content and mode
-                                        fmCode.textContent = fm || '';
-                                        setFmToggle(Boolean(fm && fm.trim()));
-
+                                        const md = textarea.value || '';
                                         try {
-                                                const html = marked.parse(body);
+                                                const html = marked.parse(md);
                                                 preview.innerHTML = sanitize(html);
                                                 rewriteRelativeLinks(preview, currentDocUrl);
                                         } catch (e) {
@@ -454,7 +377,7 @@
                                 debounceTimer = setTimeout(render, 150);
                         }
 
-                        // Formatting helpers
+                        // Selection helpers
                         function surroundSelection(before, after, placeholder = 'text') {
                                 const el = textarea;
                                 const start = el.selectionStart ?? 0;
@@ -467,6 +390,7 @@
                                 el.setSelectionRange(pos, pos);
                                 scheduleRender();
                         }
+
                         function toggleLinePrefix(prefix) {
                                 const el = textarea;
                                 const start = el.selectionStart ?? 0;
@@ -475,6 +399,7 @@
                                 const lineStart = value.lastIndexOf('\n', start - 1) + 1;
                                 const lineEnd = value.indexOf('\n', end);
                                 const sliceEnd = lineEnd === -1 ? value.length : lineEnd;
+
                                 const lines = value.slice(lineStart, sliceEnd).split('\n');
                                 const allHave = lines.every(l => l.startsWith(prefix));
                                 const newLines = lines.map(l => {
@@ -483,12 +408,14 @@
                                 });
                                 const replaced = value.slice(0, lineStart) + newLines.join('\n') + value.slice(sliceEnd);
                                 el.value = replaced;
+
                                 const deltaPerLine = prefix.length * (allHave ? -1 : 1);
                                 const delta = deltaPerLine * lines.length;
                                 el.focus();
                                 el.setSelectionRange(lineStart, sliceEnd + delta);
                                 scheduleRender();
                         }
+
                         function setHeading(level) {
                                 const hashes = '#'.repeat(level) + ' ';
                                 const el = textarea;
@@ -497,12 +424,14 @@
                                 const lineStart = value.lastIndexOf('\n', start - 1) + 1;
                                 const lineEnd = value.indexOf('\n', start);
                                 const sliceEnd = lineEnd === -1 ? value.length : lineEnd;
+
                                 const line = value.slice(lineStart, sliceEnd);
                                 const m = /^(#{1,6}\s+)/.exec(line);
                                 let newLine;
                                 if (m && m[1] === hashes) newLine = line.replace(/^(#{1,6}\s+)/, '');
                                 else if (m) newLine = line.replace(/^(#{1,6}\s+)/, hashes);
                                 else newLine = hashes + (line || 'Heading');
+
                                 const replaced = value.slice(0, lineStart) + newLine + value.slice(sliceEnd);
                                 el.value = replaced;
                                 const caret = lineStart + Math.min(newLine.length, replaced.length - lineStart);
@@ -510,17 +439,18 @@
                                 el.setSelectionRange(caret, caret);
                                 scheduleRender();
                         }
+
                         function insertLink() { surroundSelection('[', '](https://example.com)', 'text'); }
                         function insertImage() { surroundSelection('![', '](https://placehold.co/600x400)', 'alt'); }
                         function insertInlineCode() { surroundSelection('`', '`', 'code'); }
                         function insertFence() {
                                 const el = textarea;
                                 const start = el.selectionStart ?? 0;
-                                const end = el.selectionEnd ?? 0;
-                                const sel = el.value.slice(start, end) || 'console.log("Hello");';
+                                theEnd = el.selectionEnd ?? 0;
+                                const sel = el.value.slice(start, theEnd) || 'console.log("Hello");';
                                 const lang = 'js';
                                 const block = '```' + lang + '\n' + sel + '\n```\n';
-                                el.setRangeText(block, start, end, 'end');
+                                el.setRangeText(block, start, theEnd, 'end');
                                 scheduleRender();
                         }
                         function insertTable() {
@@ -542,6 +472,7 @@
                                 const lineStart = value.lastIndexOf('\n', start - 1) + 1;
                                 const lineEnd = value.indexOf('\n', end);
                                 const sliceEnd = lineEnd === -1 ? value.length : lineEnd;
+
                                 const lines = value.slice(lineStart, sliceEnd).split('\n');
                                 const newLines = lines.map(l => {
                                         if (/^\s*-\s+\[ \]\s/.test(l)) return l.replace('[ ]', '[x]');
@@ -582,45 +513,19 @@
                                 }
                         });
 
-                        // Edit-mode helpers
-                        function isEditing() { return !workspace.classList.contains('md-preview-only'); }
+                        // Action bar
                         function updateToggleButtonLabel() {
-                                const previewOnly = !isEditing();
+                                const previewOnly = workspace.classList.contains('md-preview-only');
                                 toggleBtn.textContent = previewOnly ? 'Edit' : 'Preview-only';
                                 toggleBtn.setAttribute('title', previewOnly ? 'Show editor' : 'Hide editor');
                                 toggleBtn.setAttribute('aria-pressed', previewOnly ? 'false' : 'true');
                         }
-                        function setFmToggle(hasFm) {
-                                const editing = isEditing();
-                                // Button visible only when editing and FM exists
-                                fmToggle.hidden = !(editing && hasFm);
-                                const pressed = fmToggle.getAttribute('aria-pressed') === 'true';
-                                fmPanel.hidden = !(editing && hasFm && pressed);
-                        }
-                        function setEditing(editing) {
-                                workspace.classList.toggle('md-preview-only', !editing);
-                                editBar.hidden = !editing;
-                                updateToggleButtonLabel();
-                                const hasFm = (fmCode.textContent || '').trim().length > 0;
-                                setFmToggle(hasFm);
-                        }
 
                         toggleBtn.addEventListener('click', () => {
-                                setEditing(!isEditing());
-                        });
-                        fmToggle.addEventListener('click', () => {
-                                const pressed = fmToggle.getAttribute('aria-pressed') === 'true';
-                                fmToggle.setAttribute('aria-pressed', pressed ? 'false' : 'true');
-                                const hasFm = (fmCode.textContent || '').trim().length > 0;
-                                setFmToggle(hasFm);
-                        });
-                        fmHideBtn.addEventListener('click', () => {
-                                fmToggle.setAttribute('aria-pressed', 'false');
-                                const hasFm = (fmCode.textContent || '').trim().length > 0;
-                                setFmToggle(hasFm);
+                                workspace.classList.toggle('md-preview-only');
+                                updateToggleButtonLabel();
                         });
 
-                        // Actions
                         root.querySelector('[data-action="download"]').addEventListener('click', () => {
                                 const blob = new Blob([textarea.value || ''], { type: 'text/markdown' });
                                 const a = document.createElement('a');
@@ -640,18 +545,15 @@
                                 currentDocUrl = null; // local file, no base for relative links
                                 STORAGE_KEY = 'md-editor-content:local';
                                 textarea.value = text;
-                                const hasFm = /^(\uFEFF)?---\s*\r?\n[\s\S]*?\r?\n---\s*(\r?\n|$)/.test(text);
-                                setFmToggle(hasFm);
                                 scheduleRender();
                         });
                         root.querySelector('[data-action="clear"]').addEventListener('click', () => {
                                 textarea.value = '';
-                                try { localStorage.removeItem(STORAGE_KEY); } catch { }
-                                setFmToggle(false);
                                 scheduleRender();
+                                try { localStorage.removeItem(STORAGE_KEY); } catch { }
                         });
 
-                        // Resizer
+                        // Editor resizing
                         let resizing = false;
                         resizer.addEventListener('mousedown', () => {
                                 resizing = true;
@@ -674,16 +576,13 @@
                                 }
                         });
 
-                        // Persist edits
+                        // Input -> preview + persist
                         textarea.addEventListener('input', () => {
-                                try { localStorage.setItem(STORAGE_KEY, textarea.value); } catch { }
-                                const txt = textarea.value || '';
-                                const hasFm = /^(\uFEFF)?---\s*\r?\n[\s\S]*?\r?\n---\s*(\r?\n|$)/.test(txt);
-                                setFmToggle(hasFm);
                                 scheduleRender();
+                                try { localStorage.setItem(STORAGE_KEY, textarea.value); } catch { }
                         });
 
-                        // URL params + URL building
+                        // URL param helpers
                         function getParams() {
                                 const q = new URLSearchParams(location.search);
                                 let src = q.get('src') || '';
@@ -696,6 +595,7 @@
                                 return { src, page, path };
                         }
                         function isAbsoluteUrl(u) { try { new URL(u); return true; } catch { return false; } }
+
                         function buildTargetUrl({ src, page, path }) {
                                 const defaultBase = root.getAttribute('data-base') || './docs';
                                 // Absolute src
@@ -721,50 +621,33 @@
                                 currentDocUrl = hasSource ? buildTargetUrl(params) : null;
                                 STORAGE_KEY = 'md-editor-content:' + (currentDocUrl || 'local');
 
-                                // Prefer saved draft per source
+                                // Prefer a saved draft for this source if present
                                 let restored = null;
                                 try { restored = localStorage.getItem(STORAGE_KEY); } catch { }
 
                                 if (restored) {
                                         textarea.value = restored;
-                                } else if (currentDocUrl) {
-                                        try {
-                                                const res = await fetch(currentDocUrl, { cache: 'no-cache' });
-                                                if (!res.ok) throw new Error('HTTP ' + res.status);
-                                                const md = await res.text();
-                                                textarea.value = md;
-                                        } catch (e) {
-                                                textarea.value = `---\nsource: ${currentDocUrl}\nstatus: error\n---\n\n# Load error\n\nFailed to load markdown from:\n\n- ${currentDocUrl}\n\nError: ${String(e)}`;
-                                        }
-                                } else {
-                                        // Fallback: load ./docs/README.md instead of a blank template
-                                        try {
-                                                // Use data-base when present; default to ./docs
-                                                const base = (root.getAttribute('data-base') || './docs')
-                                                        .replace(/^\.\//, '')         // drop leading "./"
-                                                        .replace(/\/?$/, '/');        // ensure trailing "/"
-                                                const fallbackUrl = new URL(base + 'README.md', location.origin + location.pathname).href;
-
-                                                currentDocUrl = fallbackUrl;
-                                                STORAGE_KEY = 'md-editor-content:' + currentDocUrl;
-
-                                                const res = await fetch(currentDocUrl, { cache: 'no-cache' });
-                                                if (!res.ok) throw new Error('HTTP ' + res.status);
-
-                                                const md = await res.text();
-                                                textarea.value = md;
-                                        } catch (e) {
-                                                // If fallback fetch fails, keep a simple starter
-                                                textarea.value = '# Hello, Markdown!\n\nStart typing on the left...';
-                                                currentDocUrl = null;
-                                                STORAGE_KEY = 'md-editor-content:local';
-                                        }
+                                        scheduleRender();
+                                        updateToggleButtonLabel();
+                                        return;
                                 }
 
-                                // First render
-                                render();
-                                // Start in preview-only; reveal left controls only when editing
-                                setEditing(false);
+                                if (currentDocUrl) {
+                                        try {
+                                                const res = await fetch(currentDocUrl, { cache: 'no-cache' });
+                                                if (!res.ok) throw new Error('HTTP ' + res.status);
+                                                const md = await res.text();
+                                                textarea.value = md;
+                                                scheduleRender();
+                                        } catch (e) {
+                                                textarea.value = `# Load error\n\nFailed to load markdown from:\n\n- ${currentDocUrl}\n\nError: ${String(e)}`;
+                                                scheduleRender();
+                                        }
+                                } else {
+                                        textarea.value = '# Hello, Markdown!\n\nStart typing on the left...';
+                                        scheduleRender();
+                                }
+                                updateToggleButtonLabel();
                         })();
                 })();
         </script>

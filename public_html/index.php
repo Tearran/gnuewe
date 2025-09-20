@@ -94,8 +94,7 @@
 			gap: 0.5rem;
 		}
 
-		a.button,
-		button {
+		a.button {
 			display: flex;
 			align-items: center;
 			gap: 0.5rem;
@@ -110,8 +109,7 @@
 			transition: background 0.2s, border-color 0.2s, color 0.2s;
 		}
 
-		a.button:hover,
-		button:hover {
+		a.button:hover {
 			background: var(--color-btn-hover);
 			border-color: var(--color-btn-hover);
 			color: #fff;
