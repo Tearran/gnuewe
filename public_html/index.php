@@ -127,11 +127,10 @@
 			border: 1px solid var(--color-border);
 			background: var(--color-bg);
 		}
-		
+
 		#tool-links,
 		#sources-links,
-		#tag-links
-		aside ul,
+		#tag-links aside ul,
 		nav ul {
 			list-style: none;
 			padding: 0;
@@ -195,22 +194,31 @@
 			width: 2em;
 			height: 2em;
 		}
-		nav,
-aside {
-  padding: 0;     /* remove padding */
-  margin: 0;      /* remove margin */
-  border: none;   /* remove border if you want flush fit */
-}
 
-nav a.button,
-aside a.button {
-  display: block;       /* full width block */
-  width: 100%;          /* fill parent */
-  margin: 0;            /* kill margins */
-  border-radius: 0;     /* no rounded corners unless wanted */
-  border-left: none;    /* flush to edge */
-  border-right: none;
-}
+		nav,
+		aside {
+			padding: 0;
+			/* remove padding */
+			margin: 0;
+			/* remove margin */
+			border: none;
+			/* remove border if you want flush fit */
+		}
+
+		nav a.button,
+		aside a.button {
+			display: block;
+			/* full width block */
+			width: 100%;
+			/* fill parent */
+			margin: 0;
+			/* kill margins */
+			border-radius: 0;
+			/* no rounded corners unless wanted */
+			border-left: none;
+			/* flush to edge */
+			border-right: none;
+		}
 
 		/* Mobile layout */
 		@media (max-width: 768px) {
@@ -232,15 +240,15 @@ aside a.button {
 </head>
 
 <body>
-<?php include "./images/icons.svg"; ?>
+	<?php include "./images/icons.svg"; ?>
 	<header>
 		<div class="actions">
 			<a href="javascript:void(0);" class="button" onclick="togglePanel('#tool-links')" title="Toggle Tools">
-			<svg class="icon icon-lg">
+				<svg class="icon icon-lg">
 					<use href="#i-grid"></use>
 				</svg>
 			</a>
-			<a href="/" class="button"  title="Home">
+			<a href="/" class="button" title="Home">
 				<img src="images/ewe_hat.svg" width="48" height="48" alt="GNU EWE logo" loading="lazy" decoding="async">
 			</a>
 		</div>
@@ -289,73 +297,61 @@ aside a.button {
 				</svg>
 				MiniSVC - SVG Icon Paths</a>
 		</nav>
-		<aside id="tag-links" >
-		<section class="md-wrap" aria-label="Project Navigation" data-base="./docs">
-  <div data-role="tree"></div>
+		<aside id="tag-links">
+			<section class="md-wrap" aria-label="Project Navigation" data-base="./docs">
+				<div data-role="tree"></div>
 
-  <script>
-  (function() {
-      const root = document.currentScript.closest('.md-wrap');
-      const treeContainer = root.querySelector('[data-role="tree"]');
-
-      // Hardcoded fallback array (replace with PHP include or fetch if needed)
-      const fallbackIndex = <?php include './scan.php'; ?>;
-
-      async function loadDocs() {
-          let docsIndex = fallbackIndex;
-
-          // Group by project
-          const grouped = docsIndex.reduce((acc, item) => {
-              const key = item.project || 'unknown';
-              if (!acc[key]) acc[key] = [];
-              acc[key].push(item);
-              return acc;
-          }, {});
-
-          // Build the HTML tree using +variable+ style
-          for (const project in grouped) {
-              const items = grouped[project];
-
-              // Header div
-              const headerHTML = "<div class='project-header button'>" +
-                                 "<svg class='icon icon-md'><use href='#i-book'></use></svg>" +
-                                 "<span>" + project + "</span>" +
-                                 "</div>";
-
-              // Child links container
-              let linksHTML = "<div class='project-links' style='display:none; width:100%;'>";
-              items.forEach(item => {
-                  linksHTML += "<a href='" + item.src + "' class='button' style='display:block; width:100%; margin:0;'>" +
-                               "<svg class='icon icon-md'><use href='#i-md'></use></svg>" +
-                               "<span>" + item.title + "</span>" +
-                               "</a>";
-              });
-              linksHTML += "</div>";
-
-              // Combine header + links
-              const wrapperHTML = "<div class='project-wrapper'>" + headerHTML + linksHTML + "</div>";
-
-              // Append to tree container
-              const wrapperEl = document.createElement('div');
-              wrapperEl.innerHTML = wrapperHTML;
-
-              // Attach toggle behavior to header
-              const headerEl = wrapperEl.querySelector('.project-header');
-              const linksEl = wrapperEl.querySelector('.project-links');
-              headerEl.addEventListener('click', () => {
-                  linksEl.style.display = linksEl.style.display === 'none' ? 'block' : 'none';
-              });
-
-              treeContainer.appendChild(wrapperEl);
-          }
-      }
-
-      loadDocs();
-  })();
-  </script>
-</section>
+				<script>
+					(function() {
+						const root = document.currentScript.closest('.md-wrap');
+						const treeContainer = root.querySelector('[data-role="tree"]');
+						// Hardcoded fallback array (replace with PHP include or fetch if needed)
+						const fallbackIndex = < ? php include './scan.php'; ? > ;
+						async function loadDocs() {
+							let docsIndex = fallbackIndex;
+							// Group by project
+							const grouped = docsIndex.reduce((acc, item) => {
+								const key = item.project || 'unknown';
+								if (!acc[key]) acc[key] = [];
+								acc[key].push(item);
+								return acc;
+							}, {});
+							// Build the HTML tree using +variable+ style
+							for (const project in grouped) {
+								const items = grouped[project];
+								// Header div
+								const headerHTML = "<div class='project-header button'>" +
+									"<svg class='icon icon-md'><use href='#i-book'></use></svg>" +
+									"<span>" + project + "</span>" +
+									"</div>";
+								// Child links container
+								let linksHTML = "<div class='project-links' style='display:none; width:100%;'>";
+								items.forEach(item => {
+									linksHTML += "<a href='" + item.src + "' class='button' style='display:block; width:100%; margin:0;'>" +
+										"<svg class='icon icon-md'><use href='#i-md'></use></svg>" +
+										"<span>" + item.title + "</span>" +
+										"</a>";
+								});
+								linksHTML += "</div>";
+								// Combine header + links
+								const wrapperHTML = "<div class='project-wrapper'>" + headerHTML + linksHTML + "</div>";
+								// Append to tree container
+								const wrapperEl = document.createElement('div');
+								wrapperEl.innerHTML = wrapperHTML;
+								// Attach toggle behavior to header
+								const headerEl = wrapperEl.querySelector('.project-header');
+								const linksEl = wrapperEl.querySelector('.project-links');
+								headerEl.addEventListener('click', () => {
+									linksEl.style.display = linksEl.style.display === 'none' ? 'block' : 'none';
+								});
+								treeContainer.appendChild(wrapperEl);
+							}
+						}
+						loadDocs();
+					})();
+				</script>
+			</section>
 		</aside>
-
 
 		<main>
 			<?php
@@ -411,8 +407,6 @@ aside a.button {
 			</a>
 		</aside>
 
-
-
 	</div>
 
 	<footer id="site-footer" class="site-footer" role="contentinfo">
@@ -425,50 +419,45 @@ aside a.button {
 			Content is provided "as is" and is for informational purposes only. Use at your own risk.</div>
 	</footer>
 
-
 	<script>
-	// Example: load a markdown doc on page load
+		// Example: load a markdown doc on page load
 		window.addEventListener("DOMContentLoaded", () => {
 			if (typeof loadMarkdownFromURL === 'function') {
 				loadMarkdownFromURL("docs/README.md");
 			}
 		});
-
-	// Or bind links in your nav
-	document.querySelectorAll("nav a[data-md]").forEach(a => {
+		// Or bind links in your nav
+		document.querySelectorAll("nav a[data-md]").forEach(a => {
 			a.addEventListener("click", e => {
-			e.preventDefault();
-			loadMarkdownFromURL(a.getAttribute("href"));
+				e.preventDefault();
+				loadMarkdownFromURL(a.getAttribute("href"));
+			});
 		});
-	});
 	</script>
 
 	<script>
-/* -----------------------------
+		/* -----------------------------
    PANEL TOGGLE
    ----------------------------- */
-function togglePanel(selector) {
-    const el = document.querySelector(selector);
-    if (!el) return;
-    el.hidden = !el.hidden;
-}
-
-/* -----------------------------
-   DARK MODE TOGGLE
-   ----------------------------- */
-(function initDarkMode() {
-    const darkPref = localStorage.getItem("dark-mode");
-    if (darkPref === "true") {
-        document.body.classList.add("dark-mode");
-    }
-
-    window.toggleDarkMode = function() {
-        const isDark = document.body.classList.toggle("dark-mode");
-        localStorage.setItem("dark-mode", isDark ? "true" : "false");
-    };
-})();
-</script>
-
+		function togglePanel(selector) {
+			const el = document.querySelector(selector);
+			if (!el) return;
+			el.hidden = !el.hidden;
+		}
+		/* -----------------------------
+		   DARK MODE TOGGLE
+		   ----------------------------- */
+		(function initDarkMode() {
+			const darkPref = localStorage.getItem("dark-mode");
+			if (darkPref === "true") {
+				document.body.classList.add("dark-mode");
+			}
+			window.toggleDarkMode = function() {
+				const isDark = document.body.classList.toggle("dark-mode");
+				localStorage.setItem("dark-mode", isDark ? "true" : "false");
+			};
+		})();
+	</script>
 
 </body>
 
