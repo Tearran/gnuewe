@@ -326,163 +326,96 @@
 			</a>
 		</aside>
 		<aside id="tag-links">
-			<section id="docs-links"></section>
+			<section id="nav-tree"></section>
 		</aside>
 
+<style>
+  .tree ul {
+    list-style: none;
+    padding-left: 1rem;
+    margin: 0;
+  }
+  .tree li {
+    margin: 0.2rem 0;
+    cursor: pointer;
+  }
+  .toggle {
+    font-weight: bold;
+    margin-right: 0.5rem;
+    cursor: pointer;
+  }
+  .hidden {
+    display: none;
+  }
+</style>
+
 <script>
-	window.docsIndex = { a: <?php include './scan.php'; ?> };
+(async function() {
+  // Fallback data (hardcoded)
+  const fallbackData = [
+    { "title": "Reference", "tags": ["docs","reference"], "src": "?src=docs/reference.md" },
+    { "title": "Home", "tags": ["home","docs"], "src": "?src=docs/README.md" },
+    { "title": "Icons", "tags": ["docs","icons"], "src": "?src=docs/icons.md" },
+    { "title": "Example", "tags": ["docs","example"], "src": "?src=docs/markdown/example.md" }
+  ];
 
-	(function() {
-		function pickSource(item) {
-			if (item && typeof item === 'object') {
-				if (item.src) return {
-					key: 'src',
-					value: String(item.src)
-				};
-				if (item.url) return {
-					key: 'url',
-					value: String(item.url)
-				};
-//				if (item.file) return {
-//					key: 'file',
-//					value: String(item.file)
-//				};
-			}
-			return {
-				key: 'none',
-				value: '#'
-			};
-		}
+  // Load JSON from scan.php or fallback
+  async function loadData() {
+    try {
+//      const response = await fetch("scan.php");
+      const response = await fetch("");
+      if (!response.ok) throw new Error("Network error");
+      return await response.json();
+    } catch (err) {
+      console.warn("Using fallback data:", err.message);
+      return fallbackData;
+    }
+  }
 
-		function isAbsolute(u) {
-			return /^https?:\/\//i.test(u) || /^\/\//.test(u);
-		}
+  const items = await loadData();
 
-		function isLikelyLocalFile(u) {
-			// Examples: ./docs/foo.md, /docs/foo.md, docs/foo.md
-			return !isAbsolute(u) && (/^\.?\.?\/?docs\//i.test(u) || /\.md$/i.test(u));
-		}
+  // Build tag → items map
+  const tagMap = {};
+  for (const item of items) {
+    for (const tag of item.tags || []) {
+      if (!tagMap[tag]) tagMap[tag] = [];
+      tagMap[tag].push(item);
+    }
+  }
 
-		function normalizeGithubToRaw(u) {
-			// Convert https://github.com/owner/repo/blob/branch/path.md → https://raw.githubusercontent.com/owner/repo/branch/path.md
-			// Also handle missing protocol: github.com/owner/...
-			if (/^github\.com\//i.test(u)) u = 'https://' + u;
-			const m = u.match(/^https?:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/i);
-			if (m) {
-				const [, owner, repo, branch, path] = m;
-				return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${path}`;
-			}
-			return u;
-		}
+  // Render tree using HTML-like template strings
+  function renderTree(container, map) {
+    container.classList.add("tree");
 
-		function normalizeHref(item) {
-			const {
-				key,
-				value
-			} = pickSource(item);
-			let href = value.trim();
-//			if (key === 'file') {
-//				// Local file reference (relative or absolute to site)
-//				return href;
-//			}
-			if (key === 'url') {
-				// Absolute URL or protocol-relative → leave as-is
-				return href;
-			}
-			if (key === 'src') {
-				// If it's a local-ish path, treat like file
-				if (isLikelyLocalFile(href)) return href;
-				// If absolute, normalize known repo hosts to raw
-				if (isAbsolute(href)) {
-					if (/github\.com/i.test(href)) return normalizeGithubToRaw(href);
-					if (/gitlab\.com/i.test(href)) return normalizeGitLabToRaw(href);
-					if (/bitbucket\.org/i.test(href)) return normalizeBitbucketToRaw(href);
-					return href; // other hosts: leave
-				}
-				// If src looks like bare github.com path without protocol
-				if (/^github\.com\//i.test(href)) return normalizeGithubToRaw(href);
-				// Otherwise leave as-is
-				return href;
-			}
-			return href || '#';
-		}
+    const html = `
+      <ul>
+        ${Object.keys(map).sort().map(tag => {
+          const children = map[tag].map(child => `<li><a href="${child.src}">${child.title}</a></li>`).join("");
+          return `
+            <li>
+              <span class="toggle">+</span>
+              <span class="label">${tag}</span>
+              <ul class="hidden">${children}</ul>
+            </li>
+          `;
+        }).join("")}
+      </ul>
+    `;
 
-		function toLabel(v) {
-			let s = String(v ?? '').trim();
-			if (!s) return 'Untitled';
-			if (s.startsWith('/')) s = s.split('/').pop() || s;
-			s = s.replace(/\.md$/i, '').replace(/[-_]+/g, ' ').trim();
-			return s ? s[0].toUpperCase() + s.slice(1) : 'Untitled';
-		}
+    container.innerHTML = html;
 
-		function renderDocsLinks(container, items) {
-			if (!container || !Array.isArray(items)) return;
-			container.innerHTML = '';
-			for (const it of items) {
-				const href = normalizeHref(it);
-				const label = toLabel(it?.title || it?.name || href);
-				const row = document.createElement('div');
-				const a = document.createElement('a');
-				a.href = href;
-				a.textContent = label;
-				a.setAttribute('data-md', href);
-				a.className = 'button';
-				// Prefer in-page markdown loader if present
-				a.addEventListener('click', (e) => {
-					const target = a.getAttribute('data-md') || a.getAttribute('href');
-					if (typeof loadMarkdown === 'function') {
-						e.preventDefault();
-						loadMarkdown(target);
-					} else if (typeof loadMarkdownFromURL === 'function') {
-						e.preventDefault();
-						loadMarkdownFromURL(target);
-					}
-				});
-				row.appendChild(a);
-				if (Array.isArray(it?.tags) && it.tags.length) {
-					const tags = document.createElement('span');
-					tags.className = 'tags';
-					tags.hidden = true;
-					tags.textContent = ' • ' + it.tags.join(', ');
-					row.appendChild(tags);
-				}
-				/*
-				if (it?.contributors) {
-					const c = Array.isArray(it.contributors) ? it.contributors.join(', ') : String(it.contributors);
-					const span = document.createElement('span');
-					span.className = 'contributors';
-					span.textContent = ' • ' + c;
-					row.appendChild(span);
-				}
-				*/
-				container.appendChild(row);
-			}
-		}
-		
-		// Auto-render using the data loaded via fetch
-		document.addEventListener('DOMContentLoaded', () => {
-			// Try to get docs from docsIndex.a (which might be populated by fetch already)
-			const items = window.docsIndex?.a || [];
-			renderDocsLinks(document.getElementById('docs-links'), items);
-		});
-		
-		// Expose helper functions globally
-		window.renderDocsLinks = renderDocsLinks;
-		window.normalizeHref = normalizeHref;
-		
-		// Function to reload docs data manually if needed
-		window.reloadDocsData = function() {
-			fetch('scan.php')
-				.then(response => response.json())
-				.then(data => {
-					window.docsIndex.a = data;
-					renderDocsLinks(document.getElementById('docs-links'), data);
-				})
-				.catch(error => {
-					console.error('Error reloading docs data:', error);
-				});
-		};
-	})();
+    // Add toggle behavior
+    container.querySelectorAll(".toggle").forEach(toggle => {
+      toggle.addEventListener("click", () => {
+        const childUl = toggle.parentElement.querySelector("ul");
+        const hidden = childUl.classList.toggle("hidden");
+        toggle.textContent = hidden ? "+" : "-";
+      });
+    });
+  }
+
+  renderTree(document.getElementById("nav-tree"), tagMap);
+})();
 </script>
 
 
