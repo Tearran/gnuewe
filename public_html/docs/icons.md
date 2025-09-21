@@ -1,8 +1,7 @@
 ---
 title: Icons
 tags: 
-  - images
-  - icone
+  - icons
   - site-tools
 ---
 

@@ -130,6 +130,7 @@
 		
 		#tool-links,
 		#sources-links,
+		#tag-links
 		aside ul,
 		nav ul {
 			list-style: none;
@@ -148,6 +149,7 @@
 			padding: 0;
 		}
 
+		.project-header,
 		.container,
 		.page,
 		article {
@@ -193,6 +195,22 @@
 			width: 2em;
 			height: 2em;
 		}
+		nav,
+aside {
+  padding: 0;     /* remove padding */
+  margin: 0;      /* remove margin */
+  border: none;   /* remove border if you want flush fit */
+}
+
+nav a.button,
+aside a.button {
+  display: block;       /* full width block */
+  width: 100%;          /* fill parent */
+  margin: 0;            /* kill margins */
+  border-radius: 0;     /* no rounded corners unless wanted */
+  border-left: none;    /* flush to edge */
+  border-right: none;
+}
 
 		/* Mobile layout */
 		@media (max-width: 768px) {
@@ -271,6 +289,73 @@
 				</svg>
 				MiniSVC - SVG Icon Paths</a>
 		</nav>
+		<aside id="tag-links" >
+		<section class="md-wrap" aria-label="Project Navigation" data-base="./docs">
+  <div data-role="tree"></div>
+
+  <script>
+  (function() {
+      const root = document.currentScript.closest('.md-wrap');
+      const treeContainer = root.querySelector('[data-role="tree"]');
+
+      // Hardcoded fallback array (replace with PHP include or fetch if needed)
+      const fallbackIndex = <?php include './scan.php'; ?>;
+
+      async function loadDocs() {
+          let docsIndex = fallbackIndex;
+
+          // Group by project
+          const grouped = docsIndex.reduce((acc, item) => {
+              const key = item.project || 'unknown';
+              if (!acc[key]) acc[key] = [];
+              acc[key].push(item);
+              return acc;
+          }, {});
+
+          // Build the HTML tree using +variable+ style
+          for (const project in grouped) {
+              const items = grouped[project];
+
+              // Header div
+              const headerHTML = "<div class='project-header button'>" +
+                                 "<svg class='icon icon-md'><use href='#i-book'></use></svg>" +
+                                 "<span>" + project + "</span>" +
+                                 "</div>";
+
+              // Child links container
+              let linksHTML = "<div class='project-links' style='display:none; width:100%;'>";
+              items.forEach(item => {
+                  linksHTML += "<a href='" + item.src + "' class='button' style='display:block; width:100%; margin:0;'>" +
+                               "<svg class='icon icon-md'><use href='#i-md'></use></svg>" +
+                               "<span>" + item.title + "</span>" +
+                               "</a>";
+              });
+              linksHTML += "</div>";
+
+              // Combine header + links
+              const wrapperHTML = "<div class='project-wrapper'>" + headerHTML + linksHTML + "</div>";
+
+              // Append to tree container
+              const wrapperEl = document.createElement('div');
+              wrapperEl.innerHTML = wrapperHTML;
+
+              // Attach toggle behavior to header
+              const headerEl = wrapperEl.querySelector('.project-header');
+              const linksEl = wrapperEl.querySelector('.project-links');
+              headerEl.addEventListener('click', () => {
+                  linksEl.style.display = linksEl.style.display === 'none' ? 'block' : 'none';
+              });
+
+              treeContainer.appendChild(wrapperEl);
+          }
+      }
+
+      loadDocs();
+  })();
+  </script>
+</section>
+		</aside>
+
 
 		<main>
 			<?php
@@ -325,165 +410,7 @@
 				<span>CodePen</span>
 			</a>
 		</aside>
-		<aside id="tag-links">
-			<section id="docs-links"></section>
-		</aside>
 
-<script>
-	window.docsIndex = { a: <?php include './scan.php'; ?> };
-
-	(function() {
-		function pickSource(item) {
-			if (item && typeof item === 'object') {
-				if (item.src) return {
-					key: 'src',
-					value: String(item.src)
-				};
-				if (item.url) return {
-					key: 'url',
-					value: String(item.url)
-				};
-//				if (item.file) return {
-//					key: 'file',
-//					value: String(item.file)
-//				};
-			}
-			return {
-				key: 'none',
-				value: '#'
-			};
-		}
-
-		function isAbsolute(u) {
-			return /^https?:\/\//i.test(u) || /^\/\//.test(u);
-		}
-
-		function isLikelyLocalFile(u) {
-			// Examples: ./docs/foo.md, /docs/foo.md, docs/foo.md
-			return !isAbsolute(u) && (/^\.?\.?\/?docs\//i.test(u) || /\.md$/i.test(u));
-		}
-
-		function normalizeGithubToRaw(u) {
-			// Convert https://github.com/owner/repo/blob/branch/path.md → https://raw.githubusercontent.com/owner/repo/branch/path.md
-			// Also handle missing protocol: github.com/owner/...
-			if (/^github\.com\//i.test(u)) u = 'https://' + u;
-			const m = u.match(/^https?:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/i);
-			if (m) {
-				const [, owner, repo, branch, path] = m;
-				return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${path}`;
-			}
-			return u;
-		}
-
-		function normalizeHref(item) {
-			const {
-				key,
-				value
-			} = pickSource(item);
-			let href = value.trim();
-//			if (key === 'file') {
-//				// Local file reference (relative or absolute to site)
-//				return href;
-//			}
-			if (key === 'url') {
-				// Absolute URL or protocol-relative → leave as-is
-				return href;
-			}
-			if (key === 'src') {
-				// If it's a local-ish path, treat like file
-				if (isLikelyLocalFile(href)) return href;
-				// If absolute, normalize known repo hosts to raw
-				if (isAbsolute(href)) {
-					if (/github\.com/i.test(href)) return normalizeGithubToRaw(href);
-					if (/gitlab\.com/i.test(href)) return normalizeGitLabToRaw(href);
-					if (/bitbucket\.org/i.test(href)) return normalizeBitbucketToRaw(href);
-					return href; // other hosts: leave
-				}
-				// If src looks like bare github.com path without protocol
-				if (/^github\.com\//i.test(href)) return normalizeGithubToRaw(href);
-				// Otherwise leave as-is
-				return href;
-			}
-			return href || '#';
-		}
-
-		function toLabel(v) {
-			let s = String(v ?? '').trim();
-			if (!s) return 'Untitled';
-			if (s.startsWith('/')) s = s.split('/').pop() || s;
-			s = s.replace(/\.md$/i, '').replace(/[-_]+/g, ' ').trim();
-			return s ? s[0].toUpperCase() + s.slice(1) : 'Untitled';
-		}
-
-		function renderDocsLinks(container, items) {
-			if (!container || !Array.isArray(items)) return;
-			container.innerHTML = '';
-			for (const it of items) {
-				const href = normalizeHref(it);
-				const label = toLabel(it?.title || it?.name || href);
-				const row = document.createElement('div');
-				const a = document.createElement('a');
-				a.href = href;
-				a.textContent = label;
-				a.setAttribute('data-md', href);
-				a.className = 'button';
-				// Prefer in-page markdown loader if present
-				a.addEventListener('click', (e) => {
-					const target = a.getAttribute('data-md') || a.getAttribute('href');
-					if (typeof loadMarkdown === 'function') {
-						e.preventDefault();
-						loadMarkdown(target);
-					} else if (typeof loadMarkdownFromURL === 'function') {
-						e.preventDefault();
-						loadMarkdownFromURL(target);
-					}
-				});
-				row.appendChild(a);
-				if (Array.isArray(it?.tags) && it.tags.length) {
-					const tags = document.createElement('span');
-					tags.className = 'tags';
-					tags.hidden = true;
-					tags.textContent = ' • ' + it.tags.join(', ');
-					row.appendChild(tags);
-				}
-				/*
-				if (it?.contributors) {
-					const c = Array.isArray(it.contributors) ? it.contributors.join(', ') : String(it.contributors);
-					const span = document.createElement('span');
-					span.className = 'contributors';
-					span.textContent = ' • ' + c;
-					row.appendChild(span);
-				}
-				*/
-				container.appendChild(row);
-			}
-		}
-		
-		// Auto-render using the data loaded via fetch
-		document.addEventListener('DOMContentLoaded', () => {
-			// Try to get docs from docsIndex.a (which might be populated by fetch already)
-			const items = window.docsIndex?.a || [];
-			renderDocsLinks(document.getElementById('docs-links'), items);
-		});
-		
-		// Expose helper functions globally
-		window.renderDocsLinks = renderDocsLinks;
-		window.normalizeHref = normalizeHref;
-		
-		// Function to reload docs data manually if needed
-		window.reloadDocsData = function() {
-			fetch('scan.php')
-				.then(response => response.json())
-				.then(data => {
-					window.docsIndex.a = data;
-					renderDocsLinks(document.getElementById('docs-links'), data);
-				})
-				.catch(error => {
-					console.error('Error reloading docs data:', error);
-				});
-		};
-	})();
-</script>
 
 
 	</div>

@@ -40,10 +40,22 @@ foreach ($rii as $file) {
         $relPath = str_replace('\\', '/', $relPath); // for Windows paths
         $relPath = '/docs/' . ltrim($relPath, '/');       // URL-friendly
 
+    
+        $subPath = str_replace($baseDir . '/', '', $file->getPathname()); // e.g., "markdown/example.md" or "README.md"
+        $parts = explode('/', str_replace('\\', '/', $subPath));
+        
+        if (count($parts) > 1) {
+            $project = $parts[0]; // first subfolder
+        } else {
+            $project = 'gnuewe-portal'; // default project name for top-level docs
+        }
+            
+
         // --- Generic output ---
         $entry = $meta;
         $entry['url'] = $relPath;  // keep original url format
         $entry['src'] = '?src=' . ltrim($relPath, '/');  // add new src parameter format
+        $entry['project'] = $project;
         $output[] = $entry;
     }
 }
