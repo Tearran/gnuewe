@@ -309,16 +309,7 @@
 		}
 		?>
 		</main>
-		<!-- Optional sidebar -->
-		<aside id="tag-links" hidden>
-<!-- Filter input -->
-<input id="tag-filter" type="text" placeholder="Filter by tag or keyword" autocomplete="off"
-        style="margin:1rem 0; padding:0.5rem; width:calc(100% - 2rem);" />
 
-<!-- Navigation list -->
-<ul id="nav-list" style="list-style:none; padding:0; display:flex; flex-wrap:wrap; gap:0.5rem;"></ul>
-
-		</aside>
 		<aside id="sources-links" hidden>
 			<a href="https://github.com/Tearran/gnuewe" class="button" target="_blank" rel="noopener">
 				<svg class="icon icon-lg">
@@ -334,6 +325,195 @@
 				<span>CodePen</span>
 			</a>
 		</aside>
+		<aside id="tag-links" hidden>
+			<section id="docs-links"></section>
+		</aside>
+<!-- Inline data (example). Replace or remove if you set window.docsIndex elsewhere. -->
+<script>
+	window.docsIndex = [{
+			"title": "Icons",
+			"tags": ["images", "icon", "site-tools"],
+			"src": "?src=docs/icons.md"
+		},
+		{
+			"title": "Reference",
+			"tags": ["links", "reference"],
+			"src": "?src=docs/reference.md"
+		},
+		{
+			"title": "Home",
+			"tags": ["home", "docs", "viewer", "markdown", "php", "html"],
+			"src": "?src=docs/README.md"
+		},
+		{
+			"title": "Example",
+			"contributors": ["@Tearran", "@coderabbitai" ],
+			"tags": ["docs", "viewer", "markdown", "example"],
+			"src": "?src=docs/markdown/example.md"
+		}
+	];
+</script>
+
+<script>
+	/* Readable, branchy logic:
+   - Prefer src, then url, then file
+   - file: local/relative markdown paths like ./docs/.. or /docs/.. (leave as-is)
+   - url: absolute http(s) or protocol-relative // (leave as-is)
+   - src: may be a repo URL (e.g., github blob) → convert to raw view; else leave
+*/
+	(function() {
+		function pickSource(item) {
+			if (item && typeof item === 'object') {
+				if (item.src) return {
+					key: 'src',
+					value: String(item.src)
+				};
+				if (item.url) return {
+					key: 'url',
+					value: String(item.url)
+				};
+				if (item.file) return {
+					key: 'file',
+					value: String(item.file)
+				};
+			}
+			return {
+				key: 'none',
+				value: '#'
+			};
+		}
+
+		function isAbsolute(u) {
+			return /^https?:\/\//i.test(u) || /^\/\//.test(u);
+		}
+
+		function isLikelyLocalFile(u) {
+			// Examples: ./docs/foo.md, /docs/foo.md, docs/foo.md
+			return !isAbsolute(u) && (/^\.?\.?\/?docs\//i.test(u) || /\.md$/i.test(u));
+		}
+
+		function normalizeGithubToRaw(u) {
+			// Convert https://github.com/owner/repo/blob/branch/path.md → https://raw.githubusercontent.com/owner/repo/branch/path.md
+			// Also handle missing protocol: github.com/owner/...
+			if (/^github\.com\//i.test(u)) u = 'https://' + u;
+			const m = u.match(/^https?:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/i);
+			if (m) {
+				const [, owner, repo, branch, path] = m;
+				return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${path}`;
+			}
+			return u;
+		}
+
+		function normalizeGitLabToRaw(u) {
+			// Convert https://gitlab.com/group/proj/-/blob/branch/path.md → https://gitlab.com/group/proj/-/raw/branch/path.md
+			const m = u.match(/^https?:\/\/gitlab\.com\/(.+?)\/-\/blob\/([^\/]+)\/(.+)$/i);
+			if (m) {
+				const [, proj, branch, path] = m;
+				return `https://gitlab.com/${proj}/-/raw/${branch}/${path}`;
+			}
+			return u;
+		}
+
+		function normalizeBitbucketToRaw(u) {
+			// Convert https://bitbucket.org/workspace/repo/src/branch/path.md → add ?raw=1 (simple approach)
+			const m = u.match(/^https?:\/\/bitbucket\.org\/[^\/]+\/[^\/]+\/src\/[^\/]+\/.+$/i);
+			if (m && !/[?&]raw=1(?:&|$)/.test(u)) {
+				return u + (u.includes('?') ? '&' : '?') + 'raw=1';
+			}
+			return u;
+		}
+
+		function normalizeHref(item) {
+			const {
+				key,
+				value
+			} = pickSource(item);
+			let href = value.trim();
+			if (key === 'file') {
+				// Local file reference (relative or absolute to site)
+				return href;
+			}
+			if (key === 'url') {
+				// Absolute URL or protocol-relative → leave as-is
+				return href;
+			}
+			if (key === 'src') {
+				// If it's a local-ish path, treat like file
+				if (isLikelyLocalFile(href)) return href;
+				// If absolute, normalize known repo hosts to raw
+				if (isAbsolute(href)) {
+					if (/github\.com/i.test(href)) return normalizeGithubToRaw(href);
+					if (/gitlab\.com/i.test(href)) return normalizeGitLabToRaw(href);
+					if (/bitbucket\.org/i.test(href)) return normalizeBitbucketToRaw(href);
+					return href; // other hosts: leave
+				}
+				// If src looks like bare github.com path without protocol
+				if (/^github\.com\//i.test(href)) return normalizeGithubToRaw(href);
+				// Otherwise leave as-is
+				return href;
+			}
+			return href || '#';
+		}
+
+		function toLabel(v) {
+			let s = String(v ?? '').trim();
+			if (!s) return 'Untitled';
+			if (s.startsWith('/')) s = s.split('/').pop() || s;
+			s = s.replace(/\.md$/i, '').replace(/[-_]+/g, ' ').trim();
+			return s ? s[0].toUpperCase() + s.slice(1) : 'Untitled';
+		}
+
+		function renderDocsLinks(container, items) {
+			if (!container || !Array.isArray(items)) return;
+			container.innerHTML = '';
+			for (const it of items) {
+				const href = normalizeHref(it);
+				const label = toLabel(it?.title || it?.name || href);
+				const row = document.createElement('div');
+				const a = document.createElement('a');
+				a.href = href;
+				a.textContent = label;
+				a.setAttribute('data-md', href);
+				// Prefer in-page markdown loader if present
+				a.addEventListener('click', (e) => {
+					const target = a.getAttribute('data-md') || a.getAttribute('href');
+					if (typeof loadMarkdown === 'function') {
+						e.preventDefault();
+						loadMarkdown(target);
+					} else if (typeof loadMarkdownFromURL === 'function') {
+						e.preventDefault();
+						loadMarkdownFromURL(target);
+					}
+				});
+				row.appendChild(a);
+				if (Array.isArray(it?.tags) && it.tags.length) {
+					const tags = document.createElement('span');
+					tags.className = 'tags';
+					tags.textContent = ' • ' + it.tags.join(', ');
+					row.appendChild(tags);
+				}
+				if (it?.contributors) {
+					const c = Array.isArray(it.contributors) ? it.contributors.join(', ') : String(it.contributors);
+					const span = document.createElement('span');
+					span.className = 'contributors';
+					span.textContent = ' • ' + c;
+					row.appendChild(span);
+				}
+				container.appendChild(row);
+			}
+		}
+		// Auto-render using inline or pre-set global
+		document.addEventListener('DOMContentLoaded', () => {
+			const items = window.docsIndex || window.DOCS_INDEX || [];
+			renderDocsLinks(document.getElementById('docs-links'), items);
+		});
+		// Expose helpers if you want to reuse elsewhere
+		window.renderDocsLinks = renderDocsLinks;
+		window.normalizeHref = normalizeHref;
+	})();
+</script>
+
+
 	</div>
 
 	<footer id="site-footer" class="site-footer" role="contentinfo">
@@ -345,22 +525,25 @@
 			All trademarks are the property of their respective owners. All rights reserved.
 			Content is provided "as is" and is for informational purposes only. Use at your own risk.</div>
 	</footer>
-	<script>
-  // Example: load a markdown doc on page load
-	window.addEventListener("DOMContentLoaded", () => {
-		if (typeof loadMarkdownFromURL === 'function') {
-		l	oadMarkdownFromURL("docs/README.md");
-		}
-	});
 
-  // Or bind links in your nav
-  document.querySelectorAll("nav a[data-md]").forEach(a => {
-    a.addEventListener("click", e => {
-      e.preventDefault();
-      loadMarkdownFromURL(a.getAttribute("href"));
-    });
-  });
-</script>
+
+	<script>
+	// Example: load a markdown doc on page load
+		window.addEventListener("DOMContentLoaded", () => {
+			if (typeof loadMarkdownFromURL === 'function') {
+				loadMarkdownFromURL("docs/README.md");
+			}
+		});
+
+	// Or bind links in your nav
+	document.querySelectorAll("nav a[data-md]").forEach(a => {
+			a.addEventListener("click", e => {
+			e.preventDefault();
+			loadMarkdownFromURL(a.getAttribute("href"));
+		});
+	});
+	</script>
+
 	<script>
 /* -----------------------------
    PANEL TOGGLE
