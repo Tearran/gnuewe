@@ -130,6 +130,7 @@
 		
 		#tool-links,
 		#sources-links,
+		#tag-links
 		aside ul,
 		nav ul {
 			list-style: none;
@@ -148,6 +149,7 @@
 			padding: 0;
 		}
 
+		.project-header,
 		.container,
 		.page,
 		article {
@@ -193,6 +195,22 @@
 			width: 2em;
 			height: 2em;
 		}
+		nav,
+aside {
+  padding: 0;     /* remove padding */
+  margin: 0;      /* remove margin */
+  border: none;   /* remove border if you want flush fit */
+}
+
+nav a.button,
+aside a.button {
+  display: block;       /* full width block */
+  width: 100%;          /* fill parent */
+  margin: 0;            /* kill margins */
+  border-radius: 0;     /* no rounded corners unless wanted */
+  border-left: none;    /* flush to edge */
+  border-right: none;
+}
 
 		/* Mobile layout */
 		@media (max-width: 768px) {
@@ -271,6 +289,73 @@
 				</svg>
 				MiniSVC - SVG Icon Paths</a>
 		</nav>
+		<aside id="tag-links" >
+		<section class="md-wrap" aria-label="Project Navigation" data-base="./docs">
+  <div data-role="tree"></div>
+
+  <script>
+  (function() {
+      const root = document.currentScript.closest('.md-wrap');
+      const treeContainer = root.querySelector('[data-role="tree"]');
+
+      // Hardcoded fallback array (replace with PHP include or fetch if needed)
+      const fallbackIndex = <?php include './scan.php'; ?>;
+
+      async function loadDocs() {
+          let docsIndex = fallbackIndex;
+
+          // Group by project
+          const grouped = docsIndex.reduce((acc, item) => {
+              const key = item.project || 'unknown';
+              if (!acc[key]) acc[key] = [];
+              acc[key].push(item);
+              return acc;
+          }, {});
+
+          // Build the HTML tree using +variable+ style
+          for (const project in grouped) {
+              const items = grouped[project];
+
+              // Header div
+              const headerHTML = "<div class='project-header button'>" +
+                                 "<svg class='icon icon-md'><use href='#i-book'></use></svg>" +
+                                 "<span>" + project + "</span>" +
+                                 "</div>";
+
+              // Child links container
+              let linksHTML = "<div class='project-links' style='display:none; width:100%;'>";
+              items.forEach(item => {
+                  linksHTML += "<a href='" + item.src + "' class='button' style='display:block; width:100%; margin:0;'>" +
+                               "<svg class='icon icon-md'><use href='#i-md'></use></svg>" +
+                               "<span>" + item.title + "</span>" +
+                               "</a>";
+              });
+              linksHTML += "</div>";
+
+              // Combine header + links
+              const wrapperHTML = "<div class='project-wrapper'>" + headerHTML + linksHTML + "</div>";
+
+              // Append to tree container
+              const wrapperEl = document.createElement('div');
+              wrapperEl.innerHTML = wrapperHTML;
+
+              // Attach toggle behavior to header
+              const headerEl = wrapperEl.querySelector('.project-header');
+              const linksEl = wrapperEl.querySelector('.project-links');
+              headerEl.addEventListener('click', () => {
+                  linksEl.style.display = linksEl.style.display === 'none' ? 'block' : 'none';
+              });
+
+              treeContainer.appendChild(wrapperEl);
+          }
+      }
+
+      loadDocs();
+  })();
+  </script>
+</section>
+		</aside>
+
 
 		<main>
 			<?php
@@ -325,98 +410,7 @@
 				<span>CodePen</span>
 			</a>
 		</aside>
-		<aside id="tag-links">
-			<section id="nav-tree"></section>
-		</aside>
 
-<style>
-  .tree ul {
-    list-style: none;
-    padding-left: 1rem;
-    margin: 0;
-  }
-  .tree li {
-    margin: 0.2rem 0;
-    cursor: pointer;
-  }
-  .toggle {
-    font-weight: bold;
-    margin-right: 0.5rem;
-    cursor: pointer;
-  }
-  .hidden {
-    display: none;
-  }
-</style>
-
-<script>
-(async function() {
-  // Fallback data (hardcoded)
-  const fallbackData = [
-    { "title": "Reference", "tags": ["docs","reference"], "src": "?src=docs/reference.md" },
-    { "title": "Home", "tags": ["home","docs"], "src": "?src=docs/README.md" },
-    { "title": "Icons", "tags": ["docs","icons"], "src": "?src=docs/icons.md" },
-    { "title": "Example", "tags": ["docs","example"], "src": "?src=docs/markdown/example.md" }
-  ];
-
-  // Load JSON from scan.php or fallback
-  async function loadData() {
-    try {
-//      const response = await fetch("scan.php");
-      const response = await fetch("");
-      if (!response.ok) throw new Error("Network error");
-      return await response.json();
-    } catch (err) {
-      console.warn("Using fallback data:", err.message);
-      return fallbackData;
-    }
-  }
-
-  const items = await loadData();
-
-  // Build tag → items map
-  const tagMap = {};
-  for (const item of items) {
-    for (const tag of item.tags || []) {
-      if (!tagMap[tag]) tagMap[tag] = [];
-      tagMap[tag].push(item);
-    }
-  }
-
-  // Render tree using HTML-like template strings
-  function renderTree(container, map) {
-    container.classList.add("tree");
-
-    const html = `
-      <ul>
-        ${Object.keys(map).sort().map(tag => {
-          const children = map[tag].map(child => `<li><a href="${child.src}">${child.title}</a></li>`).join("");
-          return `
-            <li>
-              <span class="toggle">+</span>
-              <span class="label">${tag}</span>
-              <ul class="hidden">${children}</ul>
-            </li>
-          `;
-        }).join("")}
-      </ul>
-    `;
-
-    container.innerHTML = html;
-
-    // Add toggle behavior
-    container.querySelectorAll(".toggle").forEach(toggle => {
-      toggle.addEventListener("click", () => {
-        const childUl = toggle.parentElement.querySelector("ul");
-        const hidden = childUl.classList.toggle("hidden");
-        toggle.textContent = hidden ? "+" : "-";
-      });
-    });
-  }
-
-  renderTree(document.getElementById("nav-tree"), tagMap);
-})();
-</script>
 
 
 	</div>
