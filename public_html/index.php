@@ -325,42 +325,13 @@
 				<span>CodePen</span>
 			</a>
 		</aside>
-		<aside id="tag-links" hidden>
+		<aside id="tag-links">
 			<section id="docs-links"></section>
 		</aside>
-<!-- Inline data (example). Replace or remove if you set window.docsIndex elsewhere. -->
-<script>
-	window.docsIndex = [{
-			"title": "Icons",
-			"tags": ["images", "icon", "site-tools"],
-			"src": "?src=docs/icons.md"
-		},
-		{
-			"title": "Reference",
-			"tags": ["links", "reference"],
-			"src": "?src=docs/reference.md"
-		},
-		{
-			"title": "Home",
-			"tags": ["home", "docs", "viewer", "markdown", "php", "html"],
-			"src": "?src=docs/README.md"
-		},
-		{
-			"title": "Example",
-			"contributors": ["@Tearran", "@coderabbitai" ],
-			"tags": ["docs", "viewer", "markdown", "example"],
-			"src": "?src=docs/markdown/example.md"
-		}
-	];
-</script>
 
 <script>
-	/* Readable, branchy logic:
-   - Prefer src, then url, then file
-   - file: local/relative markdown paths like ./docs/.. or /docs/.. (leave as-is)
-   - url: absolute http(s) or protocol-relative // (leave as-is)
-   - src: may be a repo URL (e.g., github blob) → convert to raw view; else leave
-*/
+	window.docsIndex = { a: <?php include './scan.php'; ?> };
+
 	(function() {
 		function pickSource(item) {
 			if (item && typeof item === 'object') {
@@ -372,10 +343,10 @@
 					key: 'url',
 					value: String(item.url)
 				};
-				if (item.file) return {
-					key: 'file',
-					value: String(item.file)
-				};
+//				if (item.file) return {
+//					key: 'file',
+//					value: String(item.file)
+//				};
 			}
 			return {
 				key: 'none',
@@ -404,35 +375,16 @@
 			return u;
 		}
 
-		function normalizeGitLabToRaw(u) {
-			// Convert https://gitlab.com/group/proj/-/blob/branch/path.md → https://gitlab.com/group/proj/-/raw/branch/path.md
-			const m = u.match(/^https?:\/\/gitlab\.com\/(.+?)\/-\/blob\/([^\/]+)\/(.+)$/i);
-			if (m) {
-				const [, proj, branch, path] = m;
-				return `https://gitlab.com/${proj}/-/raw/${branch}/${path}`;
-			}
-			return u;
-		}
-
-		function normalizeBitbucketToRaw(u) {
-			// Convert https://bitbucket.org/workspace/repo/src/branch/path.md → add ?raw=1 (simple approach)
-			const m = u.match(/^https?:\/\/bitbucket\.org\/[^\/]+\/[^\/]+\/src\/[^\/]+\/.+$/i);
-			if (m && !/[?&]raw=1(?:&|$)/.test(u)) {
-				return u + (u.includes('?') ? '&' : '?') + 'raw=1';
-			}
-			return u;
-		}
-
 		function normalizeHref(item) {
 			const {
 				key,
 				value
 			} = pickSource(item);
 			let href = value.trim();
-			if (key === 'file') {
-				// Local file reference (relative or absolute to site)
-				return href;
-			}
+//			if (key === 'file') {
+//				// Local file reference (relative or absolute to site)
+//				return href;
+//			}
 			if (key === 'url') {
 				// Absolute URL or protocol-relative → leave as-is
 				return href;
@@ -474,6 +426,7 @@
 				a.href = href;
 				a.textContent = label;
 				a.setAttribute('data-md', href);
+				a.className = 'button';
 				// Prefer in-page markdown loader if present
 				a.addEventListener('click', (e) => {
 					const target = a.getAttribute('data-md') || a.getAttribute('href');
@@ -489,9 +442,11 @@
 				if (Array.isArray(it?.tags) && it.tags.length) {
 					const tags = document.createElement('span');
 					tags.className = 'tags';
+					tags.hidden = true;
 					tags.textContent = ' • ' + it.tags.join(', ');
 					row.appendChild(tags);
 				}
+				/*
 				if (it?.contributors) {
 					const c = Array.isArray(it.contributors) ? it.contributors.join(', ') : String(it.contributors);
 					const span = document.createElement('span');
@@ -499,17 +454,34 @@
 					span.textContent = ' • ' + c;
 					row.appendChild(span);
 				}
+				*/
 				container.appendChild(row);
 			}
 		}
-		// Auto-render using inline or pre-set global
+		
+		// Auto-render using the data loaded via fetch
 		document.addEventListener('DOMContentLoaded', () => {
-			const items = window.docsIndex || window.DOCS_INDEX || [];
+			// Try to get docs from docsIndex.a (which might be populated by fetch already)
+			const items = window.docsIndex?.a || [];
 			renderDocsLinks(document.getElementById('docs-links'), items);
 		});
-		// Expose helpers if you want to reuse elsewhere
+		
+		// Expose helper functions globally
 		window.renderDocsLinks = renderDocsLinks;
 		window.normalizeHref = normalizeHref;
+		
+		// Function to reload docs data manually if needed
+		window.reloadDocsData = function() {
+			fetch('scan.php')
+				.then(response => response.json())
+				.then(data => {
+					window.docsIndex.a = data;
+					renderDocsLinks(document.getElementById('docs-links'), data);
+				})
+				.catch(error => {
+					console.error('Error reloading docs data:', error);
+				});
+		};
 	})();
 </script>
 

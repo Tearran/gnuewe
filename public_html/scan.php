@@ -42,7 +42,8 @@ foreach ($rii as $file) {
 
         // --- Generic output ---
         $entry = $meta;
-        $entry['url'] = $relPath;  // use 'url' instead of 'file'
+        $entry['url'] = $relPath;  // keep original url format
+        $entry['src'] = '?src=' . ltrim($relPath, '/');  // add new src parameter format
         $output[] = $entry;
     }
 }
