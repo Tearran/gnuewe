@@ -309,16 +309,7 @@
 		}
 		?>
 		</main>
-		<!-- Optional sidebar -->
-		<aside id="tag-links" hidden>
-<!-- Filter input -->
-<input id="tag-filter" type="text" placeholder="Filter by tag or keyword" autocomplete="off"
-        style="margin:1rem 0; padding:0.5rem; width:calc(100% - 2rem);" />
 
-<!-- Navigation list -->
-<ul id="nav-list" style="list-style:none; padding:0; display:flex; flex-wrap:wrap; gap:0.5rem;"></ul>
-
-		</aside>
 		<aside id="sources-links" hidden>
 			<a href="https://github.com/Tearran/gnuewe" class="button" target="_blank" rel="noopener">
 				<svg class="icon icon-lg">
@@ -334,6 +325,167 @@
 				<span>CodePen</span>
 			</a>
 		</aside>
+		<aside id="tag-links">
+			<section id="docs-links"></section>
+		</aside>
+
+<script>
+	window.docsIndex = { a: <?php include './scan.php'; ?> };
+
+	(function() {
+		function pickSource(item) {
+			if (item && typeof item === 'object') {
+				if (item.src) return {
+					key: 'src',
+					value: String(item.src)
+				};
+				if (item.url) return {
+					key: 'url',
+					value: String(item.url)
+				};
+//				if (item.file) return {
+//					key: 'file',
+//					value: String(item.file)
+//				};
+			}
+			return {
+				key: 'none',
+				value: '#'
+			};
+		}
+
+		function isAbsolute(u) {
+			return /^https?:\/\//i.test(u) || /^\/\//.test(u);
+		}
+
+		function isLikelyLocalFile(u) {
+			// Examples: ./docs/foo.md, /docs/foo.md, docs/foo.md
+			return !isAbsolute(u) && (/^\.?\.?\/?docs\//i.test(u) || /\.md$/i.test(u));
+		}
+
+		function normalizeGithubToRaw(u) {
+			// Convert https://github.com/owner/repo/blob/branch/path.md → https://raw.githubusercontent.com/owner/repo/branch/path.md
+			// Also handle missing protocol: github.com/owner/...
+			if (/^github\.com\//i.test(u)) u = 'https://' + u;
+			const m = u.match(/^https?:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/i);
+			if (m) {
+				const [, owner, repo, branch, path] = m;
+				return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${path}`;
+			}
+			return u;
+		}
+
+		function normalizeHref(item) {
+			const {
+				key,
+				value
+			} = pickSource(item);
+			let href = value.trim();
+//			if (key === 'file') {
+//				// Local file reference (relative or absolute to site)
+//				return href;
+//			}
+			if (key === 'url') {
+				// Absolute URL or protocol-relative → leave as-is
+				return href;
+			}
+			if (key === 'src') {
+				// If it's a local-ish path, treat like file
+				if (isLikelyLocalFile(href)) return href;
+				// If absolute, normalize known repo hosts to raw
+				if (isAbsolute(href)) {
+					if (/github\.com/i.test(href)) return normalizeGithubToRaw(href);
+					if (/gitlab\.com/i.test(href)) return normalizeGitLabToRaw(href);
+					if (/bitbucket\.org/i.test(href)) return normalizeBitbucketToRaw(href);
+					return href; // other hosts: leave
+				}
+				// If src looks like bare github.com path without protocol
+				if (/^github\.com\//i.test(href)) return normalizeGithubToRaw(href);
+				// Otherwise leave as-is
+				return href;
+			}
+			return href || '#';
+		}
+
+		function toLabel(v) {
+			let s = String(v ?? '').trim();
+			if (!s) return 'Untitled';
+			if (s.startsWith('/')) s = s.split('/').pop() || s;
+			s = s.replace(/\.md$/i, '').replace(/[-_]+/g, ' ').trim();
+			return s ? s[0].toUpperCase() + s.slice(1) : 'Untitled';
+		}
+
+		function renderDocsLinks(container, items) {
+			if (!container || !Array.isArray(items)) return;
+			container.innerHTML = '';
+			for (const it of items) {
+				const href = normalizeHref(it);
+				const label = toLabel(it?.title || it?.name || href);
+				const row = document.createElement('div');
+				const a = document.createElement('a');
+				a.href = href;
+				a.textContent = label;
+				a.setAttribute('data-md', href);
+				a.className = 'button';
+				// Prefer in-page markdown loader if present
+				a.addEventListener('click', (e) => {
+					const target = a.getAttribute('data-md') || a.getAttribute('href');
+					if (typeof loadMarkdown === 'function') {
+						e.preventDefault();
+						loadMarkdown(target);
+					} else if (typeof loadMarkdownFromURL === 'function') {
+						e.preventDefault();
+						loadMarkdownFromURL(target);
+					}
+				});
+				row.appendChild(a);
+				if (Array.isArray(it?.tags) && it.tags.length) {
+					const tags = document.createElement('span');
+					tags.className = 'tags';
+					tags.hidden = true;
+					tags.textContent = ' • ' + it.tags.join(', ');
+					row.appendChild(tags);
+				}
+				/*
+				if (it?.contributors) {
+					const c = Array.isArray(it.contributors) ? it.contributors.join(', ') : String(it.contributors);
+					const span = document.createElement('span');
+					span.className = 'contributors';
+					span.textContent = ' • ' + c;
+					row.appendChild(span);
+				}
+				*/
+				container.appendChild(row);
+			}
+		}
+		
+		// Auto-render using the data loaded via fetch
+		document.addEventListener('DOMContentLoaded', () => {
+			// Try to get docs from docsIndex.a (which might be populated by fetch already)
+			const items = window.docsIndex?.a || [];
+			renderDocsLinks(document.getElementById('docs-links'), items);
+		});
+		
+		// Expose helper functions globally
+		window.renderDocsLinks = renderDocsLinks;
+		window.normalizeHref = normalizeHref;
+		
+		// Function to reload docs data manually if needed
+		window.reloadDocsData = function() {
+			fetch('scan.php')
+				.then(response => response.json())
+				.then(data => {
+					window.docsIndex.a = data;
+					renderDocsLinks(document.getElementById('docs-links'), data);
+				})
+				.catch(error => {
+					console.error('Error reloading docs data:', error);
+				});
+		};
+	})();
+</script>
+
+
 	</div>
 
 	<footer id="site-footer" class="site-footer" role="contentinfo">
@@ -345,22 +497,25 @@
 			All trademarks are the property of their respective owners. All rights reserved.
 			Content is provided "as is" and is for informational purposes only. Use at your own risk.</div>
 	</footer>
-	<script>
-  // Example: load a markdown doc on page load
-	window.addEventListener("DOMContentLoaded", () => {
-		if (typeof loadMarkdownFromURL === 'function') {
-		l	oadMarkdownFromURL("docs/README.md");
-		}
-	});
 
-  // Or bind links in your nav
-  document.querySelectorAll("nav a[data-md]").forEach(a => {
-    a.addEventListener("click", e => {
-      e.preventDefault();
-      loadMarkdownFromURL(a.getAttribute("href"));
-    });
-  });
-</script>
+
+	<script>
+	// Example: load a markdown doc on page load
+		window.addEventListener("DOMContentLoaded", () => {
+			if (typeof loadMarkdownFromURL === 'function') {
+				loadMarkdownFromURL("docs/README.md");
+			}
+		});
+
+	// Or bind links in your nav
+	document.querySelectorAll("nav a[data-md]").forEach(a => {
+			a.addEventListener("click", e => {
+			e.preventDefault();
+			loadMarkdownFromURL(a.getAttribute("href"));
+		});
+	});
+	</script>
+
 	<script>
 /* -----------------------------
    PANEL TOGGLE

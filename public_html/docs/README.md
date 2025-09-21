@@ -22,4 +22,4 @@ It turned into a drop-in **Markdown document viewer** for GNUEWE projects.
 
 ⚡ Not a finished tool — just an experiment to explore workflows between humans, AI, and open source projects.
 
-<img src="images/ewe_hat.svg" width="256" height="256" alt="GNU EWE logo" loading="lazy" decoding="async">
+<img src="../images/ewe_hat.svg" width="256" height="256" alt="GNU EWE logo" loading="lazy" decoding="async">
